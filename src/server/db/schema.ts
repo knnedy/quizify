@@ -597,6 +597,7 @@ export type AdminQuestion = Question & {
 };
 
 // Quiz types
+// Quiz types
 type QuizAuthor = {
   name: string;
   image: string | null;
@@ -620,7 +621,7 @@ export type PublicQuizOverview = QuizOverview & {
 export type PublicQuizDetail = Quiz & {
   category: QuizCategory;
   tags: Tag[];
-  questions: PublicQuestion[];
+  questions: number;
   user: QuizAuthor | null;
   isBookmarked: boolean;
   avgRating: number | null;
