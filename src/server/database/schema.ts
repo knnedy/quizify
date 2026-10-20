@@ -63,7 +63,7 @@ export const achievementType = pgEnum("achievement_type", [
 ]);
 
 // Auth tables
-export const users = pgTable("user", {
+export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -92,7 +92,7 @@ export const users = pgTable("user", {
     .notNull(),
 });
 
-export const sessions = pgTable("session", {
+export const sessions = pgTable("sessions", {
   id: serial("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
@@ -105,7 +105,7 @@ export const sessions = pgTable("session", {
     .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
 });
 
-export const accounts = pgTable("account", {
+export const accounts = pgTable("accounts", {
   id: serial("id").primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
@@ -123,7 +123,7 @@ export const accounts = pgTable("account", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const verifications = pgTable("verification", {
+export const verifications = pgTable("verifications", {
   id: serial("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
@@ -133,23 +133,22 @@ export const verifications = pgTable("verification", {
 });
 
 // Categories and tags
-export const categories = pgTable("category", {
+export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   slug: text("slug").notNull().unique(),
   icon: text("icon"),
 });
 
-export const tags = pgTable("tag", {
+export const tags = pgTable("tags", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   slug: text("slug").notNull().unique(),
 });
 
 // Quizzes
-// Quizzes
 export const quizzes = pgTable(
-  "quiz",
+  "quizzes",
   {
     id: serial("id").primaryKey(),
     userId: integer("user_id").references(() => users.id, {
@@ -185,21 +184,21 @@ export const quizzes = pgTable(
   },
   (t) => [
     check(
-      "quiz_time_limit_positive",
+      "quizzes_time_limit_positive",
       sql`${t.timeLimitSeconds} is null or ${t.timeLimitSeconds} > 0`,
     ),
     check(
-      "quiz_max_attempts_positive",
+      "quizzes_max_attempts_positive",
       sql`${t.maxAttempts} is null or ${t.maxAttempts} > 0`,
     ),
-    index("quiz_browse_idx").on(t.status, t.visibility, t.createdAt),
-    index("quiz_category_idx").on(t.categoryId),
-    index("quiz_user_idx").on(t.userId),
+    index("quizzes_browse_idx").on(t.status, t.visibility, t.createdAt),
+    index("quizzes_category_idx").on(t.categoryId),
+    index("quizzes_user_idx").on(t.userId),
   ],
 );
 
 export const quizTags = pgTable(
-  "quiz_tag",
+  "quiz_tags",
   {
     quizId: integer("quiz_id")
       .notNull()
@@ -216,7 +215,7 @@ export const quizTags = pgTable(
 
 // Questions and options
 export const questions = pgTable(
-  "question",
+  "questions",
   {
     id: serial("id").primaryKey(),
     quizId: integer("quiz_id")
@@ -239,11 +238,11 @@ export const questions = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (t) => [index("question_quiz_position_idx").on(t.quizId, t.position)],
+  (t) => [index("questions_quiz_position_idx").on(t.quizId, t.position)],
 );
 
 export const questionOptions = pgTable(
-  "question_option",
+  "question_options",
   {
     id: serial("id").primaryKey(),
     questionId: integer("question_id")
@@ -256,12 +255,12 @@ export const questionOptions = pgTable(
     isCorrect: boolean("is_correct").notNull().default(false),
     position: integer("position").notNull(),
   },
-  (t) => [index("question_option_question_idx").on(t.questionId)],
+  (t) => [index("question_options_question_idx").on(t.questionId)],
 );
 
 // Attempts
 export const quizAttempts = pgTable(
-  "quiz_attempt",
+  "quiz_attempts",
   {
     id: serial("id").primaryKey(),
     quizId: integer("quiz_id")
@@ -289,13 +288,13 @@ export const quizAttempts = pgTable(
       .notNull(),
   },
   (t) => [
-    index("attempt_user_created_idx").on(t.userId, t.createdAt),
-    index("attempt_leaderboard_idx").on(t.quizId, t.score, t.timeTaken),
+    index("quiz_attempts_user_created_idx").on(t.userId, t.createdAt),
+    index("quiz_attempts_leaderboard_idx").on(t.quizId, t.score, t.timeTaken),
   ],
 );
 
 export const attemptAnswers = pgTable(
-  "attempt_answer",
+  "attempt_answers",
   {
     attemptId: integer("attempt_id")
       .notNull()
@@ -318,7 +317,7 @@ export const attemptAnswers = pgTable(
 
 // Bookmarks and ratings
 export const quizBookmarks = pgTable(
-  "quiz_bookmark",
+  "quiz_bookmarks",
   {
     quizId: integer("quiz_id")
       .notNull()
@@ -337,7 +336,7 @@ export const quizBookmarks = pgTable(
 );
 
 export const quizRatings = pgTable(
-  "quiz_rating",
+  "quiz_ratings",
   {
     quizId: integer("quiz_id")
       .notNull()
@@ -359,13 +358,13 @@ export const quizRatings = pgTable(
   },
   (t) => [
     primaryKey({ columns: [t.userId, t.quizId] }),
-    check("quiz_rating_range", sql`${t.rating} between 1 and 5`),
+    check("quiz_ratings_range", sql`${t.rating} between 1 and 5`),
   ],
 );
 
 // XP ledger
 export const xpEvents = pgTable(
-  "xp_event",
+  "xp_events",
   {
     id: serial("id").primaryKey(),
     userId: integer("user_id")
@@ -378,11 +377,11 @@ export const xpEvents = pgTable(
       .defaultNow()
       .notNull(),
   },
-  (t) => [index("xp_event_user_created_idx").on(t.userId, t.createdAt)],
+  (t) => [index("xp_events_user_created_idx").on(t.userId, t.createdAt)],
 );
 
 // Achievements
-export const achievements = pgTable("achievement", {
+export const achievements = pgTable("achievements", {
   id: serial("id").primaryKey(),
   key: text("key").notNull().unique(),
   type: achievementType("type").notNull(),
@@ -402,7 +401,7 @@ export const achievements = pgTable("achievement", {
 });
 
 export const userAchievements = pgTable(
-  "user_achievement",
+  "user_achievements",
   {
     userId: integer("user_id")
       .notNull()
