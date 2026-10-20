@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState } from "react";
-import { signUp } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,7 @@ export default function SignUp() {
   });
 
   async function onSignUpSubmit(data: SignUpFormValues) {
-    await signUp.email({
+    await authClient.signUp.email({
       name: data.name,
       email: data.email,
       password: data.password,

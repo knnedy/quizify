@@ -16,7 +16,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { signIn } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -39,7 +39,7 @@ export default function SignIn() {
   });
 
   async function onSignInSubmit(data: SignInFormValues) {
-    await signIn.email(
+    await authClient.signIn.email(
       {
         email: data.email,
         password: data.password,
@@ -61,7 +61,7 @@ export default function SignIn() {
           toast.success("Sign in successful");
           router.push("/dashboard");
         },
-      }
+      },
     );
   }
   return (
