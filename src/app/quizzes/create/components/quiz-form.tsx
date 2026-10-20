@@ -59,7 +59,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Session } from "@/lib/auth";
+import { Session } from "@/server/auth";
 import { cn } from "@/lib/utils";
 import {
   categories,

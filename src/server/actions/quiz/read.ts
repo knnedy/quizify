@@ -6,7 +6,7 @@ import {
   PublicQuizDetail,
   PublicQuizOverview,
 } from "@/server/database/schema";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { QuizActionError } from "@/server/utils/error";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/server/database/queries/quiz/select";
 
 export const getOwnerQuizzes = async (
-  userId?: string
+  userId?: string,
 ): Promise<OwnerQuizOverview[]> => {
   try {
     const session = await auth.api.getSession({
@@ -28,7 +28,7 @@ export const getOwnerQuizzes = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getOwnerQuizzes"
+        "getOwnerQuizzes",
       );
     }
 
@@ -36,7 +36,7 @@ export const getOwnerQuizzes = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getOwnerQuizzes"
+        "getOwnerQuizzes",
       );
     }
 
@@ -54,13 +54,13 @@ export const getOwnerQuizzes = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch quizzes",
-      "getOwnerQuizzes"
+      "getOwnerQuizzes",
     );
   }
 };
 
 export const getPublicQuizzes = async (
-  userId?: string
+  userId?: string,
 ): Promise<PublicQuizOverview[]> => {
   try {
     const session = await auth.api.getSession({
@@ -71,7 +71,7 @@ export const getPublicQuizzes = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getPublicQuizzes"
+        "getPublicQuizzes",
       );
     }
 
@@ -79,7 +79,7 @@ export const getPublicQuizzes = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getPublicQuizzes"
+        "getPublicQuizzes",
       );
     }
 
@@ -96,14 +96,14 @@ export const getPublicQuizzes = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch quizzes",
-      "getPublicQuizzes"
+      "getPublicQuizzes",
     );
   }
 };
 
 export const getOwnerQuiz = async (
   quizId: number,
-  userId?: string
+  userId?: string,
 ): Promise<OwnerQuizDetail> => {
   try {
     const session = await auth.api.getSession({
@@ -114,7 +114,7 @@ export const getOwnerQuiz = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getOwnerQuiz"
+        "getOwnerQuiz",
       );
     }
 
@@ -122,7 +122,7 @@ export const getOwnerQuiz = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getOwnerQuiz"
+        "getOwnerQuiz",
       );
     }
 
@@ -130,7 +130,7 @@ export const getOwnerQuiz = async (
       throw new QuizActionError(
         "VALIDATION_ERROR", // Better error type for invalid input
         "Invalid quiz ID",
-        "getOwnerQuiz"
+        "getOwnerQuiz",
       );
     }
 
@@ -153,14 +153,14 @@ export const getOwnerQuiz = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch quiz",
-      "getOwnerQuiz"
+      "getOwnerQuiz",
     );
   }
 };
 
 export async function getPublicQuiz(
   quizId: number,
-  userId?: string
+  userId?: string,
 ): Promise<PublicQuizDetail> {
   try {
     const session = await auth.api.getSession({
@@ -171,7 +171,7 @@ export async function getPublicQuiz(
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getPublicQuiz"
+        "getPublicQuiz",
       );
     }
 
@@ -179,7 +179,7 @@ export async function getPublicQuiz(
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getPublicQuiz"
+        "getPublicQuiz",
       );
     }
 
@@ -187,7 +187,7 @@ export async function getPublicQuiz(
       throw new QuizActionError(
         "VALIDATION_ERROR",
         "Invalid quiz ID",
-        "getPublicQuiz"
+        "getPublicQuiz",
       );
     }
 
@@ -210,7 +210,7 @@ export async function getPublicQuiz(
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch quiz",
-      "getPublicQuiz"
+      "getPublicQuiz",
     );
   }
 }

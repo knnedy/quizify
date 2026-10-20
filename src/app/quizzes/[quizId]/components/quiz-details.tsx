@@ -47,7 +47,7 @@ import {
   QuizAttempt,
   QuizDifficulty,
 } from "@/server/database/schema";
-import { Session } from "@/lib/auth";
+import { Session } from "@/server/auth";
 import { formatSecondsToMinutes } from "@/lib/format-time";
 
 type LeaderboardEntry = QuizAttempt & {
@@ -117,7 +117,7 @@ export default function QuizDetailsPage({
               current.timeTaken < best.timeTaken)
               ? current
               : best,
-          userAttempts[0]
+          userAttempts[0],
         )
       : null;
 
@@ -142,7 +142,7 @@ export default function QuizDetailsPage({
                 <Badge
                   className={cn(
                     "px-2 py-1 text-xs",
-                    getDifficultyColor(quiz.difficulty)
+                    getDifficultyColor(quiz.difficulty),
                   )}>
                   {quiz.difficulty}
                 </Badge>
@@ -269,7 +269,7 @@ export default function QuizDetailsPage({
                           quiz.isTimeLimited && quiz.timeLimit
                             ? Math.min(
                                 100,
-                                (bestAttempt.timeTaken / quiz.timeLimit) * 100
+                                (bestAttempt.timeTaken / quiz.timeLimit) * 100,
                               )
                             : 100
                         }%`,
@@ -278,7 +278,7 @@ export default function QuizDetailsPage({
                   <p className="text-xs text-right mt-1 text-muted-foreground">
                     {quiz.isTimeLimited && quiz.timeLimit
                       ? `${Math.round(
-                          (bestAttempt.timeTaken / quiz.timeLimit) * 100
+                          (bestAttempt.timeTaken / quiz.timeLimit) * 100,
                         )}% of limit`
                       : "No limit"}
                   </p>
@@ -297,7 +297,7 @@ export default function QuizDetailsPage({
                       style={{
                         width: `${Math.min(
                           100,
-                          (bestAttempt.xpEarned / 150) * 100
+                          (bestAttempt.xpEarned / 150) * 100,
                         )}%`,
                       }}></div>
                   </div>
@@ -395,8 +395,8 @@ export default function QuizDetailsPage({
                           {quiz.difficulty === "BEGINNER"
                             ? "0"
                             : quiz.difficulty === "INTERMEDIATE"
-                            ? "25"
-                            : "50"}{" "}
+                              ? "25"
+                              : "50"}{" "}
                           XP
                         </li>
                       </ul>
@@ -569,7 +569,7 @@ export default function QuizDetailsPage({
                               : "",
                             entry.rank <= 3
                               ? "bg-amber-50/30 dark:bg-amber-950/10"
-                              : ""
+                              : "",
                           )}>
                           <TableCell>
                             {entry.rank <= 3 ? (
@@ -601,7 +601,7 @@ export default function QuizDetailsPage({
                                     : "",
                                   session?.user.name === entry.user.name
                                     ? "text-primary"
-                                    : ""
+                                    : "",
                                 )}>
                                 {entry.user.name}
                                 {session?.user.name === entry.user.name &&

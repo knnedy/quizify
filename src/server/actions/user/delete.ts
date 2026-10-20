@@ -1,12 +1,12 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { deleteUserById } from "@/server/database/queries/user/delete";
 import { UserActionError } from "@/server/utils/error";
 import { headers } from "next/headers";
 
 export const deleteUserAccount = async (
-  userId: string
+  userId: string,
 ): Promise<{ success: boolean }> => {
   try {
     const session = await auth.api.getSession({
@@ -17,7 +17,7 @@ export const deleteUserAccount = async (
       throw new UserActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "deleteUserAccount"
+        "deleteUserAccount",
       );
     }
 
@@ -25,7 +25,7 @@ export const deleteUserAccount = async (
       throw new UserActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "deleteUserAccount"
+        "deleteUserAccount",
       );
     }
 
@@ -42,7 +42,7 @@ export const deleteUserAccount = async (
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to delete user account. Please try again later.",
-      "deleteUserAccount"
+      "deleteUserAccount",
     );
   }
 };

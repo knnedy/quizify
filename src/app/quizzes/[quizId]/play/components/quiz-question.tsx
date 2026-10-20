@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { submitQuizAttempt } from "@/server/actions/quiz/attempt";
 import { toast } from "sonner";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { Session } from "@/lib/auth";
+import { Session } from "@/server/auth";
 import { tryCatch } from "@/lib/try-catch";
 
 interface QuizState {
@@ -58,7 +58,7 @@ const createQuizReducer =
           ...state,
           currentQuestion: Math.min(
             state.currentQuestion + 1,
-            state.answers.length - 1
+            state.answers.length - 1,
           ),
         };
       case "PREVIOUS_QUESTION":
@@ -107,7 +107,7 @@ export default function QuizQuestion({ quiz, session }: QuizQuestionProps) {
 
   const handleFinish = useCallback(() => {
     const validAnswers = state.answers.filter(
-      (answer): answer is number => answer !== null
+      (answer): answer is number => answer !== null,
     );
 
     startTransition(async () => {
@@ -116,8 +116,8 @@ export default function QuizQuestion({ quiz, session }: QuizQuestionProps) {
           quiz.id,
           validAnswers,
           state.timeLeft,
-          session.user.id
-        )
+          session.user.id,
+        ),
       );
 
       if (submitQuizError) {
@@ -218,18 +218,18 @@ export default function QuizQuestion({ quiz, session }: QuizQuestionProps) {
                   "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors w-fit",
                   isTimeRunningLow
                     ? "bg-red-500/10 animate-pulse"
-                    : "bg-primary/10"
+                    : "bg-primary/10",
                 )}>
                 <Clock
                   className={cn(
                     "w-4 h-4",
-                    isTimeRunningLow ? "text-red-500" : "text-primary"
+                    isTimeRunningLow ? "text-red-500" : "text-primary",
                   )}
                 />
                 <span
                   className={cn(
                     "font-medium",
-                    isTimeRunningLow ? "text-red-500" : "text-primary"
+                    isTimeRunningLow ? "text-red-500" : "text-primary",
                   )}>
                   {formatTime(state.timeLeft)}
                 </span>
@@ -249,7 +249,7 @@ export default function QuizQuestion({ quiz, session }: QuizQuestionProps) {
                       "flex items-center space-x-3 rounded-lg border p-3 transition-colors cursor-pointer",
                       currentAnswer === index
                         ? "border-primary bg-primary/5"
-                        : "hover:border-primary/50"
+                        : "hover:border-primary/50",
                     )}
                     onClick={() => handleAnswerSelect(index)}>
                     <div className="flex items-center gap-2 sm:gap-4 w-full">
@@ -258,7 +258,7 @@ export default function QuizQuestion({ quiz, session }: QuizQuestionProps) {
                           "flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center text-xs",
                           currentAnswer === index
                             ? "border-primary"
-                            : "border-muted-foreground"
+                            : "border-muted-foreground",
                         )}>
                         {String.fromCharCode(65 + index)}
                       </span>
@@ -286,7 +286,7 @@ export default function QuizQuestion({ quiz, session }: QuizQuestionProps) {
               disabled={currentAnswer === null || isPending}
               className={cn(
                 "flex-1",
-                isPending && "opacity-80 cursor-not-allowed"
+                isPending && "opacity-80 cursor-not-allowed",
               )}>
               {state.currentQuestion < quiz.questions.length - 1 ? (
                 <>

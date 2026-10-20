@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import QuizForm from "./components/quiz-form";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 
 export default async function CreateQuizPage() {

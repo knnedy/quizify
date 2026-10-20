@@ -3,7 +3,7 @@ import GeneralSettings from "./general-settings";
 import ProfileSettings from "./profile-settings";
 import NotificationSettings from "./notification-settings";
 import { User } from "@/server/database/schema";
-import { Session } from "@/lib/auth";
+import { Session } from "@/server/auth";
 
 export default function SettingsForm({
   user,

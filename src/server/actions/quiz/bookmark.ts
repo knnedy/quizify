@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { QuizActionError } from "@/server/utils/error";
 import { headers } from "next/headers";
 import { selectBookmarkedQuizzes } from "@/server/database/queries/bookmarks/select";
@@ -8,7 +8,7 @@ import { toggleQuizBookmarkQuery } from "@/server/database/queries/bookmarks/upd
 import { PublicQuizOverview } from "@/server/database/schema";
 
 export async function getUserBookmarkedQuizzes(
-  userId?: string
+  userId?: string,
 ): Promise<PublicQuizOverview[]> {
   try {
     const session = await auth.api.getSession({
@@ -19,7 +19,7 @@ export async function getUserBookmarkedQuizzes(
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getUserBookmarkedQuizzes"
+        "getUserBookmarkedQuizzes",
       );
     }
 
@@ -27,7 +27,7 @@ export async function getUserBookmarkedQuizzes(
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getUserBookmarkedQuizzes"
+        "getUserBookmarkedQuizzes",
       );
     }
 
@@ -42,13 +42,13 @@ export async function getUserBookmarkedQuizzes(
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch user quiz bookmarks",
-      "getUserBookmarkedQuizzes"
+      "getUserBookmarkedQuizzes",
     );
   }
 }
 
 export async function toggleQuizBookmark(
-  quizId: number
+  quizId: number,
 ): Promise<{ isBookmarked: boolean }> {
   try {
     const session = await auth.api.getSession({
@@ -59,7 +59,7 @@ export async function toggleQuizBookmark(
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "toggleQuizBookmark"
+        "toggleQuizBookmark",
       );
     }
 
@@ -74,7 +74,7 @@ export async function toggleQuizBookmark(
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to toggle quiz bookmark",
-      "toggleQuizBookmark"
+      "toggleQuizBookmark",
     );
   }
 }

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { UserActionError } from "@/server/utils/error";
 import { CategoryPerformance, WeeklyProgress } from "@/lib/types";
 import { headers } from "next/headers";
@@ -10,7 +10,7 @@ import {
 } from "@/server/database/queries/attempts/select";
 
 export async function getWeeklyProgress(
-  userId?: string
+  userId?: string,
 ): Promise<WeeklyProgress[]> {
   try {
     const session = await auth.api.getSession({
@@ -21,7 +21,7 @@ export async function getWeeklyProgress(
       throw new UserActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getWeeklyProgress"
+        "getWeeklyProgress",
       );
     }
 
@@ -29,7 +29,7 @@ export async function getWeeklyProgress(
       throw new UserActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getWeeklyProgress"
+        "getWeeklyProgress",
       );
     }
 
@@ -47,13 +47,13 @@ export async function getWeeklyProgress(
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to fetch weekly progress",
-      "getWeeklyProgress"
+      "getWeeklyProgress",
     );
   }
 }
 
 export async function getCategoryPerformance(
-  userId?: string
+  userId?: string,
 ): Promise<CategoryPerformance[]> {
   try {
     const session = await auth.api.getSession({
@@ -64,7 +64,7 @@ export async function getCategoryPerformance(
       throw new UserActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getCategoryPerformance"
+        "getCategoryPerformance",
       );
     }
 
@@ -72,7 +72,7 @@ export async function getCategoryPerformance(
       throw new UserActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getCategoryPerformance"
+        "getCategoryPerformance",
       );
     }
 
@@ -89,7 +89,7 @@ export async function getCategoryPerformance(
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to fetch category performance",
-      "getCategoryPerformance"
+      "getCategoryPerformance",
     );
   }
 }

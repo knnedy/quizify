@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import DashboardContent from "./components/dashboard-content";
 import { getUserStats } from "@/server/actions/user/stats";
@@ -20,14 +20,14 @@ export default async function DashboardPage() {
   }
 
   const { data: userStats, error: userStatsError } = await tryCatch(
-    getUserStats(session.user.id)
+    getUserStats(session.user.id),
   );
   if (userStatsError) {
     throw new Error(userStatsError.message);
   }
 
   const { data: recentQuizzes, error: recentQuizzesError } = await tryCatch(
-    getRecentQuizAttempts(session.user.id, 3)
+    getRecentQuizAttempts(session.user.id, 3),
   );
   if (recentQuizzesError) {
     throw new Error(recentQuizzesError.message);
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
   }
 
   const { data: weeklyProgress, error: weeklyProgressError } = await tryCatch(
-    getWeeklyProgress(session.user.id)
+    getWeeklyProgress(session.user.id),
   );
   if (weeklyProgressError) {
     throw new Error(weeklyProgressError.message);

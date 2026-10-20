@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { QuizActionError } from "@/server/utils/error";
 import { checkUserExists } from "@/server/database/queries/user/select";
@@ -12,7 +12,7 @@ import { selectTopRatedQuizzes } from "@/server/database/queries/ratings/select"
 export const getTopRatedQuizzes = async (
   userId?: string,
   limit: number = 10,
-  minRatings: number = 1
+  minRatings: number = 1,
 ): Promise<PublicQuizOverview[]> => {
   try {
     const session = await auth.api.getSession({
@@ -23,7 +23,7 @@ export const getTopRatedQuizzes = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "submitQuizRating"
+        "submitQuizRating",
       );
     }
 
@@ -31,14 +31,14 @@ export const getTopRatedQuizzes = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "submitQuizRating"
+        "submitQuizRating",
       );
     }
 
     const quizzes = await selectTopRatedQuizzes(
       parseInt(userId),
       limit,
-      minRatings
+      minRatings,
     );
 
     return quizzes;
@@ -47,7 +47,7 @@ export const getTopRatedQuizzes = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to retrieve top-rated quizzes. Please try again later.",
-      "getTopRatedQuizzes"
+      "getTopRatedQuizzes",
     );
   }
 };
@@ -55,7 +55,7 @@ export const getTopRatedQuizzes = async (
 export const submitQuizRating = async (
   quizId: number,
   rating: number,
-  userId?: string
+  userId?: string,
 ): Promise<{ success: boolean }> => {
   try {
     const session = await auth.api.getSession({
@@ -66,7 +66,7 @@ export const submitQuizRating = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "submitQuizRating"
+        "submitQuizRating",
       );
     }
 
@@ -74,7 +74,7 @@ export const submitQuizRating = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "submitQuizRating"
+        "submitQuizRating",
       );
     }
 
@@ -83,7 +83,7 @@ export const submitQuizRating = async (
       throw new QuizActionError(
         "VALIDATION_ERROR",
         "Rating must be between 1 and 5",
-        "submitQuizRating"
+        "submitQuizRating",
       );
     }
 
@@ -93,7 +93,7 @@ export const submitQuizRating = async (
       throw new QuizActionError(
         "NOT_FOUND",
         "User not found",
-        "submitQuizRating"
+        "submitQuizRating",
       );
     }
 
@@ -103,7 +103,7 @@ export const submitQuizRating = async (
       throw new QuizActionError(
         "NOT_FOUND",
         "Quiz not found",
-        "submitQuizRating"
+        "submitQuizRating",
       );
     }
 
@@ -119,7 +119,7 @@ export const submitQuizRating = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to submit quiz rating. Please try again later.",
-      "submitQuizRating"
+      "submitQuizRating",
     );
   }
 };

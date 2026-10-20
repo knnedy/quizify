@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { QuizFormValues } from "@/lib/quiz-form-schema";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { updateUserStreak } from "../user/streak";
 import { QuizActionError } from "@/server/utils/error";
@@ -12,7 +12,7 @@ import { updateQuizById } from "@/server/database/queries/quiz/update";
 export const updateQuiz = async (
   quiz: QuizFormValues,
   quizId: number,
-  userId?: string
+  userId?: string,
 ): Promise<{ quizId: number }> => {
   try {
     const session = await auth.api.getSession({
@@ -23,7 +23,7 @@ export const updateQuiz = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "updateQuiz"
+        "updateQuiz",
       );
     }
 
@@ -31,7 +31,7 @@ export const updateQuiz = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "updateQuiz"
+        "updateQuiz",
       );
     }
 
@@ -43,20 +43,20 @@ export const updateQuiz = async (
       throw new QuizActionError(
         "NOT_FOUND",
         "Quiz not found or you do not have permission to update it",
-        "updateQuiz"
+        "updateQuiz",
       );
     }
 
     // Update user streak
     const { error: streakError } = await tryCatch(
-      updateUserStreak(parseInt(userId))
+      updateUserStreak(parseInt(userId)),
     );
 
     if (streakError) {
       throw new QuizActionError(
         "DATABASE_ERROR",
         streakError.message,
-        "createQuiz"
+        "createQuiz",
       );
     }
 
@@ -78,7 +78,7 @@ export const updateQuiz = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to update quiz. Please try again later.",
-      "updateQuiz"
+      "updateQuiz",
     );
   }
 };

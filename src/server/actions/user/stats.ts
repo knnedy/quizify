@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { resetStreak } from "./streak";
 import { UserActionError } from "@/server/utils/error";
@@ -20,7 +20,7 @@ export async function getUserStats(userId?: string): Promise<UserStats> {
       throw new UserActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getUserStats"
+        "getUserStats",
       );
     }
 
@@ -28,7 +28,7 @@ export async function getUserStats(userId?: string): Promise<UserStats> {
       throw new UserActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getUserStats"
+        "getUserStats",
       );
     }
 
@@ -64,7 +64,7 @@ export async function getUserStats(userId?: string): Promise<UserStats> {
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to fetch user statistics",
-      "getUserStats"
+      "getUserStats",
     );
   }
 }

@@ -1,6 +1,6 @@
 import { tryCatch } from "@/lib/try-catch";
 import QuizQuestion from "./components/quiz-question";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { getPublicQuiz } from "@/server/actions/quiz/read";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -23,7 +23,7 @@ export default async function PlayQuizPage({ params }: Props) {
   const { quizId } = await params;
 
   const { data: quiz, error: quizError } = await tryCatch(
-    getPublicQuiz(parseInt(quizId), session.user.id)
+    getPublicQuiz(parseInt(quizId), session.user.id),
   );
   if (quizError) {
     throw new Error(quizError.message);

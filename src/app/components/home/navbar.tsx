@@ -23,7 +23,7 @@ import { Menu } from "lucide-react";
 import { PersonIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import type { Session } from "@/lib/auth";
+import type { Session } from "@/server/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";

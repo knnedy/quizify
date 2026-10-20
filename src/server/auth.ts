@@ -1,4 +1,5 @@
-import db from "@/server/database";
+import "server-only";
+import db from "./database";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -14,11 +15,6 @@ export const auth = betterAuth({
   advanced: {
     database: {
       generateId: false,
-    },
-  },
-  user: {
-    deleteUser: {
-      enabled: true,
     },
   },
   plugins: [nextCookies()],

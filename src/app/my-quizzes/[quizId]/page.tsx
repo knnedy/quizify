@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import QuizPreviewContent from "./components/preview-content";
 import { getOwnerQuiz } from "@/server/actions/quiz/read";
@@ -23,7 +23,7 @@ export default async function QuizPreviewPage({ params }: Props) {
   const { quizId } = await params;
 
   const { data: quiz, error: quizError } = await tryCatch(
-    getOwnerQuiz(parseInt(quizId), session.user.id)
+    getOwnerQuiz(parseInt(quizId), session.user.id),
   );
   if (quizError) {
     throw new Error(quizError.message);

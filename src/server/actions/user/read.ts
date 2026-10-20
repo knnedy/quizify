@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { selectUserById } from "@/server/database/queries/user/select";
 import { UserActionError } from "@/server/utils/error";
 import { headers } from "next/headers";
@@ -15,7 +15,7 @@ export const getUserById = async (userId?: string) => {
       throw new UserActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getUserById"
+        "getUserById",
       );
     }
 
@@ -23,7 +23,7 @@ export const getUserById = async (userId?: string) => {
       throw new UserActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getUserById"
+        "getUserById",
       );
     }
 
@@ -43,7 +43,7 @@ export const getUserById = async (userId?: string) => {
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to fetch quizzes",
-      "getUserById"
+      "getUserById",
     );
   }
 };

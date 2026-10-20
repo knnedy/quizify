@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import Navbar from "./components/home/navbar";
 import HeroSection from "./components/home/hero-section";

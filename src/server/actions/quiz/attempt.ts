@@ -3,7 +3,7 @@
 import db from "@/server/database";
 import { QuizAttempt, users } from "@/server/database/schema";
 import { eq } from "drizzle-orm";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { calculateXP } from "@/server/utils/xp";
 import { updateUserXP } from "../user/xp";
@@ -23,7 +23,7 @@ export const submitQuizAttempt = async (
   quizId: number,
   answers: number[],
   timeLeft: number,
-  userId?: string
+  userId?: string,
 ): Promise<{ success: boolean }> => {
   try {
     const session = await auth.api.getSession({
@@ -34,7 +34,7 @@ export const submitQuizAttempt = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "submitQuizAttempt"
+        "submitQuizAttempt",
       );
     }
 
@@ -42,7 +42,7 @@ export const submitQuizAttempt = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "submitQuizAttempt"
+        "submitQuizAttempt",
       );
     }
 
@@ -54,7 +54,7 @@ export const submitQuizAttempt = async (
       throw new QuizActionError(
         "NOT_FOUND",
         "User not found",
-        "submitQuizAttempt"
+        "submitQuizAttempt",
       );
     }
 
@@ -64,7 +64,7 @@ export const submitQuizAttempt = async (
       throw new QuizActionError(
         "NOT_FOUND",
         "Quiz not found",
-        "submitQuizAttempt"
+        "submitQuizAttempt",
       );
     }
 
@@ -79,7 +79,7 @@ export const submitQuizAttempt = async (
     }, 0);
 
     const correctAnswers = quiz.questions.filter(
-      (q, idx) => q.correctAnswer === answers[idx]
+      (q, idx) => q.correctAnswer === answers[idx],
     ).length;
     const scorePercentage = (correctAnswers / quiz.questions.length) * 100;
     const timeTaken = quiz.timeLimit ? quiz.timeLimit * 60 - timeLeft : 0;
@@ -105,24 +105,24 @@ export const submitQuizAttempt = async (
     });
 
     const { error: xpError } = await tryCatch(
-      updateUserXP(parseInt(userId), xpEarnedPoints)
+      updateUserXP(parseInt(userId), xpEarnedPoints),
     );
     if (xpError) {
       throw new QuizActionError(
         "DATABASE_ERROR",
         xpError.message,
-        "submitQuizAttempt"
+        "submitQuizAttempt",
       );
     }
 
     const { error: userStreakError } = await tryCatch(
-      updateUserStreak(parseInt(userId))
+      updateUserStreak(parseInt(userId)),
     );
     if (userStreakError) {
       throw new QuizActionError(
         "DATABASE_ERROR",
         userStreakError.message,
-        "submitQuizAttempt"
+        "submitQuizAttempt",
       );
     }
 
@@ -142,14 +142,14 @@ export const submitQuizAttempt = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to validate quiz submission attempt. Please try again later.",
-      "submitQuizAttempt"
+      "submitQuizAttempt",
     );
   }
 };
 
 export const getUserQuizAttempt = async (
   userId?: string,
-  quizId?: number
+  quizId?: number,
 ): Promise<QuizAttempt> => {
   try {
     const session = await auth.api.getSession({
@@ -160,7 +160,7 @@ export const getUserQuizAttempt = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getUserQuizAttempt"
+        "getUserQuizAttempt",
       );
     }
 
@@ -168,7 +168,7 @@ export const getUserQuizAttempt = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getUserQuizAttempt"
+        "getUserQuizAttempt",
       );
     }
 
@@ -176,7 +176,7 @@ export const getUserQuizAttempt = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "Quiz ID missing",
-        "getUserQuizAttempt"
+        "getUserQuizAttempt",
       );
     }
 
@@ -186,7 +186,7 @@ export const getUserQuizAttempt = async (
       throw new QuizActionError(
         "NOT_FOUND",
         "Quiz attempt not found",
-        "getUserQuizAttempt"
+        "getUserQuizAttempt",
       );
     }
 
@@ -199,14 +199,14 @@ export const getUserQuizAttempt = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch quiz attempt",
-      "getUserQuizAttempt"
+      "getUserQuizAttempt",
     );
   }
 };
 
 export const getUserQuizAttempts = async (
   userId?: string,
-  quizId?: number
+  quizId?: number,
 ): Promise<QuizAttempt[]> => {
   try {
     const session = await auth.api.getSession({
@@ -217,7 +217,7 @@ export const getUserQuizAttempts = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getUserQuizAttempts"
+        "getUserQuizAttempts",
       );
     }
 
@@ -225,7 +225,7 @@ export const getUserQuizAttempts = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "getUserQuizAttempts"
+        "getUserQuizAttempts",
       );
     }
 
@@ -233,7 +233,7 @@ export const getUserQuizAttempts = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "Quiz ID missing",
-        "getUserQuizAttempts"
+        "getUserQuizAttempts",
       );
     }
 
@@ -248,14 +248,14 @@ export const getUserQuizAttempts = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch quiz attempts",
-      "getUserQuizAttempts"
+      "getUserQuizAttempts",
     );
   }
 };
 
 export const getRecentQuizAttempts = async (
   userId: string,
-  limit: number
+  limit: number,
 ): Promise<UserRecentAttempt[]> => {
   try {
     const session = await auth.api.getSession({
@@ -266,7 +266,7 @@ export const getRecentQuizAttempts = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "getRecentQuizAttempts"
+        "getRecentQuizAttempts",
       );
     }
 
@@ -274,7 +274,7 @@ export const getRecentQuizAttempts = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch",
-        "getRecentQuizAttempts"
+        "getRecentQuizAttempts",
       );
     }
 
@@ -289,7 +289,7 @@ export const getRecentQuizAttempts = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to fetch recent quiz attempts",
-      "getRecentQuizAttempts"
+      "getRecentQuizAttempts",
     );
   }
 };

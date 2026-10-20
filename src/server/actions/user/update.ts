@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { updateUserById } from "@/server/database/queries/user/update";
 import { UserActionError } from "@/server/utils/error";
 import { revalidatePath } from "next/cache";
@@ -15,7 +15,7 @@ export const updateUserProfile = async (
       platform: string;
       url: string;
     }[];
-  }
+  },
 ): Promise<{ id: number }> => {
   try {
     const session = await auth.api.getSession({
@@ -26,7 +26,7 @@ export const updateUserProfile = async (
       throw new UserActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "updateUserProfile"
+        "updateUserProfile",
       );
     }
 
@@ -34,7 +34,7 @@ export const updateUserProfile = async (
       throw new UserActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "updateUserProfile"
+        "updateUserProfile",
       );
     }
 
@@ -43,7 +43,7 @@ export const updateUserProfile = async (
       throw new UserActionError(
         "NOT_FOUND",
         "Failed to update user profile",
-        "updateUserProfile"
+        "updateUserProfile",
       );
     }
 
@@ -59,7 +59,7 @@ export const updateUserProfile = async (
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to update user profile. Please try again later.",
-      "updateUserProfile"
+      "updateUserProfile",
     );
   }
 };

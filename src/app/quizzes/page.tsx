@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import QuizzesContent from "./components/quizzes-content";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -17,14 +17,14 @@ export default async function QuizzesPage() {
   }
 
   const { data: publicQuizzes, error: publicQuizzesError } = await tryCatch(
-    getPublicQuizzes(session.user.id)
+    getPublicQuizzes(session.user.id),
   );
   if (publicQuizzesError) {
     throw new Error(publicQuizzesError.message);
   }
 
   const { data: topRatedQuizzes, error: topRatedQuizzesError } = await tryCatch(
-    getTopRatedQuizzes(session.user.id)
+    getTopRatedQuizzes(session.user.id),
   );
   if (topRatedQuizzesError) {
     throw new Error(topRatedQuizzesError.message);

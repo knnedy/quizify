@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import SettingsForm from "./components/settings-form";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -15,7 +15,7 @@ export default async function SettingsPage() {
   }
 
   const { data: user, error: userError } = await tryCatch(
-    getUserById(session.user.id)
+    getUserById(session.user.id),
   );
   if (userError) {
     throw new Error(userError.message);

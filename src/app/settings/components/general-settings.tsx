@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import DeleteAccountModal from "./delete-account-modal";
-import { Session } from "@/lib/auth";
+import { Session } from "@/server/auth";
 
 export default function GeneralSettings({ session }: { session: Session }) {
   const { setTheme, theme, resolvedTheme, systemTheme } = useTheme();

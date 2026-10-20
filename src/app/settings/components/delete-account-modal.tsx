@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { deleteUserAccount } from "@/server/actions/user/delete";
-import { Session } from "@/lib/auth";
+import { Session } from "@/server/auth";
 import { tryCatch } from "@/lib/try-catch";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";

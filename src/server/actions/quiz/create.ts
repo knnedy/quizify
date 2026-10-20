@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { QuizFormValues } from "@/lib/quiz-form-schema";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { updateUserStreak } from "../user/streak";
 import { QuizActionError } from "@/server/utils/error";
@@ -11,7 +11,7 @@ import { insertQuizWithQuestions } from "@/server/database/queries/quiz/insert";
 
 export const createQuiz = async (
   quiz: QuizFormValues,
-  userId?: string
+  userId?: string,
 ): Promise<{ quizId: number }> => {
   try {
     const session = await auth.api.getSession({
@@ -22,7 +22,7 @@ export const createQuiz = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "No active session found",
-        "createQuiz"
+        "createQuiz",
       );
     }
 
@@ -30,7 +30,7 @@ export const createQuiz = async (
       throw new QuizActionError(
         "UNAUTHORIZED",
         "User ID mismatch or missing",
-        "createQuiz"
+        "createQuiz",
       );
     }
 
@@ -40,20 +40,20 @@ export const createQuiz = async (
       throw new QuizActionError(
         "DATABASE_ERROR",
         "Failed to create quiz with questions",
-        "createQuiz"
+        "createQuiz",
       );
     }
 
     // Update user streak
     const { error: streakError } = await tryCatch(
-      updateUserStreak(parseInt(userId))
+      updateUserStreak(parseInt(userId)),
     );
 
     if (streakError) {
       throw new QuizActionError(
         "DATABASE_ERROR",
         streakError.message,
-        "createQuiz"
+        "createQuiz",
       );
     }
 
@@ -73,7 +73,7 @@ export const createQuiz = async (
     throw new QuizActionError(
       "DATABASE_ERROR",
       "Failed to create quiz. Please try again later.",
-      "createQuiz"
+      "createQuiz",
     );
   }
 };

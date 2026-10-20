@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 import MyQuizzesContent from "./components/quizzes-content";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -15,7 +15,7 @@ export default async function QuizzesPage() {
   }
 
   const { data: quizzes, error: quizzesError } = await tryCatch(
-    getOwnerQuizzes(session.user.id)
+    getOwnerQuizzes(session.user.id),
   );
   if (quizzesError) {
     throw new Error(quizzesError.message);
