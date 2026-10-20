@@ -1,83 +1,49 @@
-"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/server/auth";
+import { getSafeRedirect } from "@/lib/safe-redirect";
+import { SignInForm } from "./components/sign-in-form";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import SignIn from "./components/sign-in";
-import SignUp from "./components/sign-up";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { useState } from "react";
+export const metadata: Metadata = { title: "Sign in" };
 
-export default function SignInPage() {
-  const [isLoading] = useState(false);
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string | string[] }>;
+}) {
+  const { redirect: redirectParam } = await searchParams;
+  const raw = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam;
+  const redirectTo = getSafeRedirect(raw);
+
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session) redirect(redirectTo);
+
+  const query =
+    redirectTo === "/dashboard"
+      ? ""
+      : `?redirect=${encodeURIComponent(redirectTo)}`;
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-6">
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="space-y-1 py-4">
-          <CardTitle className="text-xl text-center">
-            Welcome to Quizify
-          </CardTitle>
-          <CardDescription className="text-center text-sm">
-            Sign in to your account or create a new one
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="py-2">
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin" className="pt-3">
-              <SignIn />
-            </TabsContent>
-            <TabsContent value="signup" className="pt-3">
-              <SignUp />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+        <p className="text-sm text-muted-foreground">
+          Sign in to keep your streak going and pick up where you left off.
+        </p>
+      </div>
 
-        <CardFooter className="flex flex-col space-y-3 py-4">
-          <div className="relative w-full">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
+      <SignInForm redirectTo={redirectTo} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
-            <Button variant="outline" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <AiOutlineLoading3Quarters className="mr-1 h-3 w-3 animate-spin" />
-              ) : (
-                <FcGoogle className="mr-1 h-4 w-4" />
-              )}
-              Google
-            </Button>
-            <Button variant="outline" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <AiOutlineLoading3Quarters className="mr-1 h-3 w-3 animate-spin" />
-              ) : (
-                <FaGithub className="mr-1 h-4 w-4" />
-              )}
-              Github
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
+      <p className="text-center text-sm text-muted-foreground">
+        New to Quizify?{" "}
+        <Link
+          href={`/sign-up${query}`}
+          className="font-medium text-foreground underline-offset-4 hover:underline">
+          Create an account
+        </Link>
+      </p>
     </div>
   );
 }
