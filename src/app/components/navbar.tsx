@@ -17,9 +17,10 @@ import { LuMenu } from "react-icons/lu";
 import { IoSettingsOutline } from "react-icons/io5";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { signOut, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import ThemeToggle from "./theme-toggle";
 import ThemeLogo from "./theme-logo";
+import { User } from "lucide-react";
 
 const links = [
   {
@@ -38,7 +39,7 @@ const links = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const session = useSession();
+  const session = authClient.useSession();
   const router = useRouter();
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50 dark:border-slate-700">
@@ -93,7 +94,7 @@ export default function Navbar() {
             <Avatar className="h-8 w-8 border border-gray-300 dark:border-gray-600 cursor-pointer">
               <AvatarImage src={""} alt="profile-image" />
               <AvatarFallback className="bg-muted">
-                <PersonIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
@@ -116,7 +117,7 @@ export default function Navbar() {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                signOut({
+                authClient.signOut({
                   fetchOptions: {
                     onSuccess: () => {
                       router.replace("/sign-in");

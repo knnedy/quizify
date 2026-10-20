@@ -1,7 +1,6 @@
 "use client";
 
-import { PersonIcon } from "@radix-ui/react-icons";
-import { BookOpen, Sparkles, Globe } from "lucide-react";
+import { BookOpen, Sparkles, Globe, User } from "lucide-react";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 
@@ -12,7 +11,7 @@ const stats = [
     label: "Quizzes Created",
   },
   {
-    icon: <PersonIcon className="h-6 w-6" />,
+    icon: <User className="h-6 w-6" />,
     value: "500+",
     label: "Active Users",
   },

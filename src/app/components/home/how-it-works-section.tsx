@@ -3,8 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, PenTool, Zap } from "lucide-react";
-import { PersonIcon } from "@radix-ui/react-icons";
+import { BookOpen, PenTool, Zap, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const howItWorks = [
@@ -12,7 +11,7 @@ const howItWorks = [
     title: "Sign Up",
     description:
       "Create your free account in seconds and join our community of quiz enthusiasts.",
-    icon: <PersonIcon className="h-8 w-8" />,
+    icon: <User className="h-8 w-8" />,
     color: "bg-blue-500/10",
     borderColor: "border-blue-500/20",
     iconColor: "text-blue-500",
@@ -85,7 +84,7 @@ export default function HowItWorksSection() {
                   className={cn(
                     "rounded-xl p-6 border backdrop-blur-sm relative z-10 h-full",
                     step.color,
-                    step.borderColor
+                    step.borderColor,
                   )}>
                   <div className="absolute -top-5 -right-5 w-24 h-24 bg-white/5 rounded-full blur-xl"></div>
 
@@ -94,7 +93,7 @@ export default function HowItWorksSection() {
                       className={cn(
                         "w-16 h-16 rounded-full flex items-center justify-center border-2 bg-white dark:bg-gray-900",
                         step.borderColor,
-                        step.iconColor
+                        step.iconColor,
                       )}
                       initial={{ scale: 0.5 }}
                       animate={howItWorksInView ? { scale: 1 } : {}}

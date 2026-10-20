@@ -19,14 +19,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ThemeLogo from "../theme-logo";
 import ThemeToggle from "../theme-toggle";
-import { Menu } from "lucide-react";
-import { PersonIcon } from "@radix-ui/react-icons";
+import { Menu, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { Session } from "@/server/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MdLogout } from "react-icons/md";
 
@@ -132,7 +131,7 @@ export default function Navbar({ session }: Props) {
                       size="sm"
                       className="justify-start text-base text-red-500"
                       onClick={() => {
-                        signOut({
+                        authClient.signOut({
                           fetchOptions: {
                             onSuccess: () => {
                               router.replace("/sign-in");
@@ -173,7 +172,7 @@ export default function Navbar({ session }: Props) {
               <Avatar className="h-9 w-9 border border-gray-300 dark:border-gray-600 cursor-pointer transition-all hover:ring-2 hover:ring-primary/50">
                 <AvatarImage src={""} alt="profile-image" />
                 <AvatarFallback className="bg-muted">
-                  <PersonIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                  <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
@@ -191,7 +190,7 @@ export default function Navbar({ session }: Props) {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
-                  signOut({
+                  authClient.signOut({
                     fetchOptions: {
                       onSuccess: () => {
                         router.replace("/sign-in");
@@ -217,7 +216,7 @@ export default function Navbar({ session }: Props) {
             <Button
               onClick={() => router.push("/sign-in")}
               className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 transition-all">
-              <PersonIcon className="h-4 w-4" />
+              <User className="h-4 w-4" />
               Sign In
             </Button>
           </div>
