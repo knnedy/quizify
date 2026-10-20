@@ -195,7 +195,7 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
               ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]"
               : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
           }`}
-          asChild>
+          >
           <Link
             href={`/quizzes/${quiz.id}`}
             className="flex items-center justify-center gap-2">

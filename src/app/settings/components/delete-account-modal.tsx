@@ -25,7 +25,7 @@ export default function DeleteAccountModal({ session }: { session: Session }) {
   const handleDeleteAccount = async () => {
     startTransition(async () => {
       const { data: result, error: deleteAccountError } = await tryCatch(
-        deleteUserAccount(session.user.id)
+        deleteUserAccount(session.user.id),
       );
 
       if (deleteAccountError) {
@@ -47,7 +47,7 @@ export default function DeleteAccountModal({ session }: { session: Session }) {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button size="sm" variant="outline" className="text-red-500">
           Delete Account
         </Button>
@@ -63,7 +63,7 @@ export default function DeleteAccountModal({ session }: { session: Session }) {
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2 mt-4">
-          <DialogClose asChild>
+          <DialogClose>
             <Button variant="outline" size="sm">
               Cancel
             </Button>

@@ -55,7 +55,7 @@ export default function Navbar({ session }: Props) {
         "fixed top-0 w-full flex h-16 items-center gap-4 px-4 md:px-6 z-50 transition-all duration-300",
         scrolled
           ? "bg-background/90 backdrop-blur-sm border-b shadow-sm dark:border-slate-700 dark:shadow-slate-900/10"
-          : "bg-transparent"
+          : "bg-transparent",
       )}>
       {/* Left Section - Logo */}
       <div className="flex items-center gap-2 flex-shrink-0">
@@ -85,7 +85,7 @@ export default function Navbar({ session }: Props) {
                   </Button>
                 </Link>
               );
-            }
+            },
           )}
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function Navbar({ session }: Props) {
 
         {/* Mobile Menu */}
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-          <SheetTrigger asChild className="md:hidden">
+          <SheetTrigger className="md:hidden">
             <Button variant="ghost" size="icon">
               <Menu className="h-5 w-5" />
             </Button>
@@ -113,7 +113,7 @@ export default function Navbar({ session }: Props) {
             <div className="flex flex-col space-y-2">
               {["Features", "How It Works", "Testimonials", "FAQ"].map(
                 (item) => (
-                  <SheetClose asChild key={item}>
+                  <SheetClose key={item}>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -121,12 +121,12 @@ export default function Navbar({ session }: Props) {
                       {item}
                     </Button>
                   </SheetClose>
-                )
+                ),
               )}
               <div className="h-px bg-border my-4" />
               {session ? (
                 <>
-                  <SheetClose asChild>
+                  <SheetClose>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -146,14 +146,14 @@ export default function Navbar({ session }: Props) {
                 </>
               ) : (
                 <>
-                  <SheetClose asChild>
+                  <SheetClose>
                     <Button
                       className="w-full"
                       onClick={() => router.push("/sign-in")}>
                       Sign In
                     </Button>
                   </SheetClose>
-                  <SheetClose asChild>
+                  <SheetClose>
                     <Button
                       variant="outline"
                       className="w-full"
@@ -169,7 +169,7 @@ export default function Navbar({ session }: Props) {
 
         {session ? (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Avatar className="h-9 w-9 border border-gray-300 dark:border-gray-600 cursor-pointer transition-all hover:ring-2 hover:ring-primary/50">
                 <AvatarImage src={""} alt="profile-image" />
                 <AvatarFallback className="bg-muted">

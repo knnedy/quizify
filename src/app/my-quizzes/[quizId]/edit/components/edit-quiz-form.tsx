@@ -119,7 +119,7 @@ export default function EditQuizForm({ quizId, quiz, session }: Props) {
   const removeChoice = (questionIndex: number, choiceIndex: number) => {
     const currentValues = form.getValues(`questions.${questionIndex}`);
     const newChoices = currentValues.choices.filter(
-      (_, index) => index !== choiceIndex
+      (_, index) => index !== choiceIndex,
     );
     update(questionIndex, {
       ...currentValues,
@@ -148,8 +148,8 @@ export default function EditQuizForm({ quizId, quiz, session }: Props) {
             timeLimit: data.isTimeLimited ? (data.timeLimit ?? 0) * 60 : 0,
           },
           parseInt(quizId),
-          session.user.id
-        )
+          session.user.id,
+        ),
       );
 
       if (quizError) {
@@ -219,14 +219,14 @@ export default function EditQuizForm({ quizId, quiz, session }: Props) {
                         <FormItem className="flex-1">
                           <FormLabel>Category</FormLabel>
                           <Popover>
-                            <PopoverTrigger asChild>
+                            <PopoverTrigger>
                               <FormControl>
                                 <Button
                                   variant="outline"
                                   role="combobox"
                                   className={cn(
                                     "w-full justify-between",
-                                    !field.value && "text-muted-foreground"
+                                    !field.value && "text-muted-foreground",
                                   )}>
                                   {field.value
                                     ? field.value
@@ -251,7 +251,7 @@ export default function EditQuizForm({ quizId, quiz, session }: Props) {
                                           const categoryName = category.label;
                                           form.setValue(
                                             "category",
-                                            categoryName
+                                            categoryName,
                                           );
                                         }}>
                                         <Check
@@ -259,12 +259,12 @@ export default function EditQuizForm({ quizId, quiz, session }: Props) {
                                             "mr-2 h-4 w-4",
                                             category.label === field.value
                                               ? "opacity-100"
-                                              : "opacity-0"
+                                              : "opacity-0",
                                           )}
                                         />
                                         {getCategoryNameFromPath(
                                           category.value,
-                                          categories
+                                          categories,
                                         )}
                                       </CommandItem>
                                     ))}
@@ -508,7 +508,7 @@ export default function EditQuizForm({ quizId, quiz, session }: Props) {
                                     Please select a correct answer for Question{" "}
                                     {index + 1}
                                   </div>
-                                )
+                                ),
                             )}
                         </div>
                       </div>

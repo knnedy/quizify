@@ -52,8 +52,8 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
           i < Math.floor(rating)
             ? "fill-yellow-400 text-yellow-400"
             : i < rating
-            ? "fill-yellow-400/50 text-yellow-400"
-            : "text-gray-300"
+              ? "fill-yellow-400/50 text-yellow-400"
+              : "text-gray-300"
         }`}
       />
     ));
@@ -72,7 +72,7 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
             {diffConfig.icon} {quiz.difficulty}
           </Badge>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button
                 variant="ghost"
                 size="sm"
@@ -152,11 +152,7 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
       </CardContent>
 
       <CardFooter className="pt-0 gap-2 grid grid-cols-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full h-9 text-sm"
-          asChild>
+        <Button variant="outline" size="sm" className="w-full h-9 text-sm">
           <Link href={`/my-quizzes/${quiz.id}/edit`}>
             <Settings className="mr-1.5 h-3.5 w-3.5" />
             Edit
@@ -164,8 +160,9 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
         </Button>
         <Button
           className="w-full h-9 text-sm group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-          variant={hoveredCard === quiz.id.toString() ? "default" : "secondary"}
-          asChild>
+          variant={
+            hoveredCard === quiz.id.toString() ? "default" : "secondary"
+          }>
           <Link
             href={`/my-quizzes/${quiz.id}`}
             className="flex items-center justify-center">

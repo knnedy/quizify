@@ -56,7 +56,7 @@ export default function QuizzesContent({
       newSearch: string,
       newDifficulty: string,
       newSort: string,
-      newTab?: string
+      newTab?: string,
     ) => {
       const params = new URLSearchParams(searchParams);
 
@@ -93,7 +93,7 @@ export default function QuizzesContent({
         scroll: false,
       });
     },
-    [router, searchParams, activeTab]
+    [router, searchParams, activeTab],
   );
 
   const handleDifficultyChange = useCallback(
@@ -101,7 +101,7 @@ export default function QuizzesContent({
       setDifficultyFilter(newDifficulty);
       updateUrlParams(searchTerm, newDifficulty, sortBy);
     },
-    [setDifficultyFilter, updateUrlParams, searchTerm, sortBy]
+    [setDifficultyFilter, updateUrlParams, searchTerm, sortBy],
   );
 
   const handleSortChange = useCallback(
@@ -109,7 +109,7 @@ export default function QuizzesContent({
       setSortBy(newSort);
       updateUrlParams(searchTerm, difficultyFilter, newSort);
     },
-    [setSortBy, updateUrlParams, searchTerm, difficultyFilter]
+    [setSortBy, updateUrlParams, searchTerm, difficultyFilter],
   );
 
   const handleTabChange = useCallback(
@@ -117,7 +117,7 @@ export default function QuizzesContent({
       setActiveTab(value);
       updateUrlParams(searchTerm, difficultyFilter, sortBy, value);
     },
-    [searchTerm, difficultyFilter, sortBy, updateUrlParams]
+    [searchTerm, difficultyFilter, sortBy, updateUrlParams],
   );
 
   // Get the current quiz list based on active tab
@@ -208,8 +208,8 @@ export default function QuizzesContent({
                       activeTab === "all"
                         ? "quizzes"
                         : activeTab === "top-rated"
-                        ? "top rated quizzes"
-                        : "bookmarked quizzes"
+                          ? "top rated quizzes"
+                          : "bookmarked quizzes"
                     }...`}
                     className="pl-9 h-9 text-sm w-full"
                     value={searchTerm}
@@ -222,7 +222,7 @@ export default function QuizzesContent({
 
                 <div className="flex gap-2 w-full sm:w-auto">
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger>
                       <Button
                         variant="outline"
                         size="sm"
@@ -253,7 +253,7 @@ export default function QuizzesContent({
                   </DropdownMenu>
 
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger>
                       <Button
                         variant="outline"
                         size="sm"
@@ -327,8 +327,8 @@ export default function QuizzesContent({
                       {activeTab === "all"
                         ? "quizzes"
                         : activeTab === "top-rated"
-                        ? "top rated quizzes"
-                        : "bookmarked quizzes"}{" "}
+                          ? "top rated quizzes"
+                          : "bookmarked quizzes"}{" "}
                       found
                     </h3>
                     <p className="text-muted-foreground max-w-md mx-auto text-sm">

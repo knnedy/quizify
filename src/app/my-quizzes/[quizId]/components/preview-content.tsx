@@ -34,7 +34,7 @@ type Props = {
 export default function QuizPreviewContent({ quiz }: Props) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>(
-    new Array(quiz.questions.length).fill(-1)
+    new Array(quiz.questions.length).fill(-1),
   );
   const [showAnswers, setShowAnswers] = useState(false);
 
@@ -66,7 +66,7 @@ export default function QuizPreviewContent({ quiz }: Props) {
         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <Button variant="ghost" asChild className="h-10">
+            <Button variant="ghost" className="h-10">
               <Link href={`/my-quizzes`} className="flex items-center gap-2">
                 <ArrowLeft className="w-4 h-4" />
                 Back to My Quizzes
@@ -206,7 +206,7 @@ export default function QuizPreviewContent({ quiz }: Props) {
                       <span className="text-sm font-medium">
                         Correct Answer:{" "}
                         {String.fromCharCode(
-                          65 + currentQuestion.correctAnswer
+                          65 + currentQuestion.correctAnswer,
                         )}
                       </span>
                     </div>
@@ -215,7 +215,7 @@ export default function QuizPreviewContent({ quiz }: Props) {
                 <Button
                   onClick={() =>
                     setCurrentQuestionIndex((i) =>
-                      Math.min(quiz.questions.length - 1, i + 1)
+                      Math.min(quiz.questions.length - 1, i + 1),
                     )
                   }
                   disabled={currentQuestionIndex === quiz.questions.length - 1}>

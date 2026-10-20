@@ -94,12 +94,7 @@ export default function GeneralSettings({ session }: { session: Session }) {
               <div
                 className={`cursor-pointer [&:has([data-state=checked])>div]:border-primary`}
                 onClick={() => handleThemeCardClick("light")}>
-                <RadioGroupItem
-                  value="light"
-                  id="light"
-                  className="sr-only"
-                  checked={theme === "light"}
-                />
+                <RadioGroupItem value="light" id="light" className="sr-only" />
                 <div
                   className={`items-center rounded-md border-2 ${
                     theme === "light" ? "border-primary" : "border-muted"
@@ -129,12 +124,7 @@ export default function GeneralSettings({ session }: { session: Session }) {
               <div
                 className={`cursor-pointer [&:has([data-state=checked])>div]:border-primary`}
                 onClick={() => handleThemeCardClick("dark")}>
-                <RadioGroupItem
-                  value="dark"
-                  id="dark"
-                  className="sr-only"
-                  checked={theme === "dark"}
-                />
+                <RadioGroupItem value="dark" id="dark" className="sr-only" />
                 <div
                   className={`items-center rounded-md border-2 ${
                     theme === "dark" ? "border-primary" : "border-muted"
@@ -168,7 +158,6 @@ export default function GeneralSettings({ session }: { session: Session }) {
                   value="system"
                   id="system"
                   className="sr-only"
-                  checked={theme === "system"}
                 />
                 <div
                   className={`items-center rounded-md border-2 ${

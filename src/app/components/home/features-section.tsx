@@ -143,13 +143,13 @@ export default function FeaturesSection() {
                   feature.gradient,
                   feature.border,
                   feature.hoverBorder,
-                  "hover:shadow-xl"
+                  "hover:shadow-xl",
                 )}>
                 <CardHeader className="pb-4">
                   <div
                     className={cn(
                       "w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-md mb-4",
-                      feature.color
+                      feature.color,
                     )}>
                     <motion.div
                       animate={{
@@ -168,11 +168,10 @@ export default function FeaturesSection() {
                 </CardContent>
                 <CardFooter className="pt-0">
                   <Button
-                    asChild
                     variant="ghost"
                     className={cn(
                       "group w-full justify-start p-0 hover:bg-transparent",
-                      feature.hoverBg
+                      feature.hoverBg,
                     )}>
                     <Link
                       href={feature.link}

@@ -74,7 +74,7 @@ export default function MyQuizzesContent({
         scroll: false,
       });
     },
-    [router, searchParams]
+    [router, searchParams],
   );
 
   const handleDifficultyChange = useCallback(
@@ -82,7 +82,7 @@ export default function MyQuizzesContent({
       setDifficultyFilter(newDifficulty);
       updateUrlParams(searchTerm, newDifficulty, sortBy);
     },
-    [setDifficultyFilter, updateUrlParams, searchTerm, sortBy]
+    [setDifficultyFilter, updateUrlParams, searchTerm, sortBy],
   );
 
   const handleSortChange = useCallback(
@@ -90,7 +90,7 @@ export default function MyQuizzesContent({
       setSortBy(newSort);
       updateUrlParams(searchTerm, difficultyFilter, newSort);
     },
-    [setSortBy, updateUrlParams, searchTerm, difficultyFilter]
+    [setSortBy, updateUrlParams, searchTerm, difficultyFilter],
   );
 
   const filteredAndSortedQuizzes = useMemo(() => {
@@ -151,7 +151,7 @@ export default function MyQuizzesContent({
                     : ""}
                 </p>
               </div>
-              <Button className="h-9 px-3 shadow-sm w-full sm:w-auto" asChild>
+              <Button className="h-9 px-3 shadow-sm w-full sm:w-auto">
                 <Link
                   href="/quizzes/create"
                   className="flex items-center gap-1.5 justify-center">
@@ -183,7 +183,7 @@ export default function MyQuizzesContent({
 
                 <div className="flex gap-2 w-full sm:w-auto">
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger>
                       <Button
                         variant="outline"
                         size="sm"
@@ -214,7 +214,7 @@ export default function MyQuizzesContent({
                   </DropdownMenu>
 
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger>
                       <Button
                         variant="outline"
                         size="sm"
@@ -300,7 +300,7 @@ export default function MyQuizzesContent({
                     </p>
 
                     {!searchTerm && difficultyFilter === "all" ? (
-                      <Button size="lg" className="mt-6" asChild>
+                      <Button size="lg" className="mt-6">
                         <Link
                           href="/quizzes/create"
                           className="flex items-center gap-2">

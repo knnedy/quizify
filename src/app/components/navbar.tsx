@@ -12,7 +12,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { PersonIcon } from "@radix-ui/react-icons";
 import { MdLogout } from "react-icons/md";
 import { LuMenu } from "react-icons/lu";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -44,7 +43,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50 dark:border-slate-700">
       <Sheet>
-        <SheetTrigger asChild>
+        <SheetTrigger>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
             <LuMenu className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
@@ -80,7 +79,7 @@ export default function Navbar() {
               pathname === link.href
                 ? "text-foreground"
                 : "text-muted-foreground",
-              "transition-colors hover:text-foreground"
+              "transition-colors hover:text-foreground",
             )}>
             {link.title}
           </Link>
@@ -90,7 +89,7 @@ export default function Navbar() {
       <div className="flex items-center space-x-4 ml-auto">
         <ThemeToggle />
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger>
             <Avatar className="h-8 w-8 border border-gray-300 dark:border-gray-600 cursor-pointer">
               <AvatarImage src={""} alt="profile-image" />
               <AvatarFallback className="bg-muted">
@@ -157,7 +156,7 @@ export function SideNav({ links, ...props }: SidebarNavProps) {
             pathname === link.href
               ? "bg-muted hover:bg-muted text-primary"
               : "hover:bg-muted hover:text-primary text-muted-foreground",
-            "flex items-center justify-start gap-3 rounded-lg px-4 py-2.5 transition-all"
+            "flex items-center justify-start gap-3 rounded-lg px-4 py-2.5 transition-all",
           )}>
           {link.title}
         </Link>

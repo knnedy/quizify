@@ -119,7 +119,7 @@ export default function Error({
 
             {/* What can you do section */}
             <Collapsible open={showHelp} onOpenChange={setShowHelp}>
-              <CollapsibleTrigger asChild>
+              <CollapsibleTrigger>
                 <Button
                   variant="ghost"
                   className="w-full justify-between p-3 h-auto">

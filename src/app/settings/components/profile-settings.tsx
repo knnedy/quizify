@@ -127,7 +127,7 @@ const profileFormSchema = z.object({
     z.object({
       platform: z.string().min(1, "Please select a platform"),
       url: z.string().url("Please enter a valid URL"),
-    })
+    }),
   ),
 });
 
@@ -142,7 +142,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
   const router = useRouter();
 
   const [profileImage, setProfileImage] = useState<string>(
-    user.image || "/api/placeholder/200/200"
+    user.image || "/api/placeholder/200/200",
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -203,7 +203,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
       .filter(Boolean);
 
     return socialPlatforms.filter(
-      (platform) => !selectedPlatforms.includes(platform.value)
+      (platform) => !selectedPlatforms.includes(platform.value),
     );
   };
 
@@ -233,7 +233,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
   function onSubmit(data: ProfileFormValues) {
     startTransition(async () => {
       const { data: updatedUser, error: userError } = await tryCatch(
-        updateUserProfile(user.id, data)
+        updateUserProfile(user.id, data),
       );
 
       if (userError) {
@@ -303,15 +303,15 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                         {/* Show existing links if form is pristine, otherwise show form values */}
                         {(form.formState.isDirty
                           ? currentSocialLinks
-                          : user.socialLinks ?? []
+                          : (user.socialLinks ?? [])
                         )
                           .filter((link) => link.platform && link.url)
                           .map((link, index) => {
                             const IconComponent = getPlatformIcon(
-                              link.platform
+                              link.platform,
                             );
                             const platformData = getSocialPlatformData(
-                              link.platform
+                              link.platform,
                             );
 
                             return (
@@ -456,7 +456,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                                             </div>
                                           </SelectItem>
                                         );
-                                      }
+                                      },
                                     )}
                                   </SelectContent>
                                 </Select>
@@ -473,14 +473,14 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                                 <FormControl>
                                   <div className="relative">
                                     {form.watch(
-                                      `socialLinks.${index}.platform`
+                                      `socialLinks.${index}.platform`,
                                     ) && (
                                       <div className="absolute left-3 top-1/2 -translate-y-1/2">
                                         {(() => {
                                           const IconComponent = getPlatformIcon(
                                             form.watch(
-                                              `socialLinks.${index}.platform`
-                                            )
+                                              `socialLinks.${index}.platform`,
+                                            ),
                                           );
                                           return (
                                             <IconComponent className="h-4 w-4 text-muted-foreground" />
@@ -491,12 +491,12 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                                     <Input
                                       placeholder={getPlatformPlaceholder(
                                         form.watch(
-                                          `socialLinks.${index}.platform`
-                                        )
+                                          `socialLinks.${index}.platform`,
+                                        ),
                                       )}
                                       className={
                                         form.watch(
-                                          `socialLinks.${index}.platform`
+                                          `socialLinks.${index}.platform`,
                                         )
                                           ? "pl-9"
                                           : ""
