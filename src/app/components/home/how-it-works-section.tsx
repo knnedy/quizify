@@ -70,7 +70,7 @@ export default function HowItWorksSection() {
 
         <div ref={howItWorksRef} className="relative">
           {/* Connection line */}
-          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 hidden md:block"></div>
+          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20 hidden md:block"></div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {howItWorks.map((step, index) => (

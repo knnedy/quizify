@@ -57,7 +57,7 @@ export default function Navbar({ session }: Props) {
           : "bg-transparent",
       )}>
       {/* Left Section - Logo */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <Link className="flex items-center gap-2" href="/">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
             <ThemeLogo width={20} height={20} alt="Quizify logo" />
@@ -90,7 +90,7 @@ export default function Navbar({ session }: Props) {
       </div>
 
       {/* Right Section - Theme Toggle & User Menu */}
-      <div className="flex items-center space-x-4 flex-shrink-0">
+      <div className="flex items-center space-x-4 shrink-0">
         <ThemeToggle />
 
         {/* Mobile Menu */}
@@ -100,10 +100,10 @@ export default function Navbar({ session }: Props) {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+          <SheetContent side="right" className="w-75 sm:w-100">
             <SheetHeader className="mb-6">
               <SheetTitle className="flex items-center gap-2">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-linear-to-br from-primary to-primary/80 text-primary-foreground">
                   <ThemeLogo width={18} height={18} alt="Quizify logo" />
                 </div>
                 <span>Quizify</span>
@@ -215,7 +215,7 @@ export default function Navbar({ session }: Props) {
             </Button>
             <Button
               onClick={() => router.push("/sign-in")}
-              className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 transition-all">
+              className="flex items-center gap-2 bg-linear-to-r from-primary to-primary/90 hover:opacity-90 transition-all">
               <User className="h-4 w-4" />
               Sign In
             </Button>

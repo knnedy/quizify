@@ -33,7 +33,7 @@ export default function StatsSection() {
 
   return (
     <section id="stats" className="py-16 relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 h-1/2 transform skew-y-3"></div>
+      <div className="absolute inset-0 bg-linear-to-r from-primary/5 to-primary/10 h-1/2 transform skew-y-3"></div>
       <div ref={statsRef} className="container mx-auto px-4 relative">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {stats.map((stat, index) => (

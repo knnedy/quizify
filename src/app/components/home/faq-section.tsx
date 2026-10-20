@@ -38,7 +38,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="py-16 md:py-24 bg-gradient-to-br from-primary/5 via-transparent to-primary/5">
+      className="py-16 md:py-24 bg-linear-to-br from-primary/5 via-transparent to-primary/5">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge
