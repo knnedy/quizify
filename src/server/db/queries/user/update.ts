@@ -1,8 +1,8 @@
 "use server";
 
-import db from "@/server/database";
+import db from "@/server/db";
 import { eq } from "drizzle-orm";
-import { users } from "@/server/database/schema";
+import { users } from "@/server/db/schema";
 
 export const updateUserById = async (
   userId: number,
@@ -13,7 +13,7 @@ export const updateUserById = async (
       platform: string;
       url: string;
     }[];
-  }
+  },
 ): Promise<{ id: number }> => {
   const { name, email, socialLinks } = profileData;
   const result = await db
@@ -39,14 +39,14 @@ type StreakUpdateData = {
 
 export const updateUserStreakData = async (
   userId: number,
-  data: StreakUpdateData
+  data: StreakUpdateData,
 ): Promise<void> => {
   await db.update(users).set(data).where(eq(users.id, userId));
 };
 
 export const updateUserTotalXP = async (
   userId: number,
-  totalXP: number
+  totalXP: number,
 ): Promise<void> => {
   await db.update(users).set({ totalXp: totalXP }).where(eq(users.id, userId));
 };

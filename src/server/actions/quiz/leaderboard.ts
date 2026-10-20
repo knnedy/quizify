@@ -2,9 +2,9 @@
 
 import { auth } from "@/server/auth";
 import { headers } from "next/headers";
-import { QuizLeaderboard } from "@/server/database/schema";
+import { QuizLeaderboard } from "@/server/db/schema";
 import { QuizActionError } from "@/server/utils/error";
-import { selectQuizLeaderboard } from "@/server/database/queries/quiz/select";
+import { selectQuizLeaderboard } from "@/server/db/queries/quiz/select";
 
 export const getQuizLeaderboard = async (
   quizId: number,

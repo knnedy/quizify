@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { formatSecondsToMinutes } from "@/lib/format-time";
-import { OwnerQuizOverview } from "@/server/database/schema";
+import { OwnerQuizOverview } from "@/server/db/schema";
 
 type QuizCardProps = {
   quiz: OwnerQuizOverview;

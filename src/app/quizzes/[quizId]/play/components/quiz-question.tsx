@@ -6,7 +6,7 @@ import React, {
   useReducer,
   useTransition,
 } from "react";
-import { PublicQuizDetail } from "@/server/database/schema";
+import { PublicQuizDetail } from "@/server/db/schema";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {

@@ -1,18 +1,18 @@
 "use server";
 
-import db from "@/server/database";
-import { quizBookmarks } from "@/server/database/schema";
+import db from "@/server/db";
+import { quizBookmarks } from "@/server/db/schema";
 import { and, eq } from "drizzle-orm";
 
 export async function toggleQuizBookmarkQuery(
   quizId: number,
-  userId: number
+  userId: number,
 ): Promise<{ isBookmarked: boolean }> {
   // Check if bookmark already exists
   const existingBookmark = await db.query.quizBookmarks.findFirst({
     where: and(
       eq(quizBookmarks.quizId, quizId),
-      eq(quizBookmarks.userId, userId)
+      eq(quizBookmarks.userId, userId),
     ),
   });
 
@@ -21,7 +21,7 @@ export async function toggleQuizBookmarkQuery(
     await db
       .delete(quizBookmarks)
       .where(
-        and(eq(quizBookmarks.quizId, quizId), eq(quizBookmarks.userId, userId))
+        and(eq(quizBookmarks.quizId, quizId), eq(quizBookmarks.userId, userId)),
       );
 
     return {

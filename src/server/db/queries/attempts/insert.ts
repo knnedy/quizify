@@ -1,6 +1,6 @@
 "use server";
-import db from "@/server/database";
-import { quizAttempts } from "@/server/database/schema";
+import db from "@/server/db";
+import { quizAttempts } from "@/server/db/schema";
 
 export const insertQuizAttempt = async (attemptData: {
   quizId: number;

@@ -1,14 +1,14 @@
 "use server";
 
-import db from "@/server/database";
-import { questions, quizzes } from "@/server/database/schema";
+import db from "@/server/db";
+import { questions, quizzes } from "@/server/db/schema";
 import { QuizFormValues } from "@/lib/quiz-form-schema";
 import { eq, and } from "drizzle-orm";
 
 export const updateQuizById = async (
   quiz: QuizFormValues,
   quizId: number,
-  userId: number
+  userId: number,
 ): Promise<{ id: number } | null> => {
   const { questions: quizQuestions, ...quizData } = quiz;
 
@@ -54,7 +54,7 @@ export const updateQuizById = async (
         title: question.title,
         choices: question.choices,
         correctAnswer: question.correctAnswer,
-      }))
+      })),
     );
 
     return updatedQuiz;

@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/server/auth";
-import { deleteUserById } from "@/server/database/queries/user/delete";
+import { deleteUserById } from "@/server/db/queries/user/delete";
 import { UserActionError } from "@/server/utils/error";
 import { headers } from "next/headers";
 

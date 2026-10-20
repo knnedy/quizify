@@ -1,4 +1,4 @@
-import { PublicQuizOverview, QuizDifficulty } from "@/server/database/schema";
+import { PublicQuizOverview, QuizDifficulty } from "@/server/db/schema";
 
 export type UserRecentAttempt = {
   id: number;

@@ -5,7 +5,7 @@ import {
   OwnerQuizOverview,
   PublicQuizDetail,
   PublicQuizOverview,
-} from "@/server/database/schema";
+} from "@/server/db/schema";
 import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { QuizActionError } from "@/server/utils/error";
@@ -14,7 +14,7 @@ import {
   selectOwnerQuizzes,
   selectPublicQuiz,
   selectPublicQuizzes,
-} from "@/server/database/queries/quiz/select";
+} from "@/server/db/queries/quiz/select";
 
 export const getOwnerQuizzes = async (
   userId?: string,

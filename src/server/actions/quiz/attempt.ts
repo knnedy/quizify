@@ -1,7 +1,7 @@
 "use server";
 
-import db from "@/server/database";
-import { QuizAttempt, users } from "@/server/database/schema";
+import db from "@/server/db";
+import { QuizAttempt, users } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/server/auth";
 import { headers } from "next/headers";
@@ -10,13 +10,13 @@ import { updateUserXP } from "../user/xp";
 import { updateUserStreak } from "../user/streak";
 import { QuizActionError } from "@/server/utils/error";
 import { tryCatch } from "@/lib/try-catch";
-import { selectQuizWithQuestions } from "@/server/database/queries/quiz/select";
-import { insertQuizAttempt } from "@/server/database/queries/attempts/insert";
+import { selectQuizWithQuestions } from "@/server/db/queries/quiz/select";
+import { insertQuizAttempt } from "@/server/db/queries/attempts/insert";
 import {
   selectQuizAttemptsByUserId,
   selectUserQuizAttempt,
   selectUserQuizAttempts,
-} from "@/server/database/queries/attempts/select";
+} from "@/server/db/queries/attempts/select";
 import { UserRecentAttempt } from "@/lib/types";
 
 export const submitQuizAttempt = async (

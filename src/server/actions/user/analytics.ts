@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import {
   selectUserCategoryPerformance,
   selectUserWeeklyProgress,
-} from "@/server/database/queries/attempts/select";
+} from "@/server/db/queries/attempts/select";
 
 export async function getWeeklyProgress(
   userId?: string,

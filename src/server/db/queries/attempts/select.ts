@@ -5,18 +5,18 @@ import {
   UserRecentAttempt,
   WeeklyProgress,
 } from "@/lib/types";
-import db from "@/server/database";
-import { QuizAttempt, quizAttempts } from "@/server/database/schema";
+import db from "@/server/db";
+import { QuizAttempt, quizAttempts } from "@/server/db/schema";
 import { eq, desc, and, gte } from "drizzle-orm";
 
 export const selectUserQuizAttempt = async (
   quizId: number,
-  userId: number
+  userId: number,
 ): Promise<QuizAttempt | null> => {
   const attempt = await db.query.quizAttempts.findFirst({
     where: and(
       eq(quizAttempts.quizId, quizId),
-      eq(quizAttempts.userId, userId)
+      eq(quizAttempts.userId, userId),
     ),
     orderBy: desc(quizAttempts.createdAt),
   });
@@ -26,12 +26,12 @@ export const selectUserQuizAttempt = async (
 
 export const selectUserQuizAttempts = async (
   quizId: number,
-  userId: number
+  userId: number,
 ): Promise<QuizAttempt[]> => {
   const attempts = await db.query.quizAttempts.findMany({
     where: and(
       eq(quizAttempts.quizId, quizId),
-      eq(quizAttempts.userId, userId)
+      eq(quizAttempts.userId, userId),
     ),
     orderBy: desc(quizAttempts.score),
   });
@@ -41,7 +41,7 @@ export const selectUserQuizAttempts = async (
 
 export async function selectQuizAttemptsByUserId(
   userId: number,
-  limit: number
+  limit: number,
 ): Promise<UserRecentAttempt[]> {
   const recentAttempts = await db.query.quizAttempts.findMany({
     where: eq(quizAttempts.userId, userId),
@@ -74,7 +74,7 @@ export async function selectQuizAttemptsByUserId(
 }
 
 export async function selectUserWeeklyProgress(
-  userId: number
+  userId: number,
 ): Promise<WeeklyProgress[]> {
   // Get today and 7 days ago (exactly one week)
   const today = new Date();
@@ -88,7 +88,7 @@ export async function selectUserWeeklyProgress(
   const attempts = await db.query.quizAttempts.findMany({
     where: and(
       eq(quizAttempts.userId, userId),
-      gte(quizAttempts.createdAt, weekAgo)
+      gte(quizAttempts.createdAt, weekAgo),
     ),
     columns: {
       createdAt: true,
@@ -127,7 +127,7 @@ export async function selectUserWeeklyProgress(
         totalScore: 0,
         totalXp: 0,
       },
-    ])
+    ]),
   );
 
   // Process attempts with better date formatting
@@ -168,7 +168,7 @@ export async function selectUserWeeklyProgress(
 }
 
 export async function selectUserCategoryPerformance(
-  userId: number
+  userId: number,
 ): Promise<CategoryPerformance[]> {
   const attempts = await db.query.quizAttempts.findMany({
     where: eq(quizAttempts.userId, userId),
@@ -201,7 +201,7 @@ export async function selectUserCategoryPerformance(
       name,
       score: Math.round(stats.totalScore / stats.count),
       quizzes: stats.count,
-    })
+    }),
   );
 
   return categoryPerformances;

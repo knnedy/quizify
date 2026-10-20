@@ -1,12 +1,12 @@
 "use server";
 
 import { UserActionError } from "@/server/utils/error";
-import { selectUserById } from "@/server/database/queries/user/select";
-import { updateUserTotalXP } from "@/server/database/queries/user/update";
+import { selectUserById } from "@/server/db/queries/user/select";
+import { updateUserTotalXP } from "@/server/db/queries/user/update";
 
 export async function updateUserXP(
   userId: number,
-  xpEarned: number
+  xpEarned: number,
 ): Promise<number> {
   try {
     const user = await selectUserById(userId);
@@ -30,7 +30,7 @@ export async function updateUserXP(
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to update user XP. Please try again later.",
-      "updateUserXP"
+      "updateUserXP",
     );
   }
 }

@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { updateUserStreak } from "../user/streak";
 import { QuizActionError } from "@/server/utils/error";
 import { tryCatch } from "@/lib/try-catch";
-import { updateQuizById } from "@/server/database/queries/quiz/update";
+import { updateQuizById } from "@/server/db/queries/quiz/update";
 
 export const updateQuiz = async (
   quiz: QuizFormValues,

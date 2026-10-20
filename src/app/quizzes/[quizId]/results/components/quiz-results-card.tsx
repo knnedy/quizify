@@ -5,7 +5,7 @@ import type React from "react";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
-import type { OwnerQuizDetail, QuizAttempt } from "@/server/database/schema";
+import type { OwnerQuizDetail, QuizAttempt } from "@/server/db/schema";
 import { cn } from "@/lib/utils";
 import {
   Award,
@@ -128,7 +128,7 @@ export default function QuizResultsCard({
   const handleRatingSubmit = async (rating: number) => {
     startTransition(async () => {
       const { data: result, error } = await tryCatch(
-        submitQuizRating(quiz.id, rating, userId)
+        submitQuizRating(quiz.id, rating, userId),
       );
 
       if (error) {
@@ -153,15 +153,15 @@ export default function QuizResultsCard({
         percentage >= 90
           ? "border-t-amber-500"
           : percentage >= 75
-          ? "border-t-indigo-500"
-          : percentage >= 60
-          ? "border-t-emerald-500"
-          : "border-t-blue-500"
+            ? "border-t-indigo-500"
+            : percentage >= 60
+              ? "border-t-emerald-500"
+              : "border-t-blue-500",
       )}>
       <div
         className={cn(
           "absolute inset-0 opacity-10 bg-gradient-to-br pointer-events-none",
-          performanceData.gradient
+          performanceData.gradient,
         )}
       />
 
@@ -192,10 +192,10 @@ export default function QuizResultsCard({
                 percentage >= 90
                   ? "text-amber-500"
                   : percentage >= 75
-                  ? "text-indigo-500"
-                  : percentage >= 60
-                  ? "text-emerald-500"
-                  : "text-blue-500"
+                    ? "text-indigo-500"
+                    : percentage >= 60
+                      ? "text-emerald-500"
+                      : "text-blue-500",
               )}
             />
           </svg>
@@ -204,7 +204,7 @@ export default function QuizResultsCard({
               <span
                 className={cn(
                   "text-xl sm:text-2xl font-bold",
-                  performanceData.color
+                  performanceData.color,
                 )}>
                 {percentage}%
               </span>
@@ -220,7 +220,7 @@ export default function QuizResultsCard({
             <CardTitle
               className={cn(
                 "text-xl sm:text-2xl font-bold",
-                performanceData.color
+                performanceData.color,
               )}>
               {performanceData.message}
             </CardTitle>
@@ -235,10 +235,10 @@ export default function QuizResultsCard({
               percentage >= 90
                 ? "bg-amber-50 text-amber-600"
                 : percentage >= 75
-                ? "bg-indigo-50 text-indigo-600"
-                : percentage >= 60
-                ? "bg-emerald-50 text-emerald-600"
-                : "bg-blue-50 text-blue-600"
+                  ? "bg-indigo-50 text-indigo-600"
+                  : percentage >= 60
+                    ? "bg-emerald-50 text-emerald-600"
+                    : "bg-blue-50 text-blue-600",
             )}>
             <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>
@@ -372,10 +372,10 @@ export default function QuizResultsCard({
             percentage >= 90
               ? "bg-amber-500 hover:bg-amber-600"
               : percentage >= 75
-              ? "bg-indigo-500 hover:bg-indigo-600"
-              : percentage >= 60
-              ? "bg-emerald-500 hover:bg-emerald-600"
-              : "bg-blue-500 hover:bg-blue-600"
+                ? "bg-indigo-500 hover:bg-indigo-600"
+                : percentage >= 60
+                  ? "bg-emerald-500 hover:bg-emerald-600"
+                  : "bg-blue-500 hover:bg-blue-600",
           )}>
           <Rocket className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
           Retry Quiz

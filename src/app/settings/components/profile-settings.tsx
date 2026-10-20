@@ -53,7 +53,7 @@ import { useRouter } from "next/navigation";
 import { tryCatch } from "@/lib/try-catch";
 import { updateUserProfile } from "@/server/actions/user/update";
 import { toast } from "sonner";
-import { User } from "@/server/database/schema";
+import { User } from "@/server/db/schema";
 
 const socialPlatforms = [
   {

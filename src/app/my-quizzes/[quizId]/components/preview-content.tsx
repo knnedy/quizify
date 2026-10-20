@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { OwnerQuizDetail, QuizDifficulty } from "@/server/database/schema";
+import { OwnerQuizDetail, QuizDifficulty } from "@/server/db/schema";
 import Link from "next/link";
 import { formatSecondsToMinutes } from "@/lib/format-time";
 

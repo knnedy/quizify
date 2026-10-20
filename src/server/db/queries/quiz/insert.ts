@@ -1,12 +1,12 @@
 "use server";
 
-import db from "@/server/database";
-import { questions, quizzes } from "@/server/database/schema";
+import db from "@/server/db";
+import { questions, quizzes } from "@/server/db/schema";
 import { QuizFormValues } from "@/lib/quiz-form-schema";
 
 export const insertQuizWithQuestions = async (
   quiz: QuizFormValues,
-  userId: number
+  userId: number,
 ): Promise<{ id: number } | null> => {
   const { questions: quizQuestions, ...quizData } = quiz;
 
@@ -38,7 +38,7 @@ export const insertQuizWithQuestions = async (
         title: question.title,
         choices: question.choices,
         correctAnswer: question.correctAnswer,
-      }))
+      })),
     );
 
     return createdQuiz;

@@ -1,7 +1,7 @@
 "use server";
 
-import db from "@/server/database";
-import { quizAttempts, quizzes, User, users } from "@/server/database/schema";
+import db from "@/server/db";
+import { quizAttempts, quizzes, User, users } from "@/server/db/schema";
 import { eq, count, desc, sql } from "drizzle-orm";
 
 export const selectUserById = async (userId: number) => {
@@ -57,11 +57,11 @@ export async function selectUserStats(user: User) {
     attemptsStats.length > 0
       ? Math.round(
           attemptsStats.reduce((sum, attempt) => sum + attempt.percentage, 0) /
-            attemptsStats.length
+            attemptsStats.length,
         )
       : 0;
   const completedQuizzes = attemptsStats.filter(
-    (attempt) => attempt.isCompleted
+    (attempt) => attempt.isCompleted,
   ).length;
   const completionRate =
     totalQuizzesTaken > 0
@@ -71,7 +71,7 @@ export async function selectUserStats(user: User) {
     attemptsStats.length > 0
       ? Math.round(
           attemptsStats.reduce((sum, attempt) => sum + attempt.timeTaken, 0) /
-            attemptsStats.length
+            attemptsStats.length,
         )
       : 0;
 

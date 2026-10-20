@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { OwnerQuizOverview } from "@/server/database/schema";
+import type { OwnerQuizOverview } from "@/server/db/schema";
 import { motion } from "motion/react";
 import QuizCard from "./quiz-card";
 import {

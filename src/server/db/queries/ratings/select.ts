@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@/server/database";
+import db from "@/server/db";
 import {
   users,
   quizzes,
@@ -9,13 +9,13 @@ import {
   questions,
   quizBookmarks,
   PublicQuizOverview,
-} from "@/server/database/schema";
+} from "@/server/db/schema";
 import { avg, eq, count, desc, gte, and, inArray } from "drizzle-orm";
 
 export async function selectTopRatedQuizzes(
   userId: number,
   limit: number,
-  minRatings: number
+  minRatings: number,
 ): Promise<PublicQuizOverview[]> {
   // First, get quizzes with their average ratings and rating counts
   // Only include quizzes that have at least minRatings ratings
@@ -88,8 +88,8 @@ export async function selectTopRatedQuizzes(
       .where(
         and(
           eq(quizBookmarks.userId, userId),
-          inArray(quizBookmarks.quizId, topRatedQuizIds)
-        )
+          inArray(quizBookmarks.quizId, topRatedQuizIds),
+        ),
       );
     bookmarkedQuizIds = bookmarks.map((b) => b.quizId);
   }
@@ -157,7 +157,7 @@ export async function selectTopRatedQuizzesByCategory(
   category: string,
   userId?: number,
   limit: number = 10,
-  minRatings: number = 2
+  minRatings: number = 2,
 ): Promise<PublicQuizOverview[]> {
   // Get quizzes in the specified category with their ratings
   const categoryQuizzesWithRatings = await db
@@ -217,7 +217,7 @@ export async function selectTopRatedQuizzesByCategory(
     const bookmarks = await db.query.quizBookmarks.findMany({
       where: and(
         eq(quizBookmarks.userId, userId),
-        inArray(quizBookmarks.quizId, quizIds)
+        inArray(quizBookmarks.quizId, quizIds),
       ),
       columns: {
         quizId: true,

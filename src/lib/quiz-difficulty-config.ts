@@ -1,4 +1,4 @@
-import { QuizDifficulty } from "@/server/database/schema";
+import { QuizDifficulty } from "@/server/db/schema";
 
 export const difficultyIcons = {
   BEGINNER: "🌱",
@@ -8,7 +8,7 @@ export const difficultyIcons = {
 };
 
 export const getDifficultyConfig = (
-  difficulty: QuizDifficulty
+  difficulty: QuizDifficulty,
 ): { color: string; icon: string; bgColor: string } => {
   switch (difficulty) {
     case "BEGINNER":

@@ -3,11 +3,11 @@
 import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { QuizActionError } from "@/server/utils/error";
-import { checkUserExists } from "@/server/database/queries/user/select";
-import { checkQuizExists } from "@/server/database/queries/quiz/select";
-import { upsertQuizRating } from "@/server/database/queries/ratings/update";
-import { PublicQuizOverview } from "@/server/database/schema";
-import { selectTopRatedQuizzes } from "@/server/database/queries/ratings/select";
+import { checkUserExists } from "@/server/db/queries/user/select";
+import { checkQuizExists } from "@/server/db/queries/quiz/select";
+import { upsertQuizRating } from "@/server/db/queries/ratings/update";
+import { PublicQuizOverview } from "@/server/db/schema";
+import { selectTopRatedQuizzes } from "@/server/db/queries/ratings/select";
 
 export const getTopRatedQuizzes = async (
   userId?: string,

@@ -22,7 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import type { PublicQuizOverview } from "@/server/database/schema";
+import type { PublicQuizOverview } from "@/server/db/schema";
 import { formatSecondsToMinutes } from "@/lib/format-time";
 import { toast } from "sonner";
 import { tryCatch } from "@/lib/try-catch";
@@ -48,7 +48,7 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
 
     startTransition(async () => {
       const { data: result, error } = await tryCatch(
-        toggleQuizBookmark(quiz.id)
+        toggleQuizBookmark(quiz.id),
       );
 
       if (error) {
@@ -61,7 +61,7 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
       // Sync with server state (in case of conflicts)
       setIsBookmarked(result.isBookmarked);
       toast.success(
-        result.isBookmarked ? "Quiz bookmarked" : "Bookmark removed"
+        result.isBookmarked ? "Quiz bookmarked" : "Bookmark removed",
       );
     });
   };
@@ -74,8 +74,8 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
           i < Math.floor(rating)
             ? "fill-yellow-400 text-yellow-400"
             : i < rating
-            ? "fill-yellow-400/50 text-yellow-400"
-            : "text-gray-300"
+              ? "fill-yellow-400/50 text-yellow-400"
+              : "text-gray-300"
         }`}
       />
     ));
@@ -194,8 +194,7 @@ export default function QuizCard({ quiz, diffConfig }: QuizCardProps) {
             isHovered
               ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]"
               : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-          }`}
-          >
+          }`}>
           <Link
             href={`/quizzes/${quiz.id}`}
             className="flex items-center justify-center gap-2">

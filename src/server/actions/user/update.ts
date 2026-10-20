@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/server/auth";
-import { updateUserById } from "@/server/database/queries/user/update";
+import { updateUserById } from "@/server/db/queries/user/update";
 import { UserActionError } from "@/server/utils/error";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";

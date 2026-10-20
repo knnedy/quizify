@@ -1,14 +1,14 @@
 "use server";
 
-import db from "@/server/database";
-import { quizAttempts, userAchievements } from "@/server/database/schema";
+import db from "@/server/db";
+import { quizAttempts, userAchievements } from "@/server/db/schema";
 import { UserActionError } from "@/server/utils/error";
 import { UpdatedAchievement } from "@/lib/types";
 import { XP_CONFIG } from "@/server/utils/xp";
 import { eq } from "drizzle-orm";
 
 export async function checkAndUpdateAchievements(
-  userId: number
+  userId: number,
 ): Promise<UpdatedAchievement> {
   try {
     const userStats = await db.query.quizAttempts.findMany({
@@ -21,12 +21,12 @@ export async function checkAndUpdateAchievements(
     });
 
     const perfectScores = userStats.filter(
-      (attempt) => attempt.percentage === 100
+      (attempt) => attempt.percentage === 100,
     ).length;
     const fastAttempts = userStats.filter(
       (attempt) =>
         attempt.quiz?.timeLimit &&
-        attempt.timeTaken / (attempt.quiz.timeLimit * 60) < 0.5
+        attempt.timeTaken / (attempt.quiz.timeLimit * 60) < 0.5,
     ).length;
     const totalAttempts = userStats.length;
 
@@ -97,7 +97,7 @@ export async function checkAndUpdateAchievements(
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to update user achievements. Please try again later.",
-      "checkAndUpdateAchievements"
+      "checkAndUpdateAchievements",
     );
   }
 }

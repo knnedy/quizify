@@ -1,13 +1,13 @@
 "use server";
 
-import db from "@/server/database";
-import { quizRatings } from "@/server/database/schema";
+import db from "@/server/db";
+import { quizRatings } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export const upsertQuizRating = async (
   quizId: number,
   userId: number,
-  rating: number
+  rating: number,
 ) => {
   const existingRating = await db.query.quizRatings.findFirst({
     where: and(eq(quizRatings.userId, userId), eq(quizRatings.quizId, quizId)),
@@ -21,7 +21,7 @@ export const upsertQuizRating = async (
         updatedAt: new Date(),
       })
       .where(
-        and(eq(quizRatings.userId, userId), eq(quizRatings.quizId, quizId))
+        and(eq(quizRatings.userId, userId), eq(quizRatings.quizId, quizId)),
       );
     return { isUpdate: true };
   } else {

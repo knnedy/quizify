@@ -1,17 +1,17 @@
 "use server";
 
-import db from "@/server/database";
+import db from "@/server/db";
 import {
   quizBookmarks,
   quizRatings,
   quizAttempts,
   questions,
   PublicQuizOverview,
-} from "@/server/database/schema";
+} from "@/server/db/schema";
 import { avg, eq, inArray, count } from "drizzle-orm";
 
 export async function selectBookmarkedQuizzes(
-  userId: number
+  userId: number,
 ): Promise<PublicQuizOverview[]> {
   // Get bookmarks with quiz and user data
   const bookmarks = await db.query.quizBookmarks.findMany({
@@ -133,7 +133,7 @@ export async function selectBookmarkedQuizzes(
         },
         isBookmarked: true, // Since these are bookmarked quizzes, this is always true
       };
-    }
+    },
   );
 
   return transformedBookmarks;

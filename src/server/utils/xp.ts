@@ -1,4 +1,4 @@
-import { QuizDifficulty } from "@/server/database/schema";
+import { QuizDifficulty } from "@/server/db/schema";
 
 // Enhanced XP Configuration
 export const XP_CONFIG = {
@@ -94,8 +94,8 @@ function validateDifficulty(difficulty: QuizDifficulty): void {
   if (!Object.keys(XP_CONFIG.BASE_XP).includes(difficulty)) {
     throw new Error(
       `Invalid difficulty: ${difficulty}. Must be one of: ${XP_CONFIG.VALID_DIFFICULTIES.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
   }
 }
@@ -139,7 +139,7 @@ export function getScoreMultiplier(scorePercentage: number): number {
 
 export function getTimeMultiplier(
   timeLimit: number,
-  timeTaken: number
+  timeTaken: number,
 ): number {
   // No time pressure = no bonus/penalty
   if (timeLimit <= 0) return 1.0;
@@ -174,7 +174,7 @@ function getQuestionCountScaling(questionCount: number): number {
 
 // Main XP calculation function with breakdown
 export async function calculateXPWithBreakdown(
-  params: XPCalculationParams
+  params: XPCalculationParams,
 ): Promise<XPResult> {
   // Validate all inputs
   validateInputs(params);
@@ -238,7 +238,7 @@ export async function calculateXPWithBreakdown(
 
 // Simplified function that returns only XP
 export async function calculateXP(
-  params: XPCalculationParams
+  params: XPCalculationParams,
 ): Promise<number> {
   const result = await calculateXPWithBreakdown(params);
   return result.xp;
@@ -269,7 +269,7 @@ export function formatXPBreakdown(breakdown: XPBreakdown): string {
 // Helper function to check if a score qualifies for achievements
 export function checkSpeedAchievement(
   timeLimit: number,
-  timeTaken: number
+  timeTaken: number,
 ): boolean {
   if (timeLimit <= 0) return false;
   const timeRatio = timeTaken / timeLimit;

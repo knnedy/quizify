@@ -7,7 +7,7 @@ import { UserActionError } from "@/server/utils/error";
 import {
   selectUserById,
   selectUserStats,
-} from "@/server/database/queries/user/select";
+} from "@/server/db/queries/user/select";
 import { UserStats } from "@/lib/types";
 
 export async function getUserStats(userId?: string): Promise<UserStats> {

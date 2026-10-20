@@ -1,8 +1,8 @@
 "use server";
 
 import { UserActionError } from "@/server/utils/error";
-import { selectUserById } from "@/server/database/queries/user/select";
-import { updateUserStreakData } from "@/server/database/queries/user/update";
+import { selectUserById } from "@/server/db/queries/user/select";
+import { updateUserStreakData } from "@/server/db/queries/user/update";
 
 type UpdateUserStreakResponse = {
   currentStreak?: number;
@@ -10,7 +10,7 @@ type UpdateUserStreakResponse = {
 };
 
 export async function updateUserStreak(
-  userId: number
+  userId: number,
 ): Promise<UpdateUserStreakResponse> {
   try {
     const user = await selectUserById(userId);
@@ -19,7 +19,7 @@ export async function updateUserStreak(
       throw new UserActionError(
         "NOT_FOUND",
         "User not found",
-        "updateUserStreak"
+        "updateUserStreak",
       );
     }
 
@@ -45,12 +45,12 @@ export async function updateUserStreak(
     const lastActivityDay = new Date(
       lastActivity.getFullYear(),
       lastActivity.getMonth(),
-      lastActivity.getDate()
+      lastActivity.getDate(),
     );
 
     // Calculate the difference in days
     const diffInDays = Math.floor(
-      (today.getTime() - lastActivityDay.getTime()) / (1000 * 60 * 60 * 24)
+      (today.getTime() - lastActivityDay.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     let newCurrentStreak = user.currentStreak;
@@ -101,7 +101,7 @@ export async function updateUserStreak(
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to update user streak. Please try again later.",
-      "updateUserStreak"
+      "updateUserStreak",
     );
   }
 }
@@ -113,7 +113,7 @@ type ResetStreakResponse = {
 };
 
 export async function resetStreak(
-  userId: number
+  userId: number,
 ): Promise<ResetStreakResponse> {
   try {
     const user = await selectUserById(userId);
@@ -138,12 +138,12 @@ export async function resetStreak(
     const lastActivityDay = new Date(
       lastActivity.getFullYear(),
       lastActivity.getMonth(),
-      lastActivity.getDate()
+      lastActivity.getDate(),
     );
 
     // Calculate the difference in days
     const diffInDays = Math.floor(
-      (today.getTime() - lastActivityDay.getTime()) / (1000 * 60 * 60 * 24)
+      (today.getTime() - lastActivityDay.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     // Reset streak only if more than 1 day has passed
@@ -174,7 +174,7 @@ export async function resetStreak(
     throw new UserActionError(
       "DATABASE_ERROR",
       "Failed to reset user streak",
-      "resetStreak"
+      "resetStreak",
     );
   }
 }

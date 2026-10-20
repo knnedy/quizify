@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GeneralSettings from "./general-settings";
 import ProfileSettings from "./profile-settings";
 import NotificationSettings from "./notification-settings";
-import { User } from "@/server/database/schema";
+import { User } from "@/server/db/schema";
 import { Session } from "@/server/auth";
 
 export default function SettingsForm({

@@ -30,7 +30,7 @@ import type {
   OwnerQuizDetail,
   QuizAttempt,
   QuizDifficulty,
-} from "@/server/database/schema";
+} from "@/server/db/schema";
 
 interface QuizReviewProps {
   quiz: OwnerQuizDetail;
@@ -134,8 +134,8 @@ export default function QuizReview({ quiz, quizAttempt }: QuizReviewProps) {
                     isCorrect
                       ? "default"
                       : isAnswered
-                      ? "destructive"
-                      : "secondary"
+                        ? "destructive"
+                        : "secondary"
                   }
                   className={`text-xs sm:text-sm ${
                     isCorrect
@@ -145,8 +145,8 @@ export default function QuizReview({ quiz, quizAttempt }: QuizReviewProps) {
                   {isCorrect
                     ? "Correct"
                     : isAnswered
-                    ? "Incorrect"
-                    : "Not Answered"}
+                      ? "Incorrect"
+                      : "Not Answered"}
                 </Badge>
               </div>
               <Progress value={progress} className="h-2" />
@@ -259,7 +259,7 @@ export default function QuizReview({ quiz, quizAttempt }: QuizReviewProps) {
                   className="w-full sm:w-auto"
                   onClick={() =>
                     setCurrentQuestionIndex((i) =>
-                      Math.min(quiz.questions.length - 1, i + 1)
+                      Math.min(quiz.questions.length - 1, i + 1),
                     )
                   }
                   disabled={currentQuestionIndex === quiz.questions.length - 1}>

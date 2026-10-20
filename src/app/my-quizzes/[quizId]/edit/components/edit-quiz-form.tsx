@@ -47,7 +47,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Session } from "@/server/auth";
-import { OwnerQuizDetail } from "@/server/database/schema";
+import { OwnerQuizDetail } from "@/server/db/schema";
 import {
   Command,
   CommandEmpty,

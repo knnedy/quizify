@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@/server/database";
+import db from "@/server/db";
 import {
   quizzes,
   questions,
@@ -13,7 +13,7 @@ import {
   quizBookmarks,
   PublicQuizDetail,
   QuizLeaderboard,
-} from "@/server/database/schema";
+} from "@/server/db/schema";
 import { eq, and, countDistinct, avg, desc } from "drizzle-orm";
 
 export const checkQuizExists = async (quizId: number): Promise<boolean> => {
@@ -41,7 +41,7 @@ export const selectQuizWithQuestions = async (quizId: number) => {
 };
 
 export const selectOwnerQuizzes = async (
-  userId: number
+  userId: number,
 ): Promise<OwnerQuizOverview[]> => {
   const quizzesResults = await db
     .select({
@@ -92,7 +92,7 @@ export const selectOwnerQuizzes = async (
 
 export const selectOwnerQuiz = async (
   quizId: number,
-  userId: number
+  userId: number,
 ): Promise<OwnerQuizDetail | null> => {
   // Single query to get quiz with aggregated data
   const quizResults = await db
@@ -166,7 +166,7 @@ export const selectOwnerQuiz = async (
 };
 
 export const selectPublicQuizzes = async (
-  userId: number
+  userId: number,
 ): Promise<PublicQuizOverview[]> => {
   const quizResults = await db
     .select({
@@ -207,7 +207,7 @@ export const selectPublicQuizzes = async (
   });
 
   const bookmarkedQuizIds = new Set(
-    userBookmarks.map((bookmark) => bookmark.quizId)
+    userBookmarks.map((bookmark) => bookmark.quizId),
   );
 
   // Combine all results
@@ -239,7 +239,7 @@ export const selectPublicQuizzes = async (
 
 export const selectPublicQuiz = async (
   quizId: number,
-  userId: number
+  userId: number,
 ): Promise<PublicQuizDetail | null> => {
   const quizResults = await db
     .select({
@@ -270,7 +270,7 @@ export const selectPublicQuiz = async (
     .leftJoin(quizAttempts, eq(quizzes.id, quizAttempts.quizId))
     .leftJoin(
       quizBookmarks,
-      and(eq(quizBookmarks.quizId, quizId), eq(quizBookmarks.userId, userId))
+      and(eq(quizBookmarks.quizId, quizId), eq(quizBookmarks.userId, userId)),
     )
     .where(eq(quizzes.id, quizId))
     .groupBy(quizzes.id, users.id)
@@ -320,7 +320,7 @@ export const selectPublicQuiz = async (
 };
 
 export const selectQuizLeaderboard = async (
-  quizId: number
+  quizId: number,
 ): Promise<QuizLeaderboard> => {
   const leaderboardData = await db.query.quizAttempts.findMany({
     where: eq(quizAttempts.quizId, quizId),

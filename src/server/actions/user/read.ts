@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/server/auth";
-import { selectUserById } from "@/server/database/queries/user/select";
+import { selectUserById } from "@/server/db/queries/user/select";
 import { UserActionError } from "@/server/utils/error";
 import { headers } from "next/headers";
 
