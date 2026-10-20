@@ -147,6 +147,7 @@ export const tags = pgTable("tag", {
 });
 
 // Quizzes
+// Quizzes
 export const quizzes = pgTable(
   "quiz",
   {
@@ -169,6 +170,9 @@ export const quizzes = pgTable(
     status: quizStatus("status").notNull().default("DRAFT"),
     visibility: quizVisibility("visibility").notNull().default("PUBLIC"),
     timeLimitSeconds: integer("time_limit_seconds"),
+    shuffleQuestions: boolean("shuffle_questions").notNull().default(false),
+    shuffleOptions: boolean("shuffle_options").notNull().default(false),
+    maxAttempts: integer("max_attempts"),
     publishedAt: timestamp("published_at"),
     deletedAt: timestamp("deleted_at"),
     createdAt: timestamp("created_at", { mode: "date", precision: 3 })
@@ -183,6 +187,10 @@ export const quizzes = pgTable(
     check(
       "quiz_time_limit_positive",
       sql`${t.timeLimitSeconds} is null or ${t.timeLimitSeconds} > 0`,
+    ),
+    check(
+      "quiz_max_attempts_positive",
+      sql`${t.maxAttempts} is null or ${t.maxAttempts} > 0`,
     ),
     index("quiz_browse_idx").on(t.status, t.visibility, t.createdAt),
     index("quiz_category_idx").on(t.categoryId),
