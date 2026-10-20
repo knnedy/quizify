@@ -22,7 +22,10 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/my-quizzes/:path*",
-    "/quizzes/:path*",
     "/settings/:path*",
+    "/quizzes/create",
+    "/quizzes/:slug/play",
+    "/quizzes/:slug/results",
+    "/quizzes/:slug/review",
   ],
 };
