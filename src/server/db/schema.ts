@@ -597,7 +597,6 @@ export type AdminQuestion = Question & {
 };
 
 // Quiz types
-// Quiz types
 type QuizAuthor = {
   name: string;
   image: string | null;
