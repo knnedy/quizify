@@ -2,6 +2,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Brand } from "../brand";
+import { SignOutButton } from "../sign-out-button";
 import { ThemeToggle } from "../theme-toggle";
 
 const links = [
@@ -32,11 +33,17 @@ export default function HomeNavbar({ isSignedIn }: { isSignedIn: boolean }) {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {isSignedIn ? (
-            <Link
-              href="/dashboard"
-              className={cn(buttonVariants({ size: "sm" }), "shadow-primary")}>
-              Dashboard
-            </Link>
+            <>
+              <SignOutButton />
+              <Link
+                href="/dashboard"
+                className={cn(
+                  buttonVariants({ size: "sm" }),
+                  "shadow-primary",
+                )}>
+                Dashboard
+              </Link>
+            </>
           ) : (
             <>
               <Link
