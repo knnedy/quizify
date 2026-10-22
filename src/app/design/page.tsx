@@ -15,8 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Keycap } from "./components/keycap";
-import { QuizDemo } from "./components/quiz-demo";
+import { Keycap } from "@/components/keycap";
+import { QuizDemo } from "@/components/quiz-demo";
 import { ThemeSwitcher } from "./components/theme-switcher";
 
 export const metadata: Metadata = {
