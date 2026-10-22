@@ -28,24 +28,33 @@ export default async function SignUpPage({
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Create your account
-        </h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-3xl">Create your account</h1>
+        <p className="text-base text-muted-foreground">
           Join Quizify to take quizzes, earn XP and build your own.
         </p>
       </div>
 
       <SignUpForm redirectTo={redirectTo} />
 
-      <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link
-          href={`/sign-in${query}`}
-          className="font-medium text-foreground underline-offset-4 hover:underline">
-          Sign in
-        </Link>
-      </p>
+      <div className="space-y-3 text-center text-sm text-muted-foreground">
+        <p>
+          Already have an account?{" "}
+          <Link
+            href={`/sign-in${query}`}
+            className="font-medium text-foreground underline-offset-4 hover:underline">
+            Sign in
+          </Link>
+        </p>
+        <p>
+          Just looking?{" "}
+          <Link
+            href="/quizzes"
+            className="font-medium text-foreground underline-offset-4 hover:underline">
+            Browse quizzes
+          </Link>{" "}
+          without an account.
+        </p>
+      </div>
     </div>
   );
 }
