@@ -3,7 +3,6 @@ import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import NavbarWrapper from "./components/navbar-wrapper";
 
 export const metadata: Metadata = {
   title: {
@@ -42,7 +41,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          <NavbarWrapper>{children}</NavbarWrapper>
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

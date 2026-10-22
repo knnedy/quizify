@@ -1,31 +1,33 @@
-import { auth } from "@/server/auth";
-import { headers } from "next/headers";
-import Navbar from "./components/home/navbar";
-import HeroSection from "./components/home/hero-section";
-import PopularCategoriesSection from "./components/home/popular-categories-section";
-import FAQSection from "./components/home/faq-section";
+import { getOptionalUser } from "@/server/session";
+import CtaSection from "./components/home/cta-section";
+import FaqSection from "./components/home/faq-section";
 import FeaturesSection from "./components/home/features-section";
 import Footer from "./components/home/footer";
+import HeroSection from "./components/home/hero-section";
 import HowItWorksSection from "./components/home/how-it-works-section";
+import HomeNavbar from "./components/home/navbar";
+import PopularCategoriesSection from "./components/home/popular-categories-section";
 import StatsSection from "./components/home/stats-section";
+import TrendingSection from "./components/home/trending-section";
 
-export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+export default async function HomePage() {
+  const user = await getOptionalUser();
+  const isSignedIn = Boolean(user);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background/90 overflow-hidden">
-      <Navbar session={session} />
+    <>
+      <HomeNavbar isSignedIn={isSignedIn} />
       <main>
-        <HeroSection />
+        <HeroSection isSignedIn={isSignedIn} />
         <StatsSection />
+        <TrendingSection />
+        <PopularCategoriesSection />
         <HowItWorksSection />
         <FeaturesSection />
-        <PopularCategoriesSection />
-        <FAQSection />
+        <FaqSection />
+        <CtaSection isSignedIn={isSignedIn} />
       </main>
       <Footer />
-    </div>
+    </>
   );
 }

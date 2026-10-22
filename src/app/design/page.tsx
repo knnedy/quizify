@@ -416,7 +416,7 @@ export default function DesignPage() {
               className="grid gap-2 p-5 md:grid-cols-[190px_1fr] md:items-baseline md:gap-6">
               <div className="space-y-1">
                 <p className="text-sm font-medium">{row.label}</p>
-                <code className="block text-xs break-words text-muted-foreground">
+                <code className="block text-xs wrap-break-word text-muted-foreground">
                   {row.classes}
                 </code>
               </div>
@@ -497,7 +497,7 @@ export default function DesignPage() {
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2.5 text-sm font-medium text-muted-foreground">
                     <span className="flex size-9 items-center justify-center rounded-lg bg-muted text-foreground">
-                      <Icon className="size-[18px]" />
+                      <Icon className="size-4.5" />
                     </span>
                     {quiz.category}
                   </span>
