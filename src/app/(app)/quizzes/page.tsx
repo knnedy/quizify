@@ -7,8 +7,8 @@ import { isDifficulty } from "@/lib/difficulty";
 import { defaultQuizSort, isQuizSort } from "@/lib/quiz-browse";
 import { cn } from "@/lib/utils";
 import { getOptionalUser } from "@/server/session";
-import { QuizFilters } from "./components/quiz-filters";
-import { QuizPagination } from "./components/quiz-pagination";
+import { QuizFilters } from "./_components/quiz-filters";
+import { QuizPagination } from "./_components/quiz-pagination";
 import { listCategories, listQuizzes } from "./mock-data";
 
 export const metadata: Metadata = { title: "Browse quizzes" };
