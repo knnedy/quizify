@@ -36,7 +36,7 @@ function QuizCard({ quiz }: { quiz: MockQuiz }) {
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-2.5 text-sm font-medium text-muted-foreground">
           <span className="flex size-9 items-center justify-center rounded-lg bg-muted text-foreground">
-            <Icon className="size-[18px]" />
+            <Icon className="size-4.5" />
           </span>
           {quiz.category}
         </span>
