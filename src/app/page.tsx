@@ -16,7 +16,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <HomeNavbar isSignedIn={isSignedIn} />
+      <HomeNavbar user={user ? { name: user.name, email: user.email } : null} />
       <main>
         <HeroSection isSignedIn={isSignedIn} />
         <StatsSection />
