@@ -149,7 +149,7 @@ export function SignUpForm({ redirectTo }: { redirectTo: string }) {
           <Button
             type="submit"
             size="lg"
-            className="w-full"
+            className="w-full shadow-primary"
             disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting && (
               <Spinner data-icon="inline-start" />
