@@ -25,7 +25,7 @@ export function BookmarkToggle({
           ? "text-primary"
           : "text-muted-foreground hover:bg-accent hover:text-foreground",
       )}>
-      <BookmarkIcon className={cn("size-[18px]", saved && "fill-current")} />
+      <BookmarkIcon className={cn("size-4.5", saved && "fill-current")} />
     </button>
   );
 }
