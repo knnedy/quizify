@@ -227,6 +227,15 @@
 }
 
 @layer base {
+  :root {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--muted-foreground) 45%,
+        transparent
+      )
+      transparent;
+  }
   * {
     @apply border-border outline-ring/50;
   }

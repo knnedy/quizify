@@ -5,10 +5,12 @@ import { QuizCard } from "@/components/quiz-card";
 import { buttonVariants } from "@/components/ui/button";
 import { isDifficulty } from "@/lib/difficulty";
 import { defaultQuizSort, isQuizSort } from "@/lib/quiz-browse";
-import { cn } from "@/lib/utils";
 import { getOptionalUser } from "@/server/session";
-import { QuizFilters } from "./_components/quiz-filters";
+import { FeaturedQuiz } from "./_components/featured-quiz";
 import { QuizPagination } from "./_components/quiz-pagination";
+import { QuizSearch } from "./_components/quiz-search";
+import { QuizToolbar } from "./_components/quiz-toolbar";
+import { TopicFilter } from "./_components/topic-filter";
 import { listCategories, listQuizzes } from "./mock-data";
 
 export const metadata: Metadata = { title: "Browse quizzes" };
@@ -33,8 +35,17 @@ export default async function QuizzesPage({
   const rawSort = first(raw.sort);
   const sort = isQuizSort(rawSort) ? rawSort : defaultQuizSort;
   const parsedPage = Number.parseInt(first(raw.page) ?? "1", 10);
+  const requestedPage = Number.isFinite(parsedPage) ? parsedPage : 1;
+
+  const hasFilters = Boolean(q || category || difficulty);
 
   const user = await getOptionalUser();
+
+  // The spotlight only exists on an unfiltered browse. It is left out of the
+  // grid on every page, so page numbers stay consistent.
+  const featured = hasFilters
+    ? null
+    : ((await listQuizzes({ sort: "popular", pageSize: 1 })).items[0] ?? null);
 
   const [result, categories] = await Promise.all([
     listQuizzes({
@@ -42,10 +53,15 @@ export default async function QuizzesPage({
       category,
       difficulty,
       sort,
-      page: Number.isFinite(parsedPage) ? parsedPage : 1,
+      page: requestedPage,
+      exclude: featured?.slug,
     }),
     listCategories(),
   ]);
+
+  const showFeatured = featured !== null && requestedPage <= 1;
+  const totalMatches = result.total + (featured ? 1 : 0);
+  const totalQuizzes = categories.reduce((sum, item) => sum + item.count, 0);
 
   const activeParams: Record<string, string> = {};
   if (q) activeParams.q = q;
@@ -53,94 +69,94 @@ export default async function QuizzesPage({
   if (difficulty) activeParams.difficulty = difficulty;
   if (sort !== defaultQuizSort) activeParams.sort = sort;
 
-  const start =
-    result.total === 0 ? 0 : (result.page - 1) * result.pageSize + 1;
-  const end = Math.min(result.page * result.pageSize, result.total);
-
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-6 py-10 sm:py-14">
-      <div className="space-y-2">
-        <h1 className="text-4xl sm:text-5xl">Browse quizzes</h1>
-        <p className="max-w-prose text-base text-muted-foreground">
-          Find something worth playing. Search by title, narrow by topic or
-          difficulty, and sort by what other players enjoy.
-        </p>
-      </div>
-
-      {!user && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-primary-soft px-4 py-3 text-sm">
-          <p>
-            <span className="font-medium">
-              You&apos;re browsing as a guest.
-            </span>{" "}
-            <span className="text-muted-foreground">
-              Sign in to play quizzes, save favorites and earn XP.
-            </span>
-          </p>
-          <Link
-            href="/sign-in?redirect=/quizzes"
-            className={cn(buttonVariants({ size: "sm" }), "shadow-primary")}>
-            Sign in
-          </Link>
-        </div>
-      )}
-
-      <QuizFilters categories={categories} />
-
-      <p aria-live="polite" className="text-sm text-muted-foreground">
-        {result.total === 0 ? (
-          "No quizzes found"
-        ) : (
-          <>
-            Showing{" "}
-            <span className="font-medium text-foreground tabular-nums">
-              {start}&ndash;{end}
-            </span>{" "}
-            of{" "}
-            <span className="font-medium text-foreground tabular-nums">
-              {result.total}
-            </span>{" "}
-            quizzes
-          </>
-        )}
-        {q && (
-          <>
-            {" "}
-            for &ldquo;<span className="text-foreground">{q}</span>&rdquo;
-          </>
-        )}
-      </p>
-
-      {result.items.length > 0 ? (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {result.items.map((quiz) => (
-            <QuizCard
-              key={quiz.slug}
-              quiz={quiz}
-              showBookmark={Boolean(user)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed px-6 py-20 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <SearchXIcon className="size-6 text-muted-foreground" />
-          </span>
-          <div className="space-y-1">
-            <h2 className="text-xl">No quizzes found</h2>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Try a different search, or clear your filters to see every quiz.
+    <main>
+      <section className="relative overflow-hidden border-b">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_70%_at_90%_0%,var(--glow),transparent)]"
+        />
+        <div className="relative mx-auto max-w-6xl space-y-8 px-6 py-12 sm:py-16">
+          <div className="space-y-3">
+            <h1 className="text-4xl sm:text-5xl">What do you want to play?</h1>
+            <p className="max-w-prose text-base text-muted-foreground">
+              Search{" "}
+              <span className="font-semibold text-foreground tabular-nums">
+                {totalQuizzes}
+              </span>{" "}
+              quizzes, or jump straight into a topic.
             </p>
           </div>
-          <Link
-            href="/quizzes"
-            className={buttonVariants({ variant: "outline" })}>
-            Clear filters
-          </Link>
-        </div>
-      )}
 
-      <div className="pt-4">
+          <div className="max-w-2xl space-y-3">
+            <QuizSearch />
+            {!user && (
+              <p className="text-sm text-muted-foreground">
+                Browsing as a guest.{" "}
+                <Link
+                  href="/sign-in?redirect=/quizzes"
+                  className="font-medium text-foreground underline-offset-4 hover:underline">
+                  Sign in
+                </Link>{" "}
+                to play, save favorites and earn XP.
+              </p>
+            )}
+          </div>
+
+          <TopicFilter categories={categories} />
+        </div>
+      </section>
+
+      <QuizToolbar total={totalMatches} />
+
+      <div className="mx-auto max-w-6xl space-y-10 px-6 py-10">
+        {showFeatured && featured && <FeaturedQuiz quiz={featured} />}
+
+        {result.items.length > 0 ? (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {result.items.map((quiz) => (
+              <QuizCard
+                key={quiz.slug}
+                quiz={quiz}
+                showBookmark={Boolean(user)}
+              />
+            ))}
+          </div>
+        ) : (
+          !showFeatured && (
+            <div className="flex flex-col items-center gap-5 rounded-2xl border border-dashed px-6 py-16 text-center">
+              <span className="flex size-12 items-center justify-center rounded-full bg-muted">
+                <SearchXIcon className="size-6 text-muted-foreground" />
+              </span>
+              <div className="space-y-1">
+                <h2 className="text-xl">No quizzes found</h2>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Nothing matches that search. Clear your filters, or try one of
+                  these topics.
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {categories.slice(0, 4).map((item) => (
+                  <Link
+                    key={item.slug}
+                    href={`/quizzes?category=${item.slug}`}
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                    })}>
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href="/quizzes"
+                className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                Clear filters
+              </Link>
+            </div>
+          )
+        )}
+
         <QuizPagination
           page={result.page}
           pageCount={result.pageCount}

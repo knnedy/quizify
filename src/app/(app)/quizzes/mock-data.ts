@@ -427,11 +427,13 @@ export async function listQuizzes(params: {
   sort?: QuizSort;
   page?: number;
   pageSize?: number;
+  exclude?: string;
 }) {
   const pageSize = params.pageSize ?? 12;
   const term = params.search?.toLowerCase();
 
   const matches = entries.filter(({ quiz }) => {
+    if (params.exclude && quiz.slug === params.exclude) return false;
     if (params.category && quiz.category.slug !== params.category) return false;
     if (params.difficulty && quiz.difficulty !== params.difficulty)
       return false;
