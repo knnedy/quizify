@@ -11,9 +11,5 @@ interface QuizzesLayoutProps {
 }
 
 export default function QuizzesLayout({ children }: QuizzesLayoutProps) {
-  return (
-    <main className="container mx-auto px-4 py-4 min-h-screen md:px-10 lg:px-14">
-      {children}
-    </main>
-  );
+  return <>{children}</>;
 }
