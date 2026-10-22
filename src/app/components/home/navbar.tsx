@@ -3,6 +3,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Brand } from "../brand";
 import { ThemeToggle } from "../theme-toggle";
+import { MobileMenu } from "./mobile-menu";
 import { UserMenu } from "./user-menu";
 
 const links = [
@@ -19,12 +20,12 @@ export default function HomeNavbar({
 }) {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
-      <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto] items-center gap-6 px-6 md:grid-cols-[1fr_auto_1fr]">
+      <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto] items-center gap-6 px-6 lg:grid-cols-[1fr_auto_1fr]">
         <Brand className="justify-self-start" />
 
         <nav
           aria-label="Main"
-          className="hidden items-center gap-0.5 rounded-full border bg-muted/50 p-1 md:flex">
+          className="hidden items-center gap-0.5 rounded-full border bg-muted/50 p-1 lg:flex">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -47,7 +48,7 @@ export default function HomeNavbar({
                 href="/dashboard"
                 className={cn(
                   buttonVariants({ size: "sm" }),
-                  "shadow-primary",
+                  "hidden shadow-primary sm:inline-flex",
                 )}>
                 Dashboard
               </Link>
@@ -67,12 +68,13 @@ export default function HomeNavbar({
                 href="/sign-up"
                 className={cn(
                   buttonVariants({ size: "sm" }),
-                  "shadow-primary",
+                  "hidden shadow-primary sm:inline-flex",
                 )}>
                 Get started
               </Link>
             </>
           )}
+          <MobileMenu links={links} isSignedIn={Boolean(user)} />
         </div>
       </div>
     </header>
