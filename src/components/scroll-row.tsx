@@ -40,7 +40,7 @@ export function ScrollRow({
         aria-label={label}
         style={{ maskImage: mask, WebkitMaskImage: mask }}
         className={cn(
-          "-my-1 flex gap-2 overflow-x-auto scroll-smooth py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          "-my-1 flex gap-2 overflow-x-auto scroll-smooth py-1 scrollbar-none [&::-webkit-scrollbar]:hidden",
           className,
         )}>
         {children}
