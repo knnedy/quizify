@@ -8,6 +8,8 @@ type Handlers = {
   onSelect: (index: number) => void;
   onNext?: () => void;
   onPrevious: () => void;
+  focused?: boolean;
+  onToggleFocus?: () => void;
 };
 
 function indexFromKey(key: string) {
@@ -25,8 +27,15 @@ export function usePlayHotkeys(handlers: Handlers) {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      const { enabled, optionCount, onSelect, onNext, onPrevious } =
-        handlersRef.current;
+      const {
+        enabled,
+        optionCount,
+        onSelect,
+        onNext,
+        onPrevious,
+        focused,
+        onToggleFocus,
+      } = handlersRef.current;
 
       if (
         !enabled ||
@@ -45,6 +54,14 @@ export function usePlayHotkeys(handlers: Handlers) {
           target.tagName === "TEXTAREA" ||
           target.isContentEditable)
       ) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        if (focused && onToggleFocus) {
+          event.preventDefault();
+          onToggleFocus();
+        }
         return;
       }
 
@@ -75,8 +92,17 @@ export function usePlayHotkeys(handlers: Handlers) {
         return;
       }
 
+      // Letters pick options first, so F only toggles focus when the
+      // question has fewer than six options.
       const index = indexFromKey(event.key);
-      if (index >= 0 && index < optionCount) onSelect(index);
+      if (index >= 0 && index < optionCount) {
+        onSelect(index);
+        return;
+      }
+
+      if (event.key.toLowerCase() === "f" && onToggleFocus) {
+        onToggleFocus();
+      }
     }
 
     window.addEventListener("keydown", onKeyDown);
