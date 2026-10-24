@@ -9,10 +9,10 @@ const fillClasses: Record<Tone, string> = {
   urgent: "bg-incorrect",
 };
 
-const textClasses: Record<Tone, string> = {
-  calm: "text-muted-foreground",
-  warm: "text-streak-ink",
-  urgent: "text-incorrect-ink",
+const pillClasses: Record<Tone, string> = {
+  calm: "bg-muted text-muted-foreground",
+  warm: "bg-streak-soft text-streak-ink",
+  urgent: "animate-pulse bg-incorrect-soft text-incorrect-ink",
 };
 
 function getTone(remaining: number, total: number): Tone {
@@ -35,7 +35,7 @@ export function TimerLine({
   total: number;
 }) {
   return (
-    <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-muted">
+    <div aria-hidden className="fixed inset-x-0 top-0 z-70 h-1 bg-muted">
       <div
         className={cn(
           "h-full transition-[width,background-color] duration-1000 ease-linear",
@@ -58,8 +58,8 @@ export function TimerClock({
     <span
       role="timer"
       className={cn(
-        "flex items-center gap-1.5 text-sm font-semibold tabular-nums",
-        textClasses[getTone(remaining, total)],
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-display text-sm font-semibold tabular-nums transition-colors",
+        pillClasses[getTone(remaining, total)],
       )}>
       <ClockIcon className="size-4" />
       {formatClock(remaining)}
