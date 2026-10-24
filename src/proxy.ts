@@ -25,7 +25,7 @@ export const config = {
     "/settings/:path*",
     "/quizzes/create",
     "/quizzes/:slug/play",
-    "/quizzes/:slug/results",
-    "/quizzes/:slug/review",
+    "/quizzes/:slug/results/:path*",
+    "/quizzes/:slug/review/:path*",
   ],
 };

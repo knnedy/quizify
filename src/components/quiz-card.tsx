@@ -52,7 +52,7 @@ export function QuizCard({
       <Icon
         aria-hidden
         strokeWidth={1.25}
-        className="pointer-events-none absolute -top-6 -right-6 -z-10 size-40 rotate-12 text-foreground/4 transition-colors duration-300 group-hover:text-primary/[0.1]"
+        className="pointer-events-none absolute -top-6 -right-6 -z-10 size-40 rotate-12 text-foreground/4 transition-colors duration-300 group-hover:text-primary/10"
       />
 
       <div className="relative flex items-center justify-between gap-3">
