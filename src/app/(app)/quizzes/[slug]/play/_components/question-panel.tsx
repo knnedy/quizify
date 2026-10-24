@@ -90,7 +90,10 @@ export function QuestionPanel({
                 {String.fromCharCode(65 + index)}
               </Keycap>
               <span
-                className={cn("min-w-0 break-words", !trueFalse && "flex-1")}>
+                className={cn(
+                  "min-w-0 wrap-break-word",
+                  !trueFalse && "flex-1",
+                )}>
                 {option.label}
               </span>
               {multiple && (

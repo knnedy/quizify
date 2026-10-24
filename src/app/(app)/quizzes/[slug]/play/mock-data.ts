@@ -37,6 +37,26 @@ const seeds: Seed[] = [
   ],
   [
     "SINGLE",
+    "Which statement best describes how photosynthesis supports life on Earth?",
+    [
+      "It converts sunlight, water and carbon dioxide into sugars and releases oxygen as a by-product",
+      "It breaks down sugars in the dark to release the energy that plants need to grow",
+      "It absorbs nitrogen from the air and turns it into proteins that animals can eat directly",
+      "It stores heat in leaves during the day so that plants stay warm through the night",
+    ],
+  ],
+  [
+    "MULTIPLE",
+    "Which of these were direct consequences of the printing press in Europe?",
+    [
+      "Ideas and religious texts spread much faster and reached far more readers than hand copying allowed",
+      "Literacy rates rose over the following centuries as books became cheaper to produce",
+      "Scribes and monasteries immediately stopped producing any handwritten books at all",
+      "Standardised spelling and grammar gradually emerged as printers settled on common forms",
+    ],
+  ],
+  [
+    "SINGLE",
     "What is the capital of Australia?",
     ["Sydney", "Melbourne", "Canberra", "Perth"],
   ],
@@ -59,22 +79,6 @@ const seeds: Seed[] = [
     "SINGLE",
     "In which year did the first Moon landing happen?",
     ["1965", "1969", "1972", "1975"],
-  ],
-  // question with long text quiz options to test wrapping and layout
-  [
-    "MULTIPLE",
-    "Which of these statements about the solar system are true?",
-    [
-      "The Sun is a star.",
-      "Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. ",
-      "Pluto is still considered a planet. Pluto is still considered a planet.",
-      "The asteroid belt is located between Mars and Jupiter.",
-    ],
-  ],
-  [
-    "TRUE_FALSE",
-    "Venus is the hottest planet in our solar system.",
-    ["True", "False"],
   ],
 ];
 
