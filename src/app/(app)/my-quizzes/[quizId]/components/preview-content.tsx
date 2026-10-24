@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { OwnerQuizDetail, QuizDifficulty } from "@/server/db/schema";
 import Link from "next/link";
-import { formatSecondsToMinutes } from "@/lib/format-time";
+import { formatSecondsToMinutes } from "@/lib/format-date";
 
 type Props = {
   quiz: OwnerQuizDetail;

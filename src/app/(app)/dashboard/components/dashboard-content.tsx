@@ -29,7 +29,7 @@ import EmptyState from "./empty-state";
 import StatCard from "./stat-card";
 import QuizCard from "./quiz-card";
 import ActionButton from "./action-button";
-import { formatSecondsToMinutes } from "@/lib/format-time";
+import { formatSecondsToMinutes } from "@/lib/format-date";
 
 // const AchievementCard = ({ achievement }: { achievement: Achievement }) => (
 //   <div className="p-4 border rounded-lg bg-card hover:bg-accent transition-colors">

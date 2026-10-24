@@ -1,6 +1,6 @@
 "use client";
 
-import { formatSecondsToMinutes } from "@/lib/format-time";
+import { formatSecondsToMinutes } from "@/lib/format-date";
 import { UserRecentAttempt } from "@/lib/types";
 
 export default function QuizCard({ quiz }: { quiz: UserRecentAttempt }) {
