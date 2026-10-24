@@ -60,6 +60,22 @@ const seeds: Seed[] = [
     "In which year did the first Moon landing happen?",
     ["1965", "1969", "1972", "1975"],
   ],
+  // question with long text quiz options to test wrapping and layout
+  [
+    "MULTIPLE",
+    "Which of these statements about the solar system are true?",
+    [
+      "The Sun is a star.",
+      "Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. Jupiter is the largest planet in the solar system. ",
+      "Pluto is still considered a planet. Pluto is still considered a planet.",
+      "The asteroid belt is located between Mars and Jupiter.",
+    ],
+  ],
+  [
+    "TRUE_FALSE",
+    "Venus is the hottest planet in our solar system.",
+    ["True", "False"],
+  ],
 ];
 
 // Dev only: ?seconds=30 overrides the time limit so the amber and red timer

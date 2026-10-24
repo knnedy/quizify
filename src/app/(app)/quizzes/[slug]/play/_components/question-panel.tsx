@@ -9,6 +9,8 @@ const hints: Record<QuestionType, string> = {
   TRUE_FALSE: "True or false",
 };
 
+const LONG_OPTION_LENGTH = 40;
+
 export function QuestionPanel({
   question,
   number,
@@ -26,6 +28,9 @@ export function QuestionPanel({
 }) {
   const multiple = question.type === "MULTIPLE";
   const trueFalse = question.type === "TRUE_FALSE";
+  const stacked =
+    !trueFalse &&
+    question.options.some((option) => option.label.length > LONG_OPTION_LENGTH);
 
   return (
     <div className="animate-in space-y-8 duration-200 fade-in slide-in-from-bottom-1">
@@ -54,7 +59,7 @@ export function QuestionPanel({
       <div
         role={multiple ? "group" : "radiogroup"}
         aria-label="Answer options"
-        className="grid gap-3 sm:grid-cols-2">
+        className={cn("grid gap-3", !stacked && "sm:grid-cols-2")}>
         {question.options.map((option, index) => {
           const isSelected = selected.includes(option.id);
 
@@ -67,23 +72,27 @@ export function QuestionPanel({
               data-option
               onClick={() => onSelect(option.id)}
               className={cn(
-                "relative flex w-full items-center rounded-2xl border bg-card px-5 text-left font-medium shadow-xs transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.99] sm:odd:last:col-span-2",
+                "relative flex w-full items-center rounded-2xl border bg-card px-5 text-left font-medium shadow-xs transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.99]",
+                !stacked && "sm:odd:last:col-span-2",
                 trueFalse
                   ? "min-h-32 flex-col justify-center gap-3 text-center text-xl sm:text-2xl"
-                  : "min-h-20 gap-4 py-4 text-base sm:text-lg",
+                  : "min-h-20 gap-4 py-4 text-base leading-snug sm:text-lg",
                 isSelected
                   ? "animate-pop border-primary bg-primary-soft shadow-sm"
                   : "hover:-translate-y-0.5 hover:border-foreground/25 hover:shadow-sm",
               )}>
               <Keycap
                 className={cn(
-                  "h-9 min-w-9 rounded-lg text-base",
+                  "h-9 min-w-9 shrink-0 rounded-lg text-base",
                   isSelected &&
                     "border-primary bg-primary text-primary-foreground",
                 )}>
                 {String.fromCharCode(65 + index)}
               </Keycap>
-              <span className={cn(!trueFalse && "flex-1")}>{option.label}</span>
+              <span
+                className={cn("min-w-0 break-words", !trueFalse && "flex-1")}>
+                {option.label}
+              </span>
               {multiple && (
                 <span
                   aria-hidden
