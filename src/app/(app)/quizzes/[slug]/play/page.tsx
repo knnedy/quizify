@@ -40,7 +40,7 @@ export default async function PlayPage({
   if (!quiz) notFound();
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-6 py-8 sm:py-12">
+    <main className="mx-auto w-full max-w-3xl px-6 py-8 sm:py-12">
       <QuizPlayer
         slug={quiz.slug}
         title={quiz.title}
