@@ -1,5 +1,6 @@
 import { CheckIcon } from "lucide-react";
 import { Keycap } from "@/components/keycap";
+import { shouldStackOptions } from "@/lib/question-layout";
 import { cn } from "@/lib/utils";
 import type { PlayQuestion, QuestionType } from "../mock-data";
 
@@ -8,8 +9,6 @@ const hints: Record<QuestionType, string> = {
   MULTIPLE: "Select all that apply",
   TRUE_FALSE: "True or false",
 };
-
-const LONG_OPTION_LENGTH = 40;
 
 export function QuestionPanel({
   question,
@@ -28,9 +27,7 @@ export function QuestionPanel({
 }) {
   const multiple = question.type === "MULTIPLE";
   const trueFalse = question.type === "TRUE_FALSE";
-  const stacked =
-    !trueFalse &&
-    question.options.some((option) => option.label.length > LONG_OPTION_LENGTH);
+  const stacked = shouldStackOptions(question);
 
   return (
     <div className="animate-in space-y-8 duration-200 fade-in slide-in-from-bottom-1">
