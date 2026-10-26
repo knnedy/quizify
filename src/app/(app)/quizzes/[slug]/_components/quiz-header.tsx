@@ -5,13 +5,16 @@ import { DifficultyMeter } from "@/components/difficulty-meter";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format-date";
 import type { QuizDetail } from "../mock-data";
+import { ReportDialog } from "./report-dialog";
 
 export function QuizHeader({
   quiz,
   showBookmark,
+  canReport,
 }: {
   quiz: QuizDetail;
   showBookmark: boolean;
+  canReport: boolean;
 }) {
   const Icon = getCategoryIcon(quiz.category.slug);
   const authorName = quiz.author?.name ?? "Former member";
@@ -30,9 +33,18 @@ export function QuizHeader({
             <ArrowLeftIcon className="size-4" />
             Browse quizzes
           </Link>
-          {showBookmark && (
-            <BookmarkToggle initial={quiz.isBookmarked} title={quiz.title} />
-          )}
+
+          <div className="flex items-center gap-1">
+            {canReport && (
+              <ReportDialog
+                title={quiz.title}
+                alreadyReported={quiz.hasReported}
+              />
+            )}
+            {showBookmark && (
+              <BookmarkToggle initial={quiz.isBookmarked} title={quiz.title} />
+            )}
+          </div>
         </div>
 
         <div className="max-w-3xl space-y-5">

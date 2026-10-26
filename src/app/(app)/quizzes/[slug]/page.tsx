@@ -47,7 +47,11 @@ export default async function QuizDetailsPage({
 
   return (
     <main>
-      <QuizHeader quiz={quiz} showBookmark={signedIn} />
+      <QuizHeader
+        quiz={quiz}
+        showBookmark={signedIn}
+        canReport={signedIn && !quiz.isOwner}
+      />
 
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
         <aside className="space-y-5 lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:self-start">
