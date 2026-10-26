@@ -2,7 +2,7 @@ import type { QuizCardData } from "@/components/quiz-card";
 import { difficultyInfo } from "@/lib/difficulty";
 import { listQuizzes } from "../mock-data";
 
-export type Viewer = "guest" | "new" | "returning";
+export type Viewer = "guest" | "new" | "returning" | "owner" | "reported";
 
 export type LeaderboardEntry = {
   rank: number;
@@ -36,19 +36,28 @@ export type QuizDetail = QuizCardData & {
   };
   best: BestResult | null;
   related: QuizCardData[];
+  isOwner: boolean;
+  hasReported: boolean;
 };
 
 const DAY = 86_400_000;
 const BASE = Date.parse("2026-10-20");
 
-const viewers: readonly Viewer[] = ["guest", "new", "returning"];
+const viewers: readonly Viewer[] = [
+  "guest",
+  "new",
+  "returning",
+  "owner",
+  "reported",
+];
 
 function isViewer(value: string | undefined): value is Viewer {
   return viewers.some((viewer) => viewer === value);
 }
 
-// Dev only: ?as=guest | new | returning forces a state. Otherwise the real
-// session decides, and a signed in user sees the returning player state.
+// Dev only: ?as=guest | new | returning | owner | reported forces a state.
+// Otherwise the real session decides, and a signed in user sees the returning
+// player state.
 export function resolveViewer(override: string | undefined, signedIn: boolean) {
   if (process.env.NODE_ENV !== "production" && isViewer(override)) {
     return override;
@@ -189,5 +198,7 @@ export async function getQuizDetail(
     leaderboard: { top, pinned },
     best,
     related,
+    isOwner: viewer === "owner",
+    hasReported: viewer === "reported",
   };
 }
