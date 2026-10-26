@@ -1,49 +1,17 @@
+import Link from "next/link";
+import { ScoreRing } from "@/components/score-ring";
+import { buttonVariants } from "@/components/ui/button";
 import { XpChip } from "@/components/xp-chip";
-import { formatDate } from "@/lib/format-date";
-import { formatSecondsToMinutes } from "@/lib/format-date";
-import { cn } from "@/lib/utils";
+import { formatDate, formatSecondsToMinutes } from "@/lib/format-date";
 import type { BestResult } from "../mock-data";
 
-function ScoreRing({ percentage }: { percentage: number }) {
-  const radius = 34;
-  const circumference = 2 * Math.PI * radius;
-  const tone =
-    percentage >= 70
-      ? "text-correct"
-      : percentage >= 40
-        ? "text-xp"
-        : "text-incorrect";
-
-  return (
-    <div className="relative size-20 shrink-0">
-      <svg viewBox="0 0 80 80" className="size-full -rotate-90" aria-hidden>
-        <circle
-          cx="40"
-          cy="40"
-          r={radius}
-          fill="none"
-          strokeWidth="7"
-          className="stroke-muted"
-        />
-        <circle
-          cx="40"
-          cy="40"
-          r={radius}
-          fill="none"
-          strokeWidth="7"
-          strokeLinecap="round"
-          strokeDasharray={`${(circumference * percentage) / 100} ${circumference}`}
-          className={cn("stroke-current", tone)}
-        />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-display text-lg font-bold tabular-nums">
-        {percentage}%
-      </span>
-    </div>
-  );
-}
-
-export function BestResultPanel({ best }: { best: BestResult }) {
+export function BestResultPanel({
+  best,
+  slug,
+}: {
+  best: BestResult;
+  slug: string;
+}) {
   return (
     <section
       aria-labelledby="best-result-heading"
@@ -71,6 +39,16 @@ export function BestResultPanel({ best }: { best: BestResult }) {
         </span>
         <XpChip>+{best.xpEarned} XP</XpChip>
       </div>
+
+      <Link
+        href={`/quizzes/${slug}/results`}
+        className={buttonVariants({
+          variant: "outline",
+          size: "sm",
+          className: "w-full",
+        })}>
+        View last result
+      </Link>
     </section>
   );
 }

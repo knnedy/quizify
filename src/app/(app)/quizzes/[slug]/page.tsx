@@ -52,7 +52,7 @@ export default async function QuizDetailsPage({
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
         <aside className="space-y-5 lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:self-start">
           <QuizActions quiz={quiz} viewer={viewer} />
-          {quiz.best && <BestResultPanel best={quiz.best} />}
+          {quiz.best && <BestResultPanel best={quiz.best} slug={quiz.slug} />}
         </aside>
 
         <div className="space-y-10 lg:col-start-1 lg:row-start-1">
