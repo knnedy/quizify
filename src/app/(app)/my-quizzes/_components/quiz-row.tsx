@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format-date";
 import type { MyQuiz } from "../mock-data";
+import { QuizRowMenu } from "./quiz-row-menu";
 import { StatusBadge, VisibilityTag } from "./quiz-status";
 
 const compact = new Intl.NumberFormat("en-US", {
@@ -74,6 +75,7 @@ export function QuizRow({ quiz }: { quiz: MyQuiz }) {
             <PencilIcon />
             Edit
           </Link>
+          <QuizRowMenu quiz={quiz} />
         </div>
       </div>
 
