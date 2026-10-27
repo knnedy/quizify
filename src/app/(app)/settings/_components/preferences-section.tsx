@@ -4,13 +4,13 @@ import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { useTheme } from "next-themes";
 import { MapPinIcon, MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { toast } from "sonner";
-import { FormBlock, inputClass } from "@/components/quiz-editor/form-block";
+import { FormBlock } from "@/components/quiz-editor/form-block";
 import { Segmented } from "@/components/quiz-editor/segmented";
+import { TimezonePicker } from "@/components/timezone-picker";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useMounted } from "@/hooks/use-mounted";
-import { getDeviceTimezone, withCurrentTimezones } from "@/lib/timezones";
-import { cn } from "@/lib/utils";
+import { getDeviceTimezone } from "@/lib/timezone-list";
 import {
   SectionBody,
   SectionFooter,
@@ -66,9 +66,8 @@ export function PreferencesSection({
   const [saving, setSaving] = useState(false);
 
   const dirty = timezone !== saved;
-  const groups = withCurrentTimezones(saved, timezone);
 
-  function useDevice() {
+  function pickDeviceTimezone() {
     const device = getDeviceTimezone();
 
     if (!device) {
@@ -117,27 +116,18 @@ export function PreferencesSection({
             htmlFor={timezoneId}
             hint="Your streak and daily resets follow this timezone.">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <select
+              <TimezonePicker
                 id={timezoneId}
                 value={timezone}
-                onChange={(event) => setTimezone(event.target.value)}
-                className={cn(inputClass, "sm:max-w-xs")}>
-                {groups.map((group) => (
-                  <optgroup key={group.region} label={group.region}>
-                    {group.zones.map((zone) => (
-                      <option key={zone.value} value={zone.value}>
-                        {zone.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+                onChange={setTimezone}
+                className="sm:max-w-sm"
+              />
 
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={useDevice}>
+                onClick={pickDeviceTimezone}>
                 <MapPinIcon />
                 Use this device
               </Button>
