@@ -96,35 +96,40 @@ export function SecuritySection() {
             />
           </FormBlock>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            <FormBlock
-              label="New password"
-              htmlFor={`${id}-next`}
-              hint={`At least ${MIN_PASSWORD} characters.`}
-              error={shown.next}>
-              <PasswordInput
-                id={`${id}-next`}
-                autoComplete="new-password"
-                value={values.next}
-                aria-invalid={Boolean(shown.next)}
-                onChange={(event) => change({ next: event.target.value })}
-                className={inputClass}
-              />
-            </FormBlock>
+          <div className="space-y-2.5">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <FormBlock
+                label="New password"
+                htmlFor={`${id}-next`}
+                error={shown.next}>
+                <PasswordInput
+                  id={`${id}-next`}
+                  autoComplete="new-password"
+                  value={values.next}
+                  aria-invalid={Boolean(shown.next)}
+                  onChange={(event) => change({ next: event.target.value })}
+                  className={inputClass}
+                />
+              </FormBlock>
 
-            <FormBlock
-              label="Confirm new password"
-              htmlFor={`${id}-confirm`}
-              error={shown.confirm}>
-              <PasswordInput
-                id={`${id}-confirm`}
-                autoComplete="new-password"
-                value={values.confirm}
-                aria-invalid={Boolean(shown.confirm)}
-                onChange={(event) => change({ confirm: event.target.value })}
-                className={inputClass}
-              />
-            </FormBlock>
+              <FormBlock
+                label="Confirm new password"
+                htmlFor={`${id}-confirm`}
+                error={shown.confirm}>
+                <PasswordInput
+                  id={`${id}-confirm`}
+                  autoComplete="new-password"
+                  value={values.confirm}
+                  aria-invalid={Boolean(shown.confirm)}
+                  onChange={(event) => change({ confirm: event.target.value })}
+                  className={inputClass}
+                />
+              </FormBlock>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Use at least {MIN_PASSWORD} characters.
+            </p>
           </div>
 
           <SwitchRow
