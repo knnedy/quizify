@@ -15,7 +15,7 @@ import {
 export type ProfileValues = {
   name: string;
   website: string;
-  github: string;
+  instagram: string;
   x: string;
 };
 
@@ -28,7 +28,7 @@ function clean(values: ProfileValues): ProfileValues {
   return {
     name: values.name.trim(),
     website: values.website.trim(),
-    github: values.github.trim(),
+    instagram: values.instagram.trim(),
     x: values.x.trim(),
   };
 }
@@ -51,8 +51,8 @@ function validate(values: ProfileValues): Errors {
   if (values.website && !isHttpUrl(values.website)) {
     errors.website = "Enter the full link, starting with https://.";
   }
-  if (values.github && !/^[a-z\d][a-z\d-]{0,38}$/i.test(values.github)) {
-    errors.github = "Use just your GitHub username, without the link.";
+  if (values.instagram && !/^[a-z\d._]{1,30}$/i.test(values.instagram)) {
+    errors.instagram = "Use just your Instagram username, without the @.";
   }
   if (values.x && !/^[a-z\d_]{1,15}$/i.test(values.x)) {
     errors.x = "Use just your X username, without the @.";
@@ -193,17 +193,17 @@ export function ProfileSection({
             </div>
 
             <FormBlock
-              label="GitHub"
+              label="Instagram"
               optional
-              htmlFor={`${id}-github`}
-              error={shown.github}>
+              htmlFor={`${id}-instagram`}
+              error={shown.instagram}>
               <PrefixInput
-                id={`${id}-github`}
-                leading="github.com/"
-                invalid={Boolean(shown.github)}
-                value={values.github}
+                id={`${id}-instagram`}
+                leading="instagram.com/"
+                invalid={Boolean(shown.instagram)}
+                value={values.instagram}
                 placeholder="username"
-                onChange={(event) => change({ github: event.target.value })}
+                onChange={(event) => change({ instagram: event.target.value })}
               />
             </FormBlock>
 

@@ -77,7 +77,7 @@ export default async function SettingsPage() {
             initial={{
               name: user.name,
               website: user.links.website,
-              github: user.links.github,
+              instagram: user.links.instagram,
               x: user.links.x,
             }}
           />

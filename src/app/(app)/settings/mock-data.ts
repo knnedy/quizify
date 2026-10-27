@@ -9,7 +9,7 @@ export type SettingsUser = {
   totalXp: number;
   links: {
     website: string;
-    github: string;
+    instagram: string;
     x: string;
   };
 };
@@ -24,7 +24,7 @@ export async function getSettingsUser(): Promise<SettingsUser> {
     totalXp: 4820,
     links: {
       website: "https://amina.dev",
-      github: "aminaw",
+      instagram: "aminaw",
       x: "",
     },
   };
