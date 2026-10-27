@@ -1,37 +1,91 @@
-import { auth } from "@/server/auth";
-import SettingsForm from "./components/settings-form";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { tryCatch } from "@/lib/try-catch";
-import { getUserById } from "@/server/actions/user/read";
+import type { Metadata } from "next";
+import { XpChip } from "@/components/xp-chip";
+import { formatDate } from "@/lib/format-date";
+import { cn } from "@/lib/utils";
+import { requireUser } from "@/server/session";
+import { DeleteAccountSection } from "./_components/delete-account";
+import { PreferencesSection } from "./_components/preferences-section";
+import { ProfileSection } from "./_components/profile-section";
+import { SecuritySection } from "./_components/security-section";
+import { SettingsNav } from "./_components/settings-nav";
+import { getSettingsUser, type SettingsRole } from "./mock-data";
+
+export const metadata: Metadata = { title: "Settings" };
+
+const roleLabels: Record<SettingsRole, string> = {
+  USER: "Player",
+  CREATOR: "Creator",
+  MODERATOR: "Moderator",
+  ADMIN: "Admin",
+};
 
 export default async function SettingsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  const { data: user, error: userError } = await tryCatch(
-    getUserById(session.user.id),
-  );
-  if (userError) {
-    throw new Error(userError.message);
-  }
+  await requireUser("/settings");
+  const user = await getSettingsUser();
 
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your account settings and preferences.
-        </p>
+    <main>
+      <section className="relative overflow-hidden border-b">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_70%_at_90%_0%,var(--glow),transparent)]"
+        />
+        <div className="relative mx-auto max-w-6xl space-y-8 px-6 py-10 sm:py-14">
+          <h1 className="text-4xl sm:text-5xl">Settings</h1>
+
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-4">
+            <span
+              aria-hidden
+              className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary font-display text-2xl font-bold text-primary-foreground shadow-primary">
+              {user.name.charAt(0).toUpperCase()}
+            </span>
+
+            <div className="min-w-0 space-y-1">
+              <p className="truncate font-display text-xl font-semibold">
+                {user.name}
+              </p>
+              <p className="truncate text-muted-foreground">{user.email}</p>
+            </div>
+
+            <ul className="flex flex-wrap items-center gap-2 sm:ml-auto">
+              <li
+                className={cn(
+                  "rounded-full px-3 py-1 text-sm font-semibold",
+                  user.role === "USER"
+                    ? "bg-muted text-muted-foreground"
+                    : "bg-primary-soft text-primary",
+                )}>
+                {roleLabels[user.role]}
+              </li>
+              <li className="rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
+                Member since {formatDate(user.joinedAt)}
+              </li>
+              <li>
+                <XpChip>{user.totalXp.toLocaleString("en-US")} XP</XpChip>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
+        <SettingsNav />
+
+        <div className="max-w-3xl space-y-6">
+          <ProfileSection
+            email={user.email}
+            initial={{
+              name: user.name,
+              website: user.links.website,
+              github: user.links.github,
+              x: user.links.x,
+            }}
+          />
+          <PreferencesSection initialTimezone={user.timezone} />
+          <SecuritySection />
+          <DeleteAccountSection />
+        </div>
       </div>
-      <div className="grid gap-10 pt-6">
-        <SettingsForm user={user} session={session} />
-      </div>
-    </>
+    </main>
   );
 }
