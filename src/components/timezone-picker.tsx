@@ -7,11 +7,38 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from "lucide-react";
 import { describeTimezone, listTimezonesWith } from "@/lib/timezone-list";
 import { cn } from "@/lib/utils";
+
+const PANEL_GAP = 8;
+const VIEWPORT_MARGIN = 12;
+const PANEL_MAX_HEIGHT = 340;
+const PANEL_MIN_HEIGHT = 220;
+
+// Places the panel under the trigger, or above it when there is more room
+// there. Fixed positioning against the window, so no parent can clip it.
+function measure(trigger: HTMLElement): CSSProperties {
+  const rect = trigger.getBoundingClientRect();
+  const below = window.innerHeight - rect.bottom - PANEL_GAP - VIEWPORT_MARGIN;
+  const above = rect.top - PANEL_GAP - VIEWPORT_MARGIN;
+  const openUp = below < PANEL_MIN_HEIGHT && above > below;
+  const room = openUp ? above : below;
+
+  return {
+    position: "fixed",
+    left: rect.left,
+    width: rect.width,
+    maxHeight: Math.min(PANEL_MAX_HEIGHT, Math.max(room, 160)),
+    ...(openUp
+      ? { bottom: window.innerHeight - rect.top + PANEL_GAP }
+      : { top: rect.bottom + PANEL_GAP }),
+  };
+}
 
 export function TimezonePicker({
   id,
@@ -28,8 +55,10 @@ export function TimezonePicker({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
   const current = describeTimezone(value);
@@ -49,11 +78,36 @@ export function TimezonePicker({
     if (!open) return;
 
     function onPointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+      setOpen(false);
+    }
+
+    function reposition(event?: Event) {
+      // Scrolling the list itself must not move the panel.
+      if (event && panelRef.current?.contains(event.target as Node)) return;
+
+      const trigger = triggerRef.current;
+      if (!trigger) return;
+
+      const rect = trigger.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) {
+        setOpen(false);
+        return;
+      }
+      setPanelStyle(measure(trigger));
     }
 
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
+    window.addEventListener("scroll", reposition, true);
+    window.addEventListener("resize", reposition);
+
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("scroll", reposition, true);
+      window.removeEventListener("resize", reposition);
+    };
   }, [open]);
 
   // Scrolls the list itself, never the page, so stepping through options
@@ -76,9 +130,13 @@ export function TimezonePicker({
   }, [open, active, visible]);
 
   function openPanel() {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
     const index = listTimezonesWith(value).findIndex(
       (option) => option.value === value,
     );
+    setPanelStyle(measure(trigger));
     setQuery("");
     setActive(Math.max(0, index));
     setOpen(true);
@@ -146,98 +204,104 @@ export function TimezonePicker({
         </span>
       </button>
 
-      {open && (
-        <div className="absolute inset-x-0 top-full z-30 mt-2 animate-in overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-md duration-100 fade-in-0 zoom-in-95">
-          <div className="flex items-center gap-2 border-b px-3">
-            <SearchIcon
-              aria-hidden
-              className="size-4 shrink-0 text-muted-foreground"
-            />
-            <input
-              autoFocus
-              value={query}
-              role="combobox"
-              aria-expanded
-              aria-controls={listId}
-              aria-autocomplete="list"
-              aria-activedescendant={
-                visible[active] ? `${listId}-${active}` : undefined
-              }
-              aria-label="Search timezones"
-              placeholder="Search a city or region"
-              autoComplete="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setActive(0);
-              }}
-              onKeyDown={onKeyDown}
-              className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
+      {open &&
+        panelStyle &&
+        createPortal(
+          <div
+            ref={panelRef}
+            style={panelStyle}
+            className="z-50 flex animate-in flex-col overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-md duration-100 fade-in-0 zoom-in-95">
+            <div className="flex shrink-0 items-center gap-2 border-b px-3">
+              <SearchIcon
+                aria-hidden
+                className="size-4 shrink-0 text-muted-foreground"
+              />
+              <input
+                autoFocus
+                value={query}
+                role="combobox"
+                aria-expanded
+                aria-controls={listId}
+                aria-autocomplete="list"
+                aria-activedescendant={
+                  visible[active] ? `${listId}-${active}` : undefined
+                }
+                aria-label="Search timezones"
+                placeholder="Search a city or region"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setActive(0);
+                }}
+                onKeyDown={onKeyDown}
+                className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
 
-          <ul
-            ref={listRef}
-            id={listId}
-            role="listbox"
-            aria-label="Timezones"
-            className="relative max-h-64 overflow-y-auto overscroll-contain p-1">
-            {visible.length === 0 && (
-              <li
-                role="presentation"
-                className="px-3 py-6 text-center text-sm text-muted-foreground">
-                No timezone matches &ldquo;{query.trim()}&rdquo;
-              </li>
-            )}
+            <ul
+              ref={listRef}
+              id={listId}
+              role="listbox"
+              aria-label="Timezones"
+              className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain p-1">
+              {visible.length === 0 && (
+                <li
+                  role="presentation"
+                  className="px-3 py-6 text-center text-sm text-muted-foreground">
+                  No timezone matches &ldquo;{query.trim()}&rdquo;
+                </li>
+              )}
 
-            {visible.map((option, index) => {
-              const showRegion =
-                index === 0 || visible[index - 1].region !== option.region;
-              const isActive = index === active;
-              const selected = option.value === value;
+              {visible.map((option, index) => {
+                const showRegion =
+                  index === 0 || visible[index - 1].region !== option.region;
+                const isActive = index === active;
+                const selected = option.value === value;
 
-              return (
-                <Fragment key={option.value}>
-                  {showRegion && (
+                return (
+                  <Fragment key={option.value}>
+                    {showRegion && (
+                      <li
+                        role="presentation"
+                        className="px-3 pt-2.5 pb-1 text-xs font-medium text-muted-foreground">
+                        {option.region}
+                      </li>
+                    )}
                     <li
-                      role="presentation"
-                      className="px-3 pt-2.5 pb-1 text-xs font-medium text-muted-foreground">
-                      {option.region}
-                    </li>
-                  )}
-                  <li
-                    id={`${listId}-${index}`}
-                    role="option"
-                    aria-selected={selected}
-                    data-active={isActive}
-                    onClick={() => select(option.value)}
-                    onMouseMove={() => setActive(index)}
-                    className={cn(
-                      "flex cursor-default items-center gap-3 rounded-lg px-3 py-2 text-sm",
-                      isActive && "bg-accent text-accent-foreground",
-                      selected && "font-medium",
-                    )}>
-                    <span className="min-w-0 flex-1 truncate">
-                      {option.city}
-                    </span>
-                    <span className="shrink-0 text-muted-foreground tabular-nums">
-                      {option.offset}
-                    </span>
-                    <CheckIcon
-                      aria-hidden
+                      id={`${listId}-${index}`}
+                      role="option"
+                      aria-selected={selected}
+                      data-active={isActive}
+                      onClick={() => select(option.value)}
+                      onMouseMove={() => setActive(index)}
                       className={cn(
-                        "size-4 shrink-0 text-primary",
-                        !selected && "invisible",
-                      )}
-                    />
-                  </li>
-                </Fragment>
-              );
-            })}
-          </ul>
-        </div>
-      )}
+                        "flex cursor-default items-center gap-3 rounded-lg px-3 py-2 text-sm",
+                        isActive && "bg-accent text-accent-foreground",
+                        selected && "font-medium",
+                      )}>
+                      <span className="min-w-0 flex-1 truncate">
+                        {option.city}
+                      </span>
+                      <span className="shrink-0 text-muted-foreground tabular-nums">
+                        {option.offset}
+                      </span>
+                      <CheckIcon
+                        aria-hidden
+                        className={cn(
+                          "size-4 shrink-0 text-primary",
+                          !selected && "invisible",
+                        )}
+                      />
+                    </li>
+                  </Fragment>
+                );
+              })}
+            </ul>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
