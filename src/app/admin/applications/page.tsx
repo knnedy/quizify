@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminPage } from "../_components/admin-page";
 import { ApplicationsWorkspace } from "./_components/applications-workspace";
 import { getApplications, type ApplicationStatus } from "./mock-data";
 
@@ -15,16 +16,10 @@ export default async function ApplicationsPage() {
   const applications = results.flatMap((result) => result.items);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-6 py-8 sm:py-10">
-      <header className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl">Creator applications</h1>
-        <p className="max-w-prose text-muted-foreground">
-          Read each answer and decide who can publish quizzes. The longest
-          waiting applications come first.
-        </p>
-      </header>
-
+    <AdminPage
+      title="Creator applications"
+      description="Read each answer and decide who can publish quizzes. The longest waiting come first.">
       <ApplicationsWorkspace applications={applications} />
-    </main>
+    </AdminPage>
   );
 }

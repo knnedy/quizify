@@ -4,21 +4,25 @@ import { useState } from "react";
 import { CircleCheckIcon, InboxIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { FilterTabs } from "../../_components/filter-tabs";
+import { SplitPane } from "../../_components/split-pane";
 import { useTriageHotkeys } from "../_hooks/use-triage-hotkeys";
 import type { Application, ApplicationStatus } from "../mock-data";
 import { ApplicationDetail, type DetailDecision } from "./application-detail";
 import { ApplicationList, type ListRow } from "./application-list";
-import {
-  ApplicationTabs,
-  filterToStatus,
-  type ApplicationFilter,
-} from "./application-tabs";
 import { QueueStats } from "./queue-stats";
 import { RejectDialog } from "./reject-dialog";
 
+type Tab = "pending" | "approved" | "rejected";
 type Outcome = { status: "APPROVED" } | { status: "REJECTED"; reason: string };
 
-const emptyCopy: Record<ApplicationFilter, { title: string; text: string }> = {
+const tabs: { value: Tab; label: string; status: ApplicationStatus }[] = [
+  { value: "pending", label: "Pending", status: "PENDING" },
+  { value: "approved", label: "Approved", status: "APPROVED" },
+  { value: "rejected", label: "Rejected", status: "REJECTED" },
+];
+
+const emptyCopy: Record<Tab, { title: string; text: string }> = {
   pending: {
     title: "You're all caught up",
     text: "There are no applications waiting for review.",
@@ -57,7 +61,7 @@ export function ApplicationsWorkspace({
 }: {
   applications: Application[];
 }) {
-  const [tab, setTab] = useState<ApplicationFilter>("pending");
+  const [tab, setTab] = useState<Tab>("pending");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [outcomes, setOutcomes] = useState<Record<number, Outcome>>({});
@@ -76,9 +80,10 @@ export function ApplicationsWorkspace({
   };
   for (const row of rows) counts[row.status] += 1;
 
+  const activeStatus =
+    tabs.find((item) => item.value === tab)?.status ?? "PENDING";
   const pending = sortRows(rows, "PENDING");
-  const list =
-    tab === "pending" ? pending : sortRows(rows, filterToStatus(tab));
+  const list = sortRows(rows, activeStatus);
   const selected =
     list.find((row) => row.application.id === selectedId) ?? list[0] ?? null;
 
@@ -86,6 +91,12 @@ export function ApplicationsWorkspace({
     pending.length > 0
       ? Math.max(...pending.map((row) => row.application.waitingDays))
       : null;
+
+  const tabOptions = tabs.map((item) => ({
+    value: item.value,
+    label: item.label,
+    count: counts[item.status],
+  }));
 
   // On a phone the list and the detail take turns, so the keys only act on
   // what is actually on screen.
@@ -98,7 +109,7 @@ export function ApplicationsWorkspace({
     setMobileOpen(true);
   }
 
-  function changeTab(next: ApplicationFilter) {
+  function changeTab(next: Tab) {
     setTab(next);
     setSelectedId(null);
     setMobileOpen(false);
@@ -196,31 +207,33 @@ export function ApplicationsWorkspace({
   const EmptyIcon = tab === "pending" ? CircleCheckIcon : InboxIcon;
 
   return (
-    <div className="space-y-6">
-      <QueueStats
-        waiting={counts.PENDING}
-        longestWait={longestWait}
-        approved={counts.APPROVED}
-        rejected={counts.REJECTED}
-      />
-
-      <ApplicationTabs active={tab} counts={counts} onChange={changeTab} />
+    <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <FilterTabs
+          label="Filter by status"
+          value={tab}
+          options={tabOptions}
+          onChange={changeTab}
+        />
+        <QueueStats
+          waiting={counts.PENDING}
+          longestWait={longestWait}
+          approved={counts.APPROVED}
+          rejected={counts.REJECTED}
+        />
+      </div>
 
       {selected ? (
-        <div className="grid gap-6 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
-          <div className={cn(mobileOpen && "max-lg:hidden")}>
+        <SplitPane
+          showDetail={mobileOpen}
+          list={
             <ApplicationList
               rows={list}
               activeId={selected.application.id}
               onSelect={select}
             />
-          </div>
-
-          <div
-            className={cn(
-              "flex flex-col lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)]",
-              !mobileOpen && "max-lg:hidden",
-            )}>
+          }
+          detail={
             <ApplicationDetail
               key={selected.application.id}
               application={selected.application}
@@ -235,8 +248,8 @@ export function ApplicationsWorkspace({
               }
               onBack={() => setMobileOpen(false)}
             />
-          </div>
-        </div>
+          }
+        />
       ) : (
         <div className="mx-auto flex max-w-xl flex-col items-center gap-4 rounded-2xl border border-dashed px-6 py-16 text-center">
           <span
