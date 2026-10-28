@@ -7,10 +7,12 @@ import {
   FlagIcon,
   ShieldCheckIcon,
   UserCheckIcon,
+  UsersIcon,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { AdminCounts } from "../mock-data";
+import type { AdminCounts, AdminIdentity } from "../mock-data";
+import { AdminThemeSwitch } from "./admin-theme-switch";
 
 type NavItem = {
   href: string;
@@ -34,7 +36,18 @@ const items: NavItem[] = [
     short: "Reports",
     Icon: FlagIcon,
   },
+  {
+    href: "/admin/users",
+    label: "Users",
+    short: "Users",
+    Icon: UsersIcon,
+  },
 ];
+
+const roleLabels: Record<AdminIdentity["role"], string> = {
+  ADMIN: "Admin",
+  MODERATOR: "Moderator",
+};
 
 function Brand() {
   return (
@@ -46,13 +59,21 @@ function Brand() {
         <span className="block font-display text-lg font-bold tracking-tight">
           Quizify
         </span>
-        <span className="block text-xs text-muted-foreground">Admin</span>
+        <span className="block text-xs text-muted-foreground">
+          Admin console
+        </span>
       </span>
     </span>
   );
 }
 
-export function AdminNav({ counts }: { counts: AdminCounts }) {
+export function AdminNav({
+  counts,
+  admin,
+}: {
+  counts: AdminCounts;
+  admin: AdminIdentity;
+}) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -112,12 +133,12 @@ export function AdminNav({ counts }: { counts: AdminCounts }) {
         </nav>
       </header>
 
-      <aside className="sticky top-0 hidden h-dvh flex-col border-r bg-card/40 lg:flex">
-        <div className="px-6 pt-6 pb-6">
+      <aside className="hidden flex-col gap-5 overflow-y-auto border-r bg-card/40 p-4 lg:flex">
+        <div className="px-2 pt-2">
           <Brand />
         </div>
 
-        <nav aria-label="Admin sections" className="flex-1 px-3">
+        <nav aria-label="Admin sections" className="flex-1">
           <ul className="space-y-1">
             {items.map(({ href, label, Icon, count }) => {
               const active = isActive(href);
@@ -129,23 +150,15 @@ export function AdminNav({ counts }: { counts: AdminCounts }) {
                     href={href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
+                      "relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
                       active
-                        ? "bg-primary-soft text-foreground before:absolute before:inset-y-2 before:-left-3 before:w-1 before:rounded-r-full before:bg-primary"
+                        ? "bg-primary-soft font-semibold text-primary before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}>
-                    <span
-                      className={cn(
-                        "flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors",
-                        active
-                          ? "bg-primary text-primary-foreground shadow-primary"
-                          : "bg-muted",
-                      )}>
-                      <Icon aria-hidden className="size-4" />
-                    </span>
-                    {label}
+                    <Icon aria-hidden className="size-4.5 shrink-0" />
+                    <span className="truncate">{label}</span>
                     {value > 0 && (
-                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground tabular-nums">
+                      <span className="ml-auto min-w-5 rounded-full bg-primary px-1.5 text-center text-xs leading-5 font-semibold text-primary-foreground tabular-nums">
                         {value}
                         <span className="sr-only"> waiting</span>
                       </span>
@@ -157,15 +170,31 @@ export function AdminNav({ counts }: { counts: AdminCounts }) {
           </ul>
         </nav>
 
-        <div className="border-t p-3">
+        <div className="space-y-3">
+          <AdminThemeSwitch />
+
           <Link
             href="/"
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-muted">
-              <ArrowLeftIcon aria-hidden className="size-4" />
-            </span>
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
+            <ArrowLeftIcon aria-hidden className="size-4.5 shrink-0" />
             Back to Quizify
           </Link>
+
+          <div className="flex items-center gap-3 rounded-xl border bg-card p-2.5 shadow-xs">
+            <span
+              aria-hidden
+              className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary font-display text-base font-bold text-primary-foreground">
+              {admin.name.charAt(0).toUpperCase()}
+            </span>
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate text-sm font-medium">
+                {admin.name}
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                {roleLabels[admin.role]}
+              </span>
+            </span>
+          </div>
         </div>
       </aside>
     </>

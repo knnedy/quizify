@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { requireUser } from "@/server/session";
 import { AdminNav } from "./_components/admin-nav";
-import { getAdminCounts } from "./mock-data";
+import { getAdminShell } from "./mock-data";
 
 export const metadata: Metadata = {
   title: { default: "Admin", template: "%s | Quizify admin" },
@@ -15,12 +15,12 @@ export default async function AdminLayout({
   children: ReactNode;
 }) {
   await requireUser("/admin");
-  const counts = await getAdminCounts();
+  const { counts, admin } = await getAdminShell();
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
-      <AdminNav counts={counts} />
-      <div className="min-w-0">{children}</div>
+    <div className="min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[16.5rem_minmax(0,1fr)] lg:overflow-hidden">
+      <AdminNav counts={counts} admin={admin} />
+      <div className="min-w-0 lg:h-dvh lg:overflow-y-auto">{children}</div>
     </div>
   );
 }
