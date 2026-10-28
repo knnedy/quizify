@@ -26,7 +26,7 @@ export function UserList({
               className={cn(
                 "relative flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                 active
-                  ? "lg:bg-primary-soft lg:before:absolute lg:before:inset-y-3 lg:before:left-0 lg:before:w-[3px] lg:before:rounded-r-full lg:before:bg-primary"
+                  ? "lg:bg-primary-soft lg:before:absolute lg:before:inset-y-3 lg:before:left-0 lg:before:w-0.75 lg:before:rounded-r-full lg:before:bg-primary"
                   : "hover:bg-muted/50",
               )}>
               <span
