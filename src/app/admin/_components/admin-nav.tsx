@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ArrowLeftIcon,
   FlagIcon,
+  ShieldCheckIcon,
   UserCheckIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -35,25 +36,17 @@ const items: NavItem[] = [
   },
 ];
 
-function CountPill({ value }: { value: number }) {
-  if (value <= 0) return null;
-
+function Brand() {
   return (
-    <span className="ml-auto rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary tabular-nums">
-      {value}
-      <span className="sr-only"> waiting</span>
-    </span>
-  );
-}
-
-function Wordmark() {
-  return (
-    <span className="flex items-center gap-2.5">
-      <span className="font-display text-xl font-bold tracking-tight">
-        Quizify
+    <span className="flex items-center gap-3">
+      <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-primary">
+        <ShieldCheckIcon aria-hidden className="size-5" />
       </span>
-      <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary">
-        Admin
+      <span className="leading-tight">
+        <span className="block font-display text-lg font-bold tracking-tight">
+          Quizify
+        </span>
+        <span className="block text-xs text-muted-foreground">Admin</span>
       </span>
     </span>
   );
@@ -70,7 +63,7 @@ export function AdminNav({ counts }: { counts: AdminCounts }) {
     <>
       <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-3 px-6 pt-3">
-          <Wordmark />
+          <Brand />
           <Link
             href="/"
             aria-label="Back to Quizify"
@@ -120,8 +113,8 @@ export function AdminNav({ counts }: { counts: AdminCounts }) {
       </header>
 
       <aside className="sticky top-0 hidden h-dvh flex-col border-r bg-card/40 lg:flex">
-        <div className="px-6 pt-6 pb-5">
-          <Wordmark />
+        <div className="px-6 pt-6 pb-6">
+          <Brand />
         </div>
 
         <nav aria-label="Admin sections" className="flex-1 px-3">
@@ -136,14 +129,27 @@ export function AdminNav({ counts }: { counts: AdminCounts }) {
                     href={href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
+                      "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
                       active
-                        ? "bg-primary-soft text-primary"
+                        ? "bg-primary-soft text-foreground before:absolute before:inset-y-2 before:-left-3 before:w-1 before:rounded-r-full before:bg-primary"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}>
-                    <Icon aria-hidden className="size-4.5" />
+                    <span
+                      className={cn(
+                        "flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+                        active
+                          ? "bg-primary text-primary-foreground shadow-primary"
+                          : "bg-muted",
+                      )}>
+                      <Icon aria-hidden className="size-4" />
+                    </span>
                     {label}
-                    <CountPill value={value} />
+                    {value > 0 && (
+                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground tabular-nums">
+                        {value}
+                        <span className="sr-only"> waiting</span>
+                      </span>
+                    )}
                   </Link>
                 </li>
               );
@@ -155,7 +161,9 @@ export function AdminNav({ counts }: { counts: AdminCounts }) {
           <Link
             href="/"
             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
-            <ArrowLeftIcon aria-hidden className="size-4.5" />
+            <span className="flex size-8 items-center justify-center rounded-lg bg-muted">
+              <ArrowLeftIcon aria-hidden className="size-4" />
+            </span>
             Back to Quizify
           </Link>
         </div>
