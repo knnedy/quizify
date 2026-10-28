@@ -1,28 +1,25 @@
 import { cn } from "@/lib/utils";
 
-function Tile({
+function Stat({
   label,
   value,
-  note,
+  hint,
   warn = false,
 }: {
   label: string;
   value: string;
-  note: string;
+  hint?: string;
   warn?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border bg-card p-5 shadow-xs">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
+    <div title={hint} className="min-w-0 px-5 py-3">
+      <dt className="truncate text-xs text-muted-foreground">{label}</dt>
       <dd
         className={cn(
-          "mt-3 font-display text-3xl leading-none font-bold tabular-nums",
+          "mt-1.5 font-display text-2xl leading-none font-bold tabular-nums",
           warn && "text-streak-ink",
         )}>
         {value}
-      </dd>
-      <dd className="mt-2 text-sm text-muted-foreground tabular-nums">
-        {note}
       </dd>
     </div>
   );
@@ -50,22 +47,17 @@ export function QueueStats({
         : `${longestWait} ${longestWait === 1 ? "day" : "days"}`;
 
   return (
-    <dl className="grid gap-3 sm:grid-cols-3">
-      <Tile
-        label="Waiting for review"
-        value={String(waiting)}
-        note={waiting === 0 ? "The queue is clear" : "Oldest first"}
-      />
-      <Tile
+    <dl className="grid w-full grid-cols-3 divide-x rounded-2xl border bg-card shadow-xs sm:w-auto sm:min-w-[28rem]">
+      <Stat label="Waiting" value={String(waiting)} />
+      <Stat
         label="Longest wait"
         value={wait}
-        note="Oldest application in the queue"
         warn={longestWait !== null && longestWait >= 5}
       />
-      <Tile
+      <Stat
         label="Approval rate"
         value={rate === null ? "None yet" : `${rate}%`}
-        note={`${approved} approved, ${rejected} rejected`}
+        hint={`${approved} approved, ${rejected} rejected`}
       />
     </dl>
   );
