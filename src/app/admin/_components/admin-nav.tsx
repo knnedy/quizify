@@ -152,7 +152,7 @@ export function AdminNav({
                     className={cn(
                       "relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring",
                       active
-                        ? "bg-primary-soft font-semibold text-primary before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
+                        ? "bg-primary-soft font-semibold text-primary before:absolute before:inset-y-2.5 before:left-0 before:w-0.75 before:rounded-full before:bg-primary"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}>
                     <Icon aria-hidden className="size-4.5 shrink-0" />
