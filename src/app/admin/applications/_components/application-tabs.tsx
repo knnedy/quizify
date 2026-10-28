@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { ApplicationStatus } from "../mock-data";
 
@@ -14,42 +13,33 @@ const filters: {
   { value: "rejected", label: "Rejected", status: "REJECTED" },
 ];
 
-export function parseFilter(value: string | undefined): ApplicationFilter {
-  return filters.find((filter) => filter.value === value)?.value ?? "pending";
-}
-
-export function filterToStatus(value: ApplicationFilter) {
+export function filterToStatus(value: ApplicationFilter): ApplicationStatus {
   return filters.find((filter) => filter.value === value)?.status ?? "PENDING";
-}
-
-export function applicationsHref(filter: ApplicationFilter, id?: number) {
-  const params = new URLSearchParams();
-  if (filter !== "pending") params.set("status", filter);
-  if (id !== undefined) params.set("id", String(id));
-
-  const query = params.toString();
-  return query ? `/admin/applications?${query}` : "/admin/applications";
 }
 
 export function ApplicationTabs({
   active,
   counts,
+  onChange,
 }: {
   active: ApplicationFilter;
   counts: Record<ApplicationStatus, number>;
+  onChange: (value: ApplicationFilter) => void;
 }) {
   return (
-    <nav
+    <div
+      role="group"
       aria-label="Filter by status"
       className="inline-flex max-w-full flex-wrap gap-1 rounded-xl border bg-muted/50 p-1">
       {filters.map((filter) => {
         const isActive = active === filter.value;
 
         return (
-          <Link
+          <button
             key={filter.value}
-            href={applicationsHref(filter.value)}
-            aria-current={isActive ? "page" : undefined}
+            type="button"
+            aria-pressed={isActive}
+            onClick={() => onChange(filter.value)}
             className={cn(
               "inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
               isActive
@@ -60,9 +50,9 @@ export function ApplicationTabs({
             <span className="tabular-nums opacity-75">
               {counts[filter.status]}
             </span>
-          </Link>
+          </button>
         );
       })}
-    </nav>
+    </div>
   );
 }
