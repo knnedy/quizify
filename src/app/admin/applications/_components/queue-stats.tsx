@@ -47,7 +47,7 @@ export function QueueStats({
         : `${longestWait} ${longestWait === 1 ? "day" : "days"}`;
 
   return (
-    <dl className="grid w-full grid-cols-3 divide-x rounded-2xl border bg-card shadow-xs sm:w-auto sm:min-w-[28rem]">
+    <dl className="grid w-full grid-cols-3 divide-x rounded-2xl border bg-card shadow-xs sm:w-auto sm:min-w-md">
       <Stat label="Waiting" value={String(waiting)} />
       <Stat
         label="Longest wait"
