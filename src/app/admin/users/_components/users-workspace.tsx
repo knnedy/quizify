@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Keycap } from "@/components/keycap";
 import { inputClass } from "@/components/quiz-editor/form-block";
 import { cn } from "@/lib/utils";
-import { ConfirmDialog } from "../../_components/confirm-dialog";
+// import { ConfirmDialog } from "../../_components/confirm-dialog";
 import { FilterTabs } from "../../_components/filter-tabs";
 import { SplitPane } from "../../_components/split-pane";
 import { useKeyMap } from "../../_hooks/use-key-map";
@@ -263,7 +263,7 @@ export function UsersWorkspace({
             publishedQuizzes={selected.creator?.published ?? 0}
             onBan={ban}
           />
-          <ConfirmDialog
+          {/* <ConfirmDialog
             open={revoking}
             onOpenChange={setRevoking}
             title={`Remove ${selected.name}'s creator role?`}
@@ -271,7 +271,7 @@ export function UsersWorkspace({
             confirmLabel="Remove role"
             destructive
             onConfirm={revoke}
-          />
+          /> */}
         </>
       )}
     </div>

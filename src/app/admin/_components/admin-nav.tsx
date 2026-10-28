@@ -24,6 +24,12 @@ type NavItem = {
 
 const items: NavItem[] = [
   {
+    href: "/admin/users",
+    label: "Users",
+    short: "Users",
+    Icon: UsersIcon,
+  },
+  {
     href: "/admin/applications",
     label: "Creator applications",
     short: "Applications",
@@ -35,12 +41,6 @@ const items: NavItem[] = [
     label: "Reports",
     short: "Reports",
     Icon: FlagIcon,
-  },
-  {
-    href: "/admin/users",
-    label: "Users",
-    short: "Users",
-    Icon: UsersIcon,
   },
 ];
 
