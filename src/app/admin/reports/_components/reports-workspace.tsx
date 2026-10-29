@@ -8,13 +8,13 @@ import { ConfirmDialog } from "../../_components/confirm-dialog";
 import { FilterTabs } from "../../_components/filter-tabs";
 import { SplitPane } from "../../_components/split-pane";
 import { StatStrip } from "../../_components/stat-strip";
+import { SuspendDialog } from "../../_components/suspend-dialog";
 import { useKeyMap } from "../../_hooks/use-key-map";
 import type { ReportedQuiz, ReportStatus } from "../mock-data";
 import { isSerious } from "./reason-chip";
 import { ReportDetail, type DetailDecision } from "./report-detail";
 import { ReportList, type ListRow } from "./report-list";
 import { oldestDays } from "./report-time";
-import { SuspendDialog } from "./suspend-dialog";
 
 type Tab = "open" | "resolved";
 type Outcome =
