@@ -92,7 +92,7 @@ export function QuestionCard({
               )}
             </Keycap>
             <span className="min-w-0 flex-1">
-              <span className="block break-words">
+              <span className="block wrap-break-word">
                 <Highlight text={option.label} term={term} />
               </span>
               {option.isCorrect && (
