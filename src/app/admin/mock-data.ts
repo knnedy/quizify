@@ -1,7 +1,9 @@
 import { getApplications } from "./applications/mock-data";
+import { getReports } from "./reports/mock-data";
 
 export type AdminCounts = {
   applications: number;
+  reports: number;
 };
 
 export type AdminIdentity = {
@@ -16,13 +18,18 @@ export const adminIdentity: AdminIdentity = {
   role: "ADMIN",
 };
 
-// Stand-in for the session user and the real count queries. The reports
-// count joins this when the reports queue exists.
+// Stand-in for the session user and the real count queries.
 export async function getAdminShell() {
-  const { counts } = await getApplications({ status: "PENDING" });
+  const [{ counts }, { items }] = await Promise.all([
+    getApplications({ status: "PENDING" }),
+    getReports(),
+  ]);
 
   return {
-    counts: { applications: counts.PENDING } satisfies AdminCounts,
+    counts: {
+      applications: counts.PENDING,
+      reports: items.filter((item) => item.status === "OPEN").length,
+    } satisfies AdminCounts,
     admin: adminIdentity,
   };
 }
