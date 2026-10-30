@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Brand } from "../components/brand";
-import { ThemeToggle } from "../components/theme-toggle";
+import { Brand } from "../_components/brand";
+import { ThemeToggle } from "../_components/theme-toggle";
 import { AuthPreview } from "./components/auth-preview";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {

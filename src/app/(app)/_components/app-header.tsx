@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Brand } from "@/app/components/brand";
-import { MobileMenu } from "@/app/components/home/mobile-menu";
-import { UserMenu } from "@/app/components/home/user-menu";
-import { ThemeToggle } from "@/app/components/theme-toggle";
+import { Brand } from "@/app/_components/brand";
+import { MobileMenu } from "@/app/_components/home/mobile-menu";
+import { UserMenu } from "@/app/_components/home/user-menu";
+import { ThemeToggle } from "@/app/_components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getOptionalUser } from "@/server/session";
