@@ -18,9 +18,11 @@ export default async function AdminLayout({
   const { counts, admin } = await getAdminShell();
 
   return (
-    <div className="min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[16.5rem_minmax(0,1fr)] lg:overflow-hidden">
+    <div className="min-h-dvh lg:fixed lg:inset-0 lg:grid lg:min-h-0 lg:grid-cols-[16.5rem_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:overflow-clip">
       <AdminNav counts={counts} admin={admin} />
-      <div className="min-w-0 lg:h-dvh lg:overflow-y-auto">{children}</div>
+      <div className="min-w-0 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain">
+        {children}
+      </div>
     </div>
   );
 }
