@@ -1,5 +1,5 @@
 {
-  "id": "5c583bb7-3e4f-4adc-9472-78dfaa799c10",
+  "id": "512853e3-46b9-41f7-9288-a4244ad15e9b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -330,6 +330,322 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.creator_applications": {
+      "name": "creator_applications",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "motivation": {
+          "name": "motivation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "application_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDING'"
+        },
+        "reviewed_by": {
+          "name": "reviewed_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewed_at": {
+          "name": "reviewed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rejection_reason": {
+          "name": "rejection_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "creator_applications_queue_idx": {
+          "name": "creator_applications_queue_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "creator_applications_user_idx": {
+          "name": "creator_applications_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "creator_applications_one_pending_idx": {
+          "name": "creator_applications_one_pending_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"creator_applications\".\"status\" = 'PENDING'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "creator_applications_user_id_users_id_fk": {
+          "name": "creator_applications_user_id_users_id_fk",
+          "tableFrom": "creator_applications",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "creator_applications_reviewed_by_users_id_fk": {
+          "name": "creator_applications_reviewed_by_users_id_fk",
+          "tableFrom": "creator_applications",
+          "tableTo": "users",
+          "columnsFrom": [
+            "reviewed_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "creator_applications_motivation_length": {
+          "name": "creator_applications_motivation_length",
+          "value": "char_length(\"creator_applications\".\"motivation\") between 40 and 500"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.moderation_events": {
+      "name": "moderation_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "moderation_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quiz_id": {
+          "name": "quiz_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "moderation_events_user_created_idx": {
+          "name": "moderation_events_user_created_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "moderation_events_quiz_created_idx": {
+          "name": "moderation_events_quiz_created_idx",
+          "columns": [
+            {
+              "expression": "quiz_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "moderation_events_created_idx": {
+          "name": "moderation_events_created_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "moderation_events_actor_id_users_id_fk": {
+          "name": "moderation_events_actor_id_users_id_fk",
+          "tableFrom": "moderation_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "actor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "moderation_events_user_id_users_id_fk": {
+          "name": "moderation_events_user_id_users_id_fk",
+          "tableFrom": "moderation_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "moderation_events_quiz_id_quizzes_id_fk": {
+          "name": "moderation_events_quiz_id_quizzes_id_fk",
+          "tableFrom": "moderation_events",
+          "tableTo": "quizzes",
+          "columnsFrom": [
+            "quiz_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "moderation_events_has_subject": {
+          "name": "moderation_events_has_subject",
+          "value": "\"moderation_events\".\"user_id\" is not null or \"moderation_events\".\"quiz_id\" is not null"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.question_options": {
       "name": "question_options",
       "schema": "",
@@ -440,12 +756,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "image_url": {
-          "name": "image_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "position": {
           "name": "position",
           "type": "integer",
@@ -549,6 +859,12 @@
           "notNull": true,
           "default": "'IN_PROGRESS'"
         },
+        "shuffle_seed": {
+          "name": "shuffle_seed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "score": {
           "name": "score",
           "type": "integer",
@@ -650,6 +966,28 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "quiz_attempts_one_active_idx": {
+          "name": "quiz_attempts_one_active_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "quiz_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"quiz_attempts\".\"status\" = 'IN_PROGRESS'",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -841,6 +1179,165 @@
       },
       "isRLSEnabled": false
     },
+    "public.quiz_reports": {
+      "name": "quiz_reports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quiz_id": {
+          "name": "quiz_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reporter_id": {
+          "name": "reporter_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "report_reason",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "details": {
+          "name": "details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "report_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'OPEN'"
+        },
+        "reviewed_by": {
+          "name": "reviewed_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewed_at": {
+          "name": "reviewed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "quiz_reports_quiz_reporter_idx": {
+          "name": "quiz_reports_quiz_reporter_idx",
+          "columns": [
+            {
+              "expression": "quiz_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "reporter_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "quiz_reports_queue_idx": {
+          "name": "quiz_reports_queue_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "quiz_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "quiz_reports_quiz_id_quizzes_id_fk": {
+          "name": "quiz_reports_quiz_id_quizzes_id_fk",
+          "tableFrom": "quiz_reports",
+          "tableTo": "quizzes",
+          "columnsFrom": [
+            "quiz_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "quiz_reports_reporter_id_users_id_fk": {
+          "name": "quiz_reports_reporter_id_users_id_fk",
+          "tableFrom": "quiz_reports",
+          "tableTo": "users",
+          "columnsFrom": [
+            "reporter_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "quiz_reports_reviewed_by_users_id_fk": {
+          "name": "quiz_reports_reviewed_by_users_id_fk",
+          "tableFrom": "quiz_reports",
+          "tableTo": "users",
+          "columnsFrom": [
+            "reviewed_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "quiz_reports_details_length": {
+          "name": "quiz_reports_details_length",
+          "value": "\"quiz_reports\".\"details\" is null or char_length(\"quiz_reports\".\"details\") <= 300"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.quiz_tags": {
       "name": "quiz_tags",
       "schema": "",
@@ -941,12 +1438,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "cover_image": {
-          "name": "cover_image",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "difficulty": {
           "name": "difficulty",
           "type": "difficulty",
@@ -999,6 +1490,24 @@
         "published_at": {
           "name": "published_at",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "suspended_at": {
+          "name": "suspended_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "suspended_by": {
+          "name": "suspended_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "suspension_reason": {
+          "name": "suspension_reason",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -1108,6 +1617,19 @@
           ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
+        },
+        "quizzes_suspended_by_users_id_fk": {
+          "name": "quizzes_suspended_by_users_id_fk",
+          "tableFrom": "quizzes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "suspended_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1129,6 +1651,10 @@
         "quizzes_max_attempts_positive": {
           "name": "quizzes_max_attempts_positive",
           "value": "\"quizzes\".\"max_attempts\" is null or \"quizzes\".\"max_attempts\" > 0"
+        },
+        "quizzes_suspended_has_time": {
+          "name": "quizzes_suspended_has_time",
+          "value": "\"quizzes\".\"status\" <> 'SUSPENDED' or \"quizzes\".\"suspended_at\" is not null"
         }
       },
       "isRLSEnabled": false
@@ -1356,6 +1882,104 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.user_notes": {
+      "name": "user_notes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_id": {
+          "name": "author_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "user_notes_user_created_idx": {
+          "name": "user_notes_user_created_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "user_notes_user_id_users_id_fk": {
+          "name": "user_notes_user_id_users_id_fk",
+          "tableFrom": "user_notes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "user_notes_author_id_users_id_fk": {
+          "name": "user_notes_author_id_users_id_fk",
+          "tableFrom": "user_notes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "user_notes_body_length": {
+          "name": "user_notes_body_length",
+          "value": "char_length(\"user_notes\".\"body\") between 3 and 400"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -1409,8 +2033,8 @@
           "name": "social_links",
           "type": "json",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'[]'::json"
+          "notNull": true,
+          "default": "'{}'::json"
         },
         "total_xp": {
           "name": "total_xp",
@@ -1435,6 +2059,25 @@
         },
         "last_activity_date": {
           "name": "last_activity_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "banned": {
+          "name": "banned",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "ban_reason": {
+          "name": "ban_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ban_expires": {
+          "name": "ban_expires",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -1619,6 +2262,15 @@
         "TOTAL_XP"
       ]
     },
+    "public.application_status": {
+      "name": "application_status",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
     "public.attempt_status": {
       "name": "attempt_status",
       "schema": "public",
@@ -1638,6 +2290,22 @@
         "ADVANCED"
       ]
     },
+    "public.moderation_kind": {
+      "name": "moderation_kind",
+      "schema": "public",
+      "values": [
+        "CREATOR_APPROVED",
+        "CREATOR_REJECTED",
+        "CREATOR_REVOKED",
+        "USER_BANNED",
+        "USER_UNBANNED",
+        "QUIZ_HIDDEN",
+        "QUIZ_SUSPENDED",
+        "QUIZ_RESTORED",
+        "QUIZ_DELETED",
+        "REPORT_DISMISSED"
+      ]
+    },
     "public.question_type": {
       "name": "question_type",
       "schema": "public",
@@ -1653,7 +2321,8 @@
       "values": [
         "DRAFT",
         "PUBLISHED",
-        "ARCHIVED"
+        "ARCHIVED",
+        "SUSPENDED"
       ]
     },
     "public.quiz_visibility": {
@@ -1665,11 +2334,33 @@
         "PRIVATE"
       ]
     },
+    "public.report_reason": {
+      "name": "report_reason",
+      "schema": "public",
+      "values": [
+        "NSFW",
+        "HATE",
+        "SPAM",
+        "MISLEADING",
+        "COPYRIGHT",
+        "OTHER"
+      ]
+    },
+    "public.report_status": {
+      "name": "report_status",
+      "schema": "public",
+      "values": [
+        "OPEN",
+        "DISMISSED",
+        "ACTIONED"
+      ]
+    },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
       "values": [
         "USER",
+        "CREATOR",
         "MODERATOR",
         "ADMIN"
       ]
@@ -1679,9 +2370,9 @@
       "schema": "public",
       "values": [
         "QUIZ_COMPLETED",
+        "PERFECT_SCORE",
         "STREAK_BONUS",
-        "ACHIEVEMENT",
-        "DAILY_CHALLENGE"
+        "ACHIEVEMENT"
       ]
     }
   },

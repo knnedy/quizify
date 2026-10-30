@@ -11,10 +11,16 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // Enums
-export const userRole = pgEnum("user_role", ["USER", "MODERATOR", "ADMIN"]);
+export const userRole = pgEnum("user_role", [
+  "USER",
+  "CREATOR",
+  "MODERATOR",
+  "ADMIN",
+]);
 
 export const difficulty = pgEnum("difficulty", [
   "BEGINNER",
@@ -26,6 +32,7 @@ export const quizStatus = pgEnum("quiz_status", [
   "DRAFT",
   "PUBLISHED",
   "ARCHIVED",
+  "SUSPENDED",
 ]);
 
 export const quizVisibility = pgEnum("quiz_visibility", [
@@ -49,9 +56,9 @@ export const attemptStatus = pgEnum("attempt_status", [
 
 export const xpSource = pgEnum("xp_source", [
   "QUIZ_COMPLETED",
+  "PERFECT_SCORE",
   "STREAK_BONUS",
   "ACHIEVEMENT",
-  "DAILY_CHALLENGE",
 ]);
 
 export const achievementType = pgEnum("achievement_type", [
@@ -60,6 +67,40 @@ export const achievementType = pgEnum("achievement_type", [
   "STREAK_DAYS",
   "PERFECT_SCORES",
   "TOTAL_XP",
+]);
+
+export const applicationStatus = pgEnum("application_status", [
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+]);
+
+export const reportReason = pgEnum("report_reason", [
+  "NSFW",
+  "HATE",
+  "SPAM",
+  "MISLEADING",
+  "COPYRIGHT",
+  "OTHER",
+]);
+
+export const reportStatus = pgEnum("report_status", [
+  "OPEN",
+  "DISMISSED",
+  "ACTIONED",
+]);
+
+export const moderationKind = pgEnum("moderation_kind", [
+  "CREATOR_APPROVED",
+  "CREATOR_REJECTED",
+  "CREATOR_REVOKED",
+  "USER_BANNED",
+  "USER_UNBANNED",
+  "QUIZ_HIDDEN",
+  "QUIZ_SUSPENDED",
+  "QUIZ_RESTORED",
+  "QUIZ_DELETED",
+  "REPORT_DISMISSED",
 ]);
 
 // Auth tables
@@ -72,17 +113,20 @@ export const users = pgTable("users", {
   role: userRole("role").notNull().default("USER"),
   timezone: text("timezone").notNull().default("UTC"),
   socialLinks: json("social_links")
-    .$type<
-      Array<{
-        platform: string;
-        url: string;
-      }>
-    >()
-    .default([]),
+    .$type<{
+      website?: string;
+      instagram?: string;
+      x?: string;
+    }>()
+    .notNull()
+    .default({}),
   totalXp: integer("total_xp").notNull().default(0),
   bestStreak: integer("best_streak").notNull().default(0),
   currentStreak: integer("current_streak").notNull().default(0),
   lastActivityDate: timestamp("last_activity_date"),
+  banned: boolean("banned").notNull().default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
   createdAt: timestamp("created_at", { mode: "date", precision: 3 })
     .defaultNow()
     .notNull(),
@@ -164,7 +208,6 @@ export const quizzes = pgTable(
     slug: text("slug").notNull().unique(),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    coverImage: text("cover_image"),
     difficulty: difficulty("difficulty").notNull(),
     status: quizStatus("status").notNull().default("DRAFT"),
     visibility: quizVisibility("visibility").notNull().default("PUBLIC"),
@@ -173,6 +216,12 @@ export const quizzes = pgTable(
     shuffleOptions: boolean("shuffle_options").notNull().default(false),
     maxAttempts: integer("max_attempts"),
     publishedAt: timestamp("published_at"),
+    suspendedAt: timestamp("suspended_at"),
+    suspendedBy: integer("suspended_by").references(() => users.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    suspensionReason: text("suspension_reason"),
     deletedAt: timestamp("deleted_at"),
     createdAt: timestamp("created_at", { mode: "date", precision: 3 })
       .defaultNow()
@@ -190,6 +239,10 @@ export const quizzes = pgTable(
     check(
       "quizzes_max_attempts_positive",
       sql`${t.maxAttempts} is null or ${t.maxAttempts} > 0`,
+    ),
+    check(
+      "quizzes_suspended_has_time",
+      sql`${t.status} <> 'SUSPENDED' or ${t.suspendedAt} is not null`,
     ),
     index("quizzes_browse_idx").on(t.status, t.visibility, t.createdAt),
     index("quizzes_category_idx").on(t.categoryId),
@@ -227,7 +280,6 @@ export const questions = pgTable(
     type: questionType("type").notNull().default("SINGLE"),
     title: text("title").notNull(),
     explanation: text("explanation"),
-    imageUrl: text("image_url"),
     position: integer("position").notNull().default(0),
     points: integer("points").notNull().default(1),
     createdAt: timestamp("created_at", { mode: "date", precision: 3 })
@@ -273,6 +325,9 @@ export const quizAttempts = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
     status: attemptStatus("status").notNull().default("IN_PROGRESS"),
+    shuffleSeed: integer("shuffle_seed")
+      .notNull()
+      .$defaultFn(() => Math.floor(Math.random() * 2_147_483_647)),
     score: integer("score").notNull().default(0),
     percentage: integer("percentage").notNull().default(0),
     timeTaken: integer("time_taken").notNull().default(0),
@@ -290,6 +345,9 @@ export const quizAttempts = pgTable(
   (t) => [
     index("quiz_attempts_user_created_idx").on(t.userId, t.createdAt),
     index("quiz_attempts_leaderboard_idx").on(t.quizId, t.score, t.timeTaken),
+    uniqueIndex("quiz_attempts_one_active_idx")
+      .on(t.userId, t.quizId)
+      .where(sql`${t.status} = 'IN_PROGRESS'`),
   ],
 );
 
@@ -362,6 +420,138 @@ export const quizRatings = pgTable(
   ],
 );
 
+// Creator applications
+export const creatorApplications = pgTable(
+  "creator_applications",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    motivation: text("motivation").notNull(),
+    status: applicationStatus("status").notNull().default("PENDING"),
+    reviewedBy: integer("reviewed_by").references(() => users.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    reviewedAt: timestamp("reviewed_at"),
+    rejectionReason: text("rejection_reason"),
+    createdAt: timestamp("created_at", { mode: "date", precision: 3 })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date", precision: 3 })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    check(
+      "creator_applications_motivation_length",
+      sql`char_length(${t.motivation}) between 40 and 500`,
+    ),
+    index("creator_applications_queue_idx").on(t.status, t.createdAt),
+    index("creator_applications_user_idx").on(t.userId),
+    uniqueIndex("creator_applications_one_pending_idx")
+      .on(t.userId)
+      .where(sql`${t.status} = 'PENDING'`),
+  ],
+);
+
+// Reports
+export const quizReports = pgTable(
+  "quiz_reports",
+  {
+    id: serial("id").primaryKey(),
+    quizId: integer("quiz_id")
+      .notNull()
+      .references(() => quizzes.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    reporterId: integer("reporter_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    reason: reportReason("reason").notNull(),
+    details: text("details"),
+    status: reportStatus("status").notNull().default("OPEN"),
+    reviewedBy: integer("reviewed_by").references(() => users.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    reviewedAt: timestamp("reviewed_at"),
+    createdAt: timestamp("created_at", { mode: "date", precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    check(
+      "quiz_reports_details_length",
+      sql`${t.details} is null or char_length(${t.details}) <= 300`,
+    ),
+    uniqueIndex("quiz_reports_quiz_reporter_idx").on(t.quizId, t.reporterId),
+    index("quiz_reports_queue_idx").on(t.status, t.quizId),
+  ],
+);
+
+// Moderation
+export const userNotes = pgTable(
+  "user_notes",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    authorId: integer("author_id").references(() => users.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at", { mode: "date", precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    check(
+      "user_notes_body_length",
+      sql`char_length(${t.body}) between 3 and 400`,
+    ),
+    index("user_notes_user_created_idx").on(t.userId, t.createdAt),
+  ],
+);
+
+export const moderationEvents = pgTable(
+  "moderation_events",
+  {
+    id: serial("id").primaryKey(),
+    kind: moderationKind("kind").notNull(),
+    actorId: integer("actor_id").references(() => users.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    userId: integer("user_id").references(() => users.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    quizId: integer("quiz_id").references(() => quizzes.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    note: text("note"),
+    createdAt: timestamp("created_at", { mode: "date", precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    check(
+      "moderation_events_has_subject",
+      sql`${t.userId} is not null or ${t.quizId} is not null`,
+    ),
+    index("moderation_events_user_created_idx").on(t.userId, t.createdAt),
+    index("moderation_events_quiz_created_idx").on(t.quizId, t.createdAt),
+    index("moderation_events_created_idx").on(t.createdAt),
+  ],
+);
+
 // XP ledger
 export const xpEvents = pgTable(
   "xp_events",
@@ -428,12 +618,25 @@ export const userAchievements = pgTable(
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
-  quizzes: many(quizzes),
+  quizzes: many(quizzes, { relationName: "quiz_author" }),
+  suspendedQuizzes: many(quizzes, { relationName: "quiz_suspender" }),
   quizAttempts: many(quizAttempts),
   quizBookmarks: many(quizBookmarks),
   quizRatings: many(quizRatings),
   userAchievements: many(userAchievements),
   xpEvents: many(xpEvents),
+  creatorApplications: many(creatorApplications, {
+    relationName: "application_applicant",
+  }),
+  reviewedApplications: many(creatorApplications, {
+    relationName: "application_reviewer",
+  }),
+  quizReports: many(quizReports, { relationName: "report_reporter" }),
+  reviewedReports: many(quizReports, { relationName: "report_reviewer" }),
+  notes: many(userNotes, { relationName: "note_subject" }),
+  writtenNotes: many(userNotes, { relationName: "note_author" }),
+  moderationEvents: many(moderationEvents, { relationName: "event_subject" }),
+  actedEvents: many(moderationEvents, { relationName: "event_actor" }),
 }));
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
@@ -448,6 +651,12 @@ export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
   user: one(users, {
     fields: [quizzes.userId],
     references: [users.id],
+    relationName: "quiz_author",
+  }),
+  suspender: one(users, {
+    fields: [quizzes.suspendedBy],
+    references: [users.id],
+    relationName: "quiz_suspender",
   }),
   category: one(categories, {
     fields: [quizzes.categoryId],
@@ -458,6 +667,8 @@ export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
   quizAttempts: many(quizAttempts),
   quizBookmarks: many(quizBookmarks),
   quizRatings: many(quizRatings),
+  reports: many(quizReports),
+  moderationEvents: many(moderationEvents),
 }));
 
 export const quizTagsRelations = relations(quizTags, ({ one }) => ({
@@ -538,6 +749,72 @@ export const quizRatingsRelations = relations(quizRatings, ({ one }) => ({
   }),
 }));
 
+export const creatorApplicationsRelations = relations(
+  creatorApplications,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [creatorApplications.userId],
+      references: [users.id],
+      relationName: "application_applicant",
+    }),
+    reviewer: one(users, {
+      fields: [creatorApplications.reviewedBy],
+      references: [users.id],
+      relationName: "application_reviewer",
+    }),
+  }),
+);
+
+export const quizReportsRelations = relations(quizReports, ({ one }) => ({
+  quiz: one(quizzes, {
+    fields: [quizReports.quizId],
+    references: [quizzes.id],
+  }),
+  reporter: one(users, {
+    fields: [quizReports.reporterId],
+    references: [users.id],
+    relationName: "report_reporter",
+  }),
+  reviewer: one(users, {
+    fields: [quizReports.reviewedBy],
+    references: [users.id],
+    relationName: "report_reviewer",
+  }),
+}));
+
+export const userNotesRelations = relations(userNotes, ({ one }) => ({
+  user: one(users, {
+    fields: [userNotes.userId],
+    references: [users.id],
+    relationName: "note_subject",
+  }),
+  author: one(users, {
+    fields: [userNotes.authorId],
+    references: [users.id],
+    relationName: "note_author",
+  }),
+}));
+
+export const moderationEventsRelations = relations(
+  moderationEvents,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [moderationEvents.userId],
+      references: [users.id],
+      relationName: "event_subject",
+    }),
+    actor: one(users, {
+      fields: [moderationEvents.actorId],
+      references: [users.id],
+      relationName: "event_actor",
+    }),
+    quiz: one(quizzes, {
+      fields: [moderationEvents.quizId],
+      references: [quizzes.id],
+    }),
+  }),
+);
+
 export const xpEventsRelations = relations(xpEvents, ({ one }) => ({
   user: one(users, {
     fields: [xpEvents.userId],
@@ -573,6 +850,10 @@ export type QuestionOption = typeof questionOptions.$inferSelect;
 export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type AttemptAnswer = typeof attemptAnswers.$inferSelect;
 export type QuizRating = typeof quizRatings.$inferSelect;
+export type CreatorApplication = typeof creatorApplications.$inferSelect;
+export type QuizReport = typeof quizReports.$inferSelect;
+export type UserNote = typeof userNotes.$inferSelect;
+export type ModerationEvent = typeof moderationEvents.$inferSelect;
 export type Achievement = typeof achievements.$inferSelect;
 export type XpEvent = typeof xpEvents.$inferSelect;
 
@@ -581,13 +862,14 @@ export type QuizStatus = Quiz["status"];
 export type QuizVisibility = Quiz["visibility"];
 export type QuestionType = Question["type"];
 export type AttemptStatus = QuizAttempt["status"];
+export type ModerationKind = ModerationEvent["kind"];
 
 // Question types for different access levels
 export type PublicOption = Pick<QuestionOption, "id" | "label" | "position">;
 
 export type PublicQuestion = Pick<
   Question,
-  "id" | "title" | "type" | "imageUrl" | "position" | "points"
+  "id" | "title" | "type" | "position" | "points"
 > & {
   options: PublicOption[];
 };
