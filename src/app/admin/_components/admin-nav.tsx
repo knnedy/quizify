@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ArrowLeftIcon,
   FlagIcon,
+  LayoutDashboardIcon,
   ShieldCheckIcon,
   UserCheckIcon,
   UsersIcon,
@@ -20,9 +21,17 @@ type NavItem = {
   short: string;
   Icon: LucideIcon;
   count?: keyof AdminCounts;
+  exact?: boolean;
 };
 
 const items: NavItem[] = [
+  {
+    href: "/admin",
+    label: "Overview",
+    short: "Overview",
+    Icon: LayoutDashboardIcon,
+    exact: true,
+  },
   {
     href: "/admin/users",
     label: "Users",
@@ -41,6 +50,7 @@ const items: NavItem[] = [
     label: "Reports",
     short: "Reports",
     Icon: FlagIcon,
+    count: "reports",
   },
 ];
 
@@ -51,7 +61,10 @@ const roleLabels: Record<AdminIdentity["role"], string> = {
 
 function Brand() {
   return (
-    <span className="flex items-center gap-3">
+    <Link
+      href="/admin"
+      aria-label="Quizify admin overview"
+      className="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
       <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-primary">
         <ShieldCheckIcon aria-hidden className="size-5" />
       </span>
@@ -63,7 +76,7 @@ function Brand() {
           Admin console
         </span>
       </span>
-    </span>
+    </Link>
   );
 }
 
@@ -76,8 +89,9 @@ export function AdminNav({
 }) {
   const pathname = usePathname();
 
-  function isActive(href: string) {
-    return pathname === href || pathname.startsWith(`${href}/`);
+  function isActive(item: NavItem) {
+    if (item.exact) return pathname === item.href;
+    return pathname === item.href || pathname.startsWith(`${item.href}/`);
   }
 
   return (
@@ -97,8 +111,9 @@ export function AdminNav({
           aria-label="Admin sections"
           className="overflow-x-auto px-6 pt-3 pb-3">
           <ul className="flex w-max gap-2">
-            {items.map(({ href, short, Icon, count }) => {
-              const active = isActive(href);
+            {items.map((item) => {
+              const { href, short, Icon, count } = item;
+              const active = isActive(item);
               const value = count ? counts[count] : 0;
 
               return (
@@ -140,8 +155,9 @@ export function AdminNav({
 
         <nav aria-label="Admin sections" className="flex-1">
           <ul className="space-y-1">
-            {items.map(({ href, label, Icon, count }) => {
-              const active = isActive(href);
+            {items.map((item) => {
+              const { href, label, Icon, count } = item;
+              const active = isActive(item);
               const value = count ? counts[count] : 0;
 
               return (
