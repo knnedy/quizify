@@ -18,14 +18,16 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
+// This only checks that a session cookie exists. Pages and actions still
+// verify the session and the role themselves.
 export const config = {
   matcher: [
     "/dashboard/:path*",
     "/my-quizzes/:path*",
     "/settings/:path*",
-    "/quizzes/create",
+    "/admin/:path*",
     "/quizzes/:slug/play",
-    "/quizzes/:slug/results/:path*",
-    "/quizzes/:slug/review/:path*",
+    "/quizzes/:slug/results",
+    "/quizzes/:slug/review",
   ],
 };
