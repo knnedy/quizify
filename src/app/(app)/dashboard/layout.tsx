@@ -11,9 +11,5 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  return (
-    <main className="container mx-auto px-4 py-4 min-h-screen md:px-10 lg:px-14">
-      {children}
-    </main>
-  );
+  return <>{children}</>;
 }
