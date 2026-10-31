@@ -1,5 +1,6 @@
 import "server-only";
 import { and, asc, count, desc, eq } from "drizzle-orm";
+import { isExpired } from "@/lib/attempt-time";
 import { maxQuizXp } from "@/lib/xp";
 import { db } from "@/server/db";
 import {
@@ -61,6 +62,29 @@ async function hasReported(quizId: number, viewerId: number | undefined) {
   return row !== undefined;
 }
 
+// An attempt the viewer can still pick up: started and not out of time
+async function hasLiveAttempt(
+  quizId: number,
+  viewerId: number | undefined,
+  timeLimitSeconds: number | null,
+) {
+  if (viewerId === undefined) return false;
+
+  const [row] = await db
+    .select({ startedAt: quizAttempts.startedAt })
+    .from(quizAttempts)
+    .where(
+      and(
+        eq(quizAttempts.quizId, quizId),
+        eq(quizAttempts.userId, viewerId),
+        eq(quizAttempts.status, "IN_PROGRESS"),
+      ),
+    )
+    .limit(1);
+
+  return row !== undefined && !isExpired(row.startedAt, timeLimitSeconds);
+}
+
 // The viewer's finished attempts, best first
 async function listViewerAttempts(
   quizId: number,
@@ -104,6 +128,7 @@ export async function getQuizDetail(
       description: quizzes.description,
       difficulty: quizzes.difficulty,
       timeLimitSeconds: quizzes.timeLimitSeconds,
+      maxAttempts: quizzes.maxAttempts,
       publishedAt: quizzes.publishedAt,
       createdAt: quizzes.createdAt,
       ownerId: quizzes.userId,
@@ -126,6 +151,7 @@ export async function getQuizDetail(
     ratingRows,
     bookmarked,
     reported,
+    liveAttempt,
     attempts,
     leaderboard,
     related,
@@ -151,6 +177,7 @@ export async function getQuizDetail(
       .groupBy(quizRatings.rating),
     isBookmarked(quiz.id, viewerId),
     hasReported(quiz.id, viewerId),
+    hasLiveAttempt(quiz.id, viewerId, quiz.timeLimitSeconds),
     listViewerAttempts(quiz.id, viewerId),
     getQuizLeaderboard(quiz.id, viewerId),
     listQuizzes({
@@ -225,5 +252,8 @@ export async function getQuizDetail(
     related: related.items,
     isOwner: viewerId !== undefined && quiz.ownerId === viewerId,
     hasReported: reported,
+    maxAttempts: quiz.maxAttempts,
+    attemptsUsed: attempts.length,
+    hasActiveAttempt: liveAttempt,
   };
 }
