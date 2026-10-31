@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { LogInIcon, PlayIcon, StarIcon } from "lucide-react";
-import { XpChip } from "@/components/xp-chip";
 import { buttonVariants } from "@/components/ui/button";
-import type { QuizDetail, Viewer } from "../mock-data";
+import { XpChip } from "@/components/xp-chip";
+import type { QuizDetail } from "@/types/quiz";
 
 const compact = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -23,10 +23,10 @@ function Stat({ label, children }: { label: string; children: ReactNode }) {
 
 export function QuizActions({
   quiz,
-  viewer,
+  signedIn,
 }: {
   quiz: QuizDetail;
-  viewer: Viewer;
+  signedIn: boolean;
 }) {
   const playHref = `/quizzes/${quiz.slug}/play`;
   const signInHref = `/sign-in?redirect=${encodeURIComponent(playHref)}`;
@@ -54,25 +54,25 @@ export function QuizActions({
       </dl>
 
       <div className="space-y-3">
-        {viewer === "guest" ? (
+        {signedIn ? (
+          <Link
+            href={playHref}
+            className={buttonVariants({ size: "lg", className: "w-full" })}>
+            <PlayIcon className="fill-current" />
+            {quiz.best ? "Play again" : "Start quiz"}
+          </Link>
+        ) : (
           <Link
             href={signInHref}
             className={buttonVariants({ size: "lg", className: "w-full" })}>
             <LogInIcon />
             Sign in to play
           </Link>
-        ) : (
-          <Link
-            href={playHref}
-            className={buttonVariants({ size: "lg", className: "w-full" })}>
-            <PlayIcon className="fill-current" />
-            {viewer === "returning" ? "Play again" : "Start quiz"}
-          </Link>
         )}
 
         <div className="flex flex-col items-center gap-3 text-center">
           <XpChip>Up to {quiz.xpReward} XP</XpChip>
-          {viewer === "guest" && (
+          {!signedIn && (
             <p className="text-sm text-muted-foreground">
               Sign in to save your score, earn XP and join the leaderboard.
             </p>

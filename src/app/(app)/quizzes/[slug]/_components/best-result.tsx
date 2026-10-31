@@ -3,7 +3,7 @@ import { ScoreRing } from "@/components/score-ring";
 import { buttonVariants } from "@/components/ui/button";
 import { XpChip } from "@/components/xp-chip";
 import { formatDate, formatSecondsToMinutes } from "@/lib/format-date";
-import type { BestResult } from "../mock-data";
+import type { BestResult } from "@/types/quiz";
 
 export function BestResultPanel({
   best,

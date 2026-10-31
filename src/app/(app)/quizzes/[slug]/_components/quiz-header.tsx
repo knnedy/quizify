@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
 import { BookmarkToggle } from "@/components/quiz/bookmark-toggle";
-import { DifficultyMeter } from "@/components/difficulty-meter";
+import { DifficultyMeter } from "@/components/quiz/difficulty-meter";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format-date";
-import type { QuizDetail } from "../mock-data";
+import type { QuizDetail } from "@/types/quiz";
 import { ReportDialog } from "./report-dialog";
 
 export function QuizHeader({
@@ -37,12 +37,17 @@ export function QuizHeader({
           <div className="flex items-center gap-1">
             {canReport && (
               <ReportDialog
+                slug={quiz.slug}
                 title={quiz.title}
                 alreadyReported={quiz.hasReported}
               />
             )}
             {showBookmark && (
-              <BookmarkToggle initial={quiz.isBookmarked} title={quiz.title} />
+              <BookmarkToggle
+                slug={quiz.slug}
+                initial={quiz.isBookmarked}
+                title={quiz.title}
+              />
             )}
           </div>
         </div>

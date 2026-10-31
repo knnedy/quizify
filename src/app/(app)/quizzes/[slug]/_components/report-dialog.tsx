@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { CheckIcon, FlagIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,14 @@ import {
   type ReportReason,
 } from "@/lib/report-reasons";
 import { cn } from "@/lib/utils";
+import { reportQuiz } from "@/server/actions/reports";
 
 export function ReportDialog({
+  slug,
   title,
   alreadyReported,
 }: {
+  slug: string;
   title: string;
   alreadyReported: boolean;
 }) {
@@ -47,19 +50,26 @@ export function ReportDialog({
     }
   }
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!reason || sending) return;
 
     setSending(true);
+    try {
+      const result = await reportQuiz({ slug, reason, details });
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
 
-    // Mock only: the real action saves one report per user per quiz.
-    window.setTimeout(() => {
-      setSending(false);
       setReported(true);
       setOpen(false);
       toast.success("Report sent. Thank you for helping keep Quizify safe.");
-    }, 700);
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
+    }
   }
 
   if (reported) {

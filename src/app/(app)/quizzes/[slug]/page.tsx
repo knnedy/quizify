@@ -2,20 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QuizCard } from "@/components/quiz/quiz-card";
+import { getQuizDetail, getQuizMeta } from "@/server/queries/quiz-details";
 import { getOptionalUser } from "@/server/session";
 import { BestResultPanel } from "./_components/best-result";
 import { Leaderboard } from "./_components/leaderboard";
 import { QuizActions } from "./_components/quiz-actions";
 import { QuizHeader } from "./_components/quiz-header";
 import { RatingsBreakdown } from "./_components/ratings-breakdown";
-import { getQuizDetail, resolveViewer } from "./mock-data";
 
 type Params = Promise<{ slug: string }>;
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-function first(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
 
 export async function generateMetadata({
   params,
@@ -23,27 +18,19 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const quiz = await getQuizDetail(slug, "guest");
+  const quiz = await getQuizMeta(slug);
 
   if (!quiz) return { title: "Quiz not found" };
   return { title: quiz.title, description: quiz.description };
 }
 
-export default async function QuizDetailsPage({
-  params,
-  searchParams,
-}: {
-  params: Params;
-  searchParams: SearchParams;
-}) {
-  const [{ slug }, raw] = await Promise.all([params, searchParams]);
-  const user = await getOptionalUser();
+export default async function QuizDetailsPage({ params }: { params: Params }) {
+  const [{ slug }, user] = await Promise.all([params, getOptionalUser()]);
 
-  const viewer = resolveViewer(first(raw.as), Boolean(user));
-  const signedIn = viewer !== "guest";
-
-  const quiz = await getQuizDetail(slug, viewer);
+  const quiz = await getQuizDetail(slug, user?.id);
   if (!quiz) notFound();
+
+  const signedIn = Boolean(user);
 
   return (
     <main>
@@ -55,7 +42,7 @@ export default async function QuizDetailsPage({
 
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
         <aside className="space-y-5 lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:self-start">
-          <QuizActions quiz={quiz} viewer={viewer} />
+          <QuizActions quiz={quiz} signedIn={signedIn} />
           {quiz.best && <BestResultPanel best={quiz.best} slug={quiz.slug} />}
         </aside>
 

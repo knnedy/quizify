@@ -1,6 +1,6 @@
 import { StarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { RatingBucket } from "../mock-data";
+import type { RatingBucket } from "@/types/quiz";
 
 export function RatingsBreakdown({
   average,

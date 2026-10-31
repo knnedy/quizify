@@ -1,7 +1,7 @@
 import { EllipsisIcon } from "lucide-react";
 import { formatSecondsToMinutes } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { LeaderboardEntry } from "../mock-data";
+import type { LeaderboardEntry } from "@/types/quiz";
 
 function Row({ entry, total }: { entry: LeaderboardEntry; total: number }) {
   return (
