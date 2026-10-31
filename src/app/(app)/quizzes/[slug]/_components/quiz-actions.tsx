@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { LogInIcon, PlayIcon, StarIcon } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { LogInIcon, StarIcon } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { XpChip } from "@/components/xp-chip";
 import type { QuizDetail } from "@/types/quiz";
+import { StartButton } from "./start-button";
 
 const compact = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -28,8 +29,18 @@ export function QuizActions({
   quiz: QuizDetail;
   signedIn: boolean;
 }) {
-  const playHref = `/quizzes/${quiz.slug}/play`;
-  const signInHref = `/sign-in?redirect=${encodeURIComponent(playHref)}`;
+  const signInHref = `/sign-in?redirect=${encodeURIComponent(`/quizzes/${quiz.slug}`)}`;
+
+  const exhausted =
+    quiz.maxAttempts !== null &&
+    quiz.attemptsUsed >= quiz.maxAttempts &&
+    !quiz.hasActiveAttempt;
+
+  const startLabel = quiz.hasActiveAttempt
+    ? "Resume"
+    : quiz.best
+      ? "Play again"
+      : "Start quiz";
 
   return (
     <div className="space-y-5 rounded-2xl border bg-card p-5 shadow-sm">
@@ -54,24 +65,29 @@ export function QuizActions({
       </dl>
 
       <div className="space-y-3">
-        {signedIn ? (
-          <Link
-            href={playHref}
-            className={buttonVariants({ size: "lg", className: "w-full" })}>
-            <PlayIcon className="fill-current" />
-            {quiz.best ? "Play again" : "Start quiz"}
-          </Link>
-        ) : (
+        {!signedIn ? (
           <Link
             href={signInHref}
             className={buttonVariants({ size: "lg", className: "w-full" })}>
             <LogInIcon />
             Sign in to play
           </Link>
+        ) : exhausted ? (
+          <Button size="lg" className="w-full" disabled>
+            No attempts left
+          </Button>
+        ) : (
+          <StartButton slug={quiz.slug} label={startLabel} />
         )}
 
         <div className="flex flex-col items-center gap-3 text-center">
           <XpChip>Up to {quiz.xpReward} XP</XpChip>
+          {signedIn && quiz.maxAttempts !== null && (
+            <p className="text-sm text-muted-foreground tabular-nums">
+              {Math.min(quiz.attemptsUsed, quiz.maxAttempts)} of{" "}
+              {quiz.maxAttempts} attempts used
+            </p>
+          )}
           {!signedIn && (
             <p className="text-sm text-muted-foreground">
               Sign in to save your score, earn XP and join the leaderboard.

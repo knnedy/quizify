@@ -65,4 +65,7 @@ export type QuizDetail = QuizCardData & {
   related: QuizCardData[];
   isOwner: boolean;
   hasReported: boolean;
+  maxAttempts: number | null;
+  attemptsUsed: number;
+  hasActiveAttempt: boolean;
 };
