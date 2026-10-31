@@ -23,6 +23,7 @@ import {
 } from "@/server/db/schema";
 import type { QuizResult, XpLine } from "@/types/result";
 import { finishedAttempt } from "./attempt-filters";
+import { getLatestFinishedAttempt } from "./attempts";
 import { getQuizLeaderboard } from "./leaderboard";
 import { listQuizzes } from "./quizzes";
 import { reachableByLink } from "./visibility";
@@ -57,29 +58,7 @@ export async function getQuizResult(
 
   if (!quiz) return { status: "not-found" };
 
-  const [attempt] = await db
-    .select({
-      id: quizAttempts.id,
-      status: quizAttempts.status,
-      score: quizAttempts.score,
-      percentage: quizAttempts.percentage,
-      timeTaken: quizAttempts.timeTaken,
-      xpEarned: quizAttempts.xpEarned,
-    })
-    .from(quizAttempts)
-    .where(
-      and(
-        eq(quizAttempts.quizId, quiz.id),
-        eq(quizAttempts.userId, userId),
-        finishedAttempt,
-      ),
-    )
-    .orderBy(
-      sql`${quizAttempts.completedAt} desc nulls last`,
-      sql`${quizAttempts.id} desc`,
-    )
-    .limit(1);
-
+  const attempt = await getLatestFinishedAttempt(quiz.id, userId);
   if (!attempt) return { status: "no-attempt" };
 
   const [
