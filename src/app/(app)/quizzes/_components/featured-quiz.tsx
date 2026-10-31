@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ClockIcon, FlameIcon, StarIcon } from "lucide-react";
-import { DifficultyMeter } from "@/components/difficulty-meter";
+import { DifficultyMeter } from "@/components/quiz/difficulty-meter";
 import type { QuizCardData } from "@/components/quiz/quiz-card";
 import { buttonVariants } from "@/components/ui/button";
 import { getCategoryIcon } from "@/lib/category-icons";
