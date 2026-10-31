@@ -51,7 +51,11 @@ export function QuizCard({
           </span>
         </span>
         {showBookmark && (
-          <BookmarkToggle initial={quiz.isBookmarked} title={quiz.title} />
+          <BookmarkToggle
+            slug={quiz.slug}
+            initial={quiz.isBookmarked}
+            title={quiz.title}
+          />
         )}
       </div>
 
