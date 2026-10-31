@@ -77,7 +77,7 @@ export function QuizActions({
             No attempts left
           </Button>
         ) : (
-          <StartButton slug={quiz.slug} label={startLabel} />
+          <StartButton slug={quiz.slug} label={startLabel} className="w-full" />
         )}
 
         <div className="flex flex-col items-center gap-3 text-center">

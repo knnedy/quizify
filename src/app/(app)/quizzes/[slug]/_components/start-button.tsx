@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { PlayIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -8,7 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { startAttempt } from "@/server/actions/attempts";
 
-export function StartButton({ slug, label }: { slug: string; label: string }) {
+export function StartButton({
+  slug,
+  label,
+  variant = "default",
+  icon,
+  className,
+}: {
+  slug: string;
+  label: string;
+  variant?: "default" | "outline";
+  icon?: ReactNode;
+  className?: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -26,8 +38,17 @@ export function StartButton({ slug, label }: { slug: string; label: string }) {
   }
 
   return (
-    <Button size="lg" className="w-full" disabled={isPending} onClick={start}>
-      {isPending ? <Spinner /> : <PlayIcon className="fill-current" />}
+    <Button
+      size="lg"
+      variant={variant}
+      className={className}
+      disabled={isPending}
+      onClick={start}>
+      {isPending ? (
+        <Spinner />
+      ) : (
+        (icon ?? <PlayIcon className="fill-current" />)
+      )}
       {label}
     </Button>
   );
