@@ -11,13 +11,13 @@ import {
 import { Keycap } from "@/components/keycap";
 import { shouldStackOptions } from "@/lib/question-layout";
 import { cn } from "@/lib/utils";
-import { useInView } from "../_hooks/use-in-view";
+import type { QuestionType } from "@/types/play";
 import type {
-  QuestionType,
   ReviewOption,
   ReviewQuestion,
   ReviewStatus,
-} from "../mock-data";
+} from "@/types/review";
+import { useInView } from "../_hooks/use-in-view";
 
 type IconType = ComponentType<{ className?: string }>;
 type OptionState = "right" | "wrong" | "missed" | "answer" | "neutral";

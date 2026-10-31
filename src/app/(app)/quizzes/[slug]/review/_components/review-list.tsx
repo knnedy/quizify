@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import type { ReviewCounts, ReviewQuestion, ReviewStatus } from "../mock-data";
+import type {
+  ReviewCounts,
+  ReviewQuestion,
+  ReviewStatus,
+} from "@/types/review";
 import { QuestionNav } from "./question-nav";
 import { ReviewQuestionCard } from "./review-question";
 

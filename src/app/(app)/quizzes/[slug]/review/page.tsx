@@ -1,38 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { RotateCcwIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { getQuizReview } from "@/server/queries/review";
 import { requireUser } from "@/server/session";
+import type { ReviewCounts } from "@/types/review";
+import { StartButton } from "../_components/start-button";
 import { ReviewHeader } from "./_components/review-header";
 import { ReviewList } from "./_components/review-list";
-import { getQuizReview, type ReviewCounts } from "./mock-data";
 
 export const metadata: Metadata = { title: "Review answers" };
 
 type Params = Promise<{ slug: string }>;
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function first(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
+export default async function ReviewPage({ params }: { params: Params }) {
+  const { slug } = await params;
+  const user = await requireUser(`/quizzes/${slug}/review`);
 
-export default async function ReviewPage({
-  params,
-  searchParams,
-}: {
-  params: Params;
-  searchParams: SearchParams;
-}) {
-  const [{ slug }, raw] = await Promise.all([params, searchParams]);
-  await requireUser(`/quizzes/${slug}/review`);
+  const outcome = await getQuizReview(slug, user.id);
+  if (outcome.status === "not-found") notFound();
 
-  const score = Number.parseInt(first(raw.score) ?? "", 10);
-  const review = await getQuizReview(slug, {
-    score: Number.isFinite(score) ? score : undefined,
-    timedOut: first(raw.timeout) === "1",
-  });
-  if (!review) notFound();
+  // Nothing finished yet: the details page is where you start
+  if (outcome.status === "no-attempt") redirect(`/quizzes/${slug}`);
+
+  const { review } = outcome;
 
   const counts: ReviewCounts = { correct: 0, incorrect: 0, skipped: 0 };
   for (const question of review.questions) counts[question.status] += 1;
@@ -50,15 +42,14 @@ export default async function ReviewPage({
             className={buttonVariants({ size: "lg", variant: "outline" })}>
             Back to results
           </Link>
-          <Link
-            href={`/quizzes/${review.slug}/play`}
-            className={buttonVariants({
-              size: "lg",
-              className: "shadow-primary",
-            })}>
-            <RotateCcwIcon />
-            Play again
-          </Link>
+          {review.canPlayAgain && (
+            <StartButton
+              slug={review.slug}
+              label="Play again"
+              icon={<RotateCcwIcon />}
+              className="shadow-primary"
+            />
+          )}
         </div>
       </div>
     </main>

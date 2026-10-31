@@ -7,7 +7,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { ScoreRing } from "@/components/score-ring";
-import type { QuizReview, ReviewCounts } from "../mock-data";
+import type { QuizReview, ReviewCounts } from "@/types/review";
 
 export function ReviewHeader({
   review,

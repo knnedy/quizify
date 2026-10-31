@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { ReviewQuestion, ReviewStatus } from "../mock-data";
+import type { ReviewQuestion, ReviewStatus } from "@/types/review";
 
 const chipClasses: Record<ReviewStatus, string> = {
   correct:
