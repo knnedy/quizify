@@ -3,7 +3,7 @@ import { Keycap } from "@/components/keycap";
 import { limits, type QuestionErrors } from "@/lib/quiz-editor-rules";
 import { cn } from "@/lib/utils";
 import type { EditorQuestion } from "@/types/quiz-editor";
-import { FormBlock } from "./form-block";
+import { FormBlock } from "../form/form-block";
 
 export function OptionList({
   question,

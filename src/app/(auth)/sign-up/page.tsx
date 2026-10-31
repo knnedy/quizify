@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 import { getSafeRedirect } from "@/lib/safe-redirect";
-import { SignUpForm } from "./components/sign-up-form";
+import { SignUpForm } from "./_components/sign-up-form";
 
 export const metadata: Metadata = { title: "Create account" };
 

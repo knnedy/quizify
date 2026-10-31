@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { QuizCard } from "@/components/quiz-card";
+import { QuizCard } from "@/components/quiz/quiz-card";
 import { requireUser } from "@/server/session";
 import { RatingPrompt } from "./_components/rating-prompt";
 import { ResultHero } from "./_components/result-hero";

@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
 import { getSafeRedirect } from "@/lib/safe-redirect";
-import { SignInForm } from "./components/sign-in-form";
+import { SignInForm } from "./_components/sign-in-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 

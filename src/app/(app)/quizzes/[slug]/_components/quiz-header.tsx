@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
-import { BookmarkToggle } from "@/components/bookmark-toggle";
+import { BookmarkToggle } from "@/components/quiz/bookmark-toggle";
 import { DifficultyMeter } from "@/components/difficulty-meter";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format-date";

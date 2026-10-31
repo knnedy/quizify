@@ -2,9 +2,9 @@
 
 import { useId, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { FormBlock, inputClass } from "@/components/quiz-editor/form-block";
-import { SwitchRow } from "@/components/quiz-editor/switch-row";
-import { PasswordInput } from "@/components/password-input";
+import { FormBlock, inputClass } from "@/components/form/form-block";
+import { SwitchRow } from "@/components/form/switch-row";
+import { PasswordInput } from "@/components/form/password-input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {

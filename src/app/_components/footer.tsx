@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Brand } from "../brand";
+import { Brand } from "../../components/shell/brand";
 
 const columns = [
   {

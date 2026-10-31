@@ -1,4 +1,4 @@
-import type { QuizCardData } from "@/components/quiz-card";
+import type { QuizCardData } from "@/components/quiz/quiz-card";
 import { difficultyInfo } from "@/lib/difficulty";
 import { listQuizzes } from "../../mock-data";
 

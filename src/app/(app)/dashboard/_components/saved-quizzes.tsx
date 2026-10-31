@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookmarkIcon } from "lucide-react";
-import { DifficultyBars } from "@/components/difficulty-meter";
-import type { QuizCardData } from "@/components/quiz-card";
+import { DifficultyBars } from "@/components/quiz/difficulty-meter";
+import type { QuizCardData } from "@/components/quiz/quiz-card";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { difficultyInfo } from "@/lib/difficulty";
 

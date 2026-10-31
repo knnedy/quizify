@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SearchXIcon } from "lucide-react";
-import { QuizCard } from "@/components/quiz-card";
+import { QuizCard } from "@/components/quiz/quiz-card";
 import { buttonVariants } from "@/components/ui/button";
 import { isDifficulty } from "@/lib/difficulty";
 import { defaultQuizSort, isQuizSort } from "@/lib/quiz-browse";

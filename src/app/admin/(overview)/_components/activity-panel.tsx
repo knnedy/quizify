@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Segmented } from "@/components/quiz-editor/segmented";
+import { Segmented } from "@/components/form/segmented";
 import {
   formatAxis,
   formatValue,

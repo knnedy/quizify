@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { StarIcon } from "lucide-react";
-import { BookmarkToggle } from "@/components/bookmark-toggle";
-import { DifficultyBars } from "@/components/difficulty-meter";
+import { BookmarkToggle } from "@/components/quiz/bookmark-toggle";
+import { DifficultyBars } from "./difficulty-meter";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { difficultyInfo, type Difficulty } from "@/lib/difficulty";
 

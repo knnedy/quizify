@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { QuizCard } from "@/components/quiz-card";
+import { QuizCard } from "@/components/quiz/quiz-card";
 import type { Dashboard } from "../mock-data";
 import { AchievementsCard } from "./achievements-card";
 import { BecomeCreatorCard } from "./become-creator-card";

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Brand } from "../brand";
-import { ThemeToggle } from "../theme-toggle";
-import { MobileMenu } from "./mobile-menu";
-import { UserMenu } from "./user-menu";
+import { Brand } from "../../components/shell/brand";
+import { ThemeToggle } from "../../components/shell/theme-toggle";
+import { MobileMenu } from "../../components/shell/mobile-menu";
+import { UserMenu } from "../../components/shell/user-menu";
 
 const links = [
   { href: "/quizzes", label: "Browse" },

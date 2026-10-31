@@ -1,7 +1,7 @@
 import { useState, type KeyboardEvent } from "react";
 import { XIcon } from "lucide-react";
 import { limits } from "@/lib/quiz-editor-rules";
-import { inputClass } from "./form-block";
+import { inputClass } from "../form/form-block";
 
 export function TagInput({
   id,

@@ -10,9 +10,9 @@ import {
 } from "@/lib/quiz-editor-rules";
 import { cn } from "@/lib/utils";
 import type { EditorQuestion } from "@/types/quiz-editor";
-import { FormBlock, inputClass } from "./form-block";
+import { FormBlock, inputClass } from "../form/form-block";
 import { OptionList } from "./option-list";
-import { Segmented } from "./segmented";
+import { Segmented } from "../form/segmented";
 
 const typeOptions = questionTypes.map((value) => ({
   value,

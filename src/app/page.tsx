@@ -1,14 +1,14 @@
 import { getOptionalUser } from "@/server/session";
-import CtaSection from "./_components/home/cta-section";
-import FaqSection from "./_components/home/faq-section";
-import FeaturesSection from "./_components/home/features-section";
-import Footer from "./_components/home/footer";
-import HeroSection from "./_components/home/hero-section";
-import HowItWorksSection from "./_components/home/how-it-works-section";
-import HomeNavbar from "./_components/home/navbar";
-import PopularCategoriesSection from "./_components/home/popular-categories-section";
-import StatsSection from "./_components/home/stats-section";
-import TrendingSection from "./_components/home/trending-section";
+import CtaSection from "./_components/cta-section";
+import FaqSection from "./_components/faq-section";
+import FeaturesSection from "./_components/features-section";
+import Footer from "./_components/footer";
+import HeroSection from "./_components/hero-section";
+import HowItWorksSection from "./_components/how-it-works-section";
+import HomeNavbar from "./_components/navbar";
+import PopularCategoriesSection from "./_components/popular-categories-section";
+import StatsSection from "./_components/stats-section";
+import TrendingSection from "./_components/trending-section";
 
 export default async function HomePage() {
   const user = await getOptionalUser();

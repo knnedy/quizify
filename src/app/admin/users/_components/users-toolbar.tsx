@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 import { SearchIcon, XIcon } from "lucide-react";
 import { Keycap } from "@/components/keycap";
-import { inputClass } from "@/components/quiz-editor/form-block";
+import { inputClass } from "@/components/form/form-block";
 import { cn } from "@/lib/utils";
 import { FilterTabs } from "../../_components/filter-tabs";
 import type { UserFilter } from "../query-params";

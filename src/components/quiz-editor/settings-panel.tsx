@@ -9,9 +9,9 @@ import type {
   QuizSettings,
   QuizVisibility,
 } from "@/types/quiz-editor";
-import { FormBlock, inputClass } from "./form-block";
-import { Segmented } from "./segmented";
-import { SwitchRow } from "./switch-row";
+import { FormBlock, inputClass } from "../form/form-block";
+import { Segmented } from "../form/segmented";
+import { SwitchRow } from "../form/switch-row";
 import { TagInput } from "./tag-input";
 
 const difficultyOptions = difficulties.map((value) => ({

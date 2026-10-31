@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { QuizDemo } from "@/components/quiz-demo";
+import { QuizDemo } from "@/components/quiz/quiz-demo";
 import { cn } from "@/lib/utils";
 
 export default function HeroSection({ isSignedIn }: { isSignedIn: boolean }) {

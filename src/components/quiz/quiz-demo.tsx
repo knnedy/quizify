@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { CheckIcon, ClockIcon, XIcon, ZapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Keycap } from "./keycap";
+import { Keycap } from "../keycap";
 
 const question = {
   title: "Which planet has the most known moons?",

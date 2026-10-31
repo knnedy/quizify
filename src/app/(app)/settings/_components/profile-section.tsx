@@ -2,7 +2,7 @@
 
 import { useId, useState, type ComponentProps, type FormEvent } from "react";
 import { toast } from "sonner";
-import { FormBlock, inputClass } from "@/components/quiz-editor/form-block";
+import { FormBlock, inputClass } from "@/components/form/form-block";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";

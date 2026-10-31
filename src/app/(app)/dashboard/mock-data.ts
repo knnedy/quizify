@@ -1,6 +1,6 @@
 import { getMyQuizzesView } from "@/app/(app)/my-quizzes/mock-data";
 import { listQuizzes } from "@/app/(app)/quizzes/mock-data";
-import type { QuizCardData } from "@/components/quiz-card";
+import type { QuizCardData } from "@/components/quiz/quiz-card";
 import { difficultyInfo } from "@/lib/difficulty";
 
 export type DashboardView = "playing" | "creating";

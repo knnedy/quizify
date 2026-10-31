@@ -1,9 +1,9 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
-import { Segmented } from "@/components/quiz-editor/segmented";
-import { SwitchRow } from "@/components/quiz-editor/switch-row";
-import { FormBlock } from "@/components/quiz-editor/form-block";
+import { Segmented } from "@/components/form/segmented";
+import { SwitchRow } from "@/components/form/switch-row";
+import { FormBlock } from "@/components/form/form-block";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

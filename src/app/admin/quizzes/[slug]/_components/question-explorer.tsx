@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { FlagIcon, SearchIcon, SearchXIcon, XIcon } from "lucide-react";
 import { Keycap } from "@/components/keycap";
-import { inputClass } from "@/components/quiz-editor/form-block";
+import { inputClass } from "@/components/form/form-block";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useKeyMap } from "../../../_hooks/use-key-map";

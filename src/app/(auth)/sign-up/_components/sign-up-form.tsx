@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { PasswordInput } from "../../components/password-input";
+import { PasswordInput } from "../../_components/password-input";
 
 const signUpSchema = z
   .object({

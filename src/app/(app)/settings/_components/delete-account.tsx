@@ -3,7 +3,7 @@
 import { useId, useState, type FormEvent } from "react";
 import { Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
-import { inputClass } from "@/components/quiz-editor/form-block";
+import { inputClass } from "@/components/form/form-block";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

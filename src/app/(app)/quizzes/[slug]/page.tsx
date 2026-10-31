@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { QuizCard } from "@/components/quiz-card";
+import { QuizCard } from "@/components/quiz/quiz-card";
 import { getOptionalUser } from "@/server/session";
 import { BestResultPanel } from "./_components/best-result";
 import { Leaderboard } from "./_components/leaderboard";
