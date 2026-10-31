@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ClockIcon, FlameIcon, StarIcon } from "lucide-react";
 import { DifficultyMeter } from "@/components/quiz/difficulty-meter";
-import type { QuizCardData } from "@/components/quiz/quiz-card";
 import { buttonVariants } from "@/components/ui/button";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
+import type { QuizCardData } from "@/types/quiz";
 
 const number = new Intl.NumberFormat("en-US");
 

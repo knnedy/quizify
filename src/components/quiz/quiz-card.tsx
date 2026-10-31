@@ -2,24 +2,10 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { StarIcon } from "lucide-react";
 import { BookmarkToggle } from "@/components/quiz/bookmark-toggle";
-import { DifficultyBars } from "./difficulty-meter";
 import { getCategoryIcon } from "@/lib/category-icons";
-import { difficultyInfo, type Difficulty } from "@/lib/difficulty";
-
-export type QuizCardData = {
-  slug: string;
-  title: string;
-  description: string;
-  category: { name: string; slug: string };
-  difficulty: Difficulty;
-  questions: number;
-  timeLimitMinutes: number | null;
-  avgRating: number | null;
-  ratings: number;
-  plays: number;
-  author: { name: string } | null;
-  isBookmarked: boolean;
-};
+import { difficultyInfo } from "@/lib/difficulty";
+import type { QuizCardData } from "@/types/quiz";
+import { DifficultyBars } from "./difficulty-meter";
 
 const compact = new Intl.NumberFormat("en-US", {
   notation: "compact",

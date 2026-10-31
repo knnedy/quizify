@@ -3,61 +3,60 @@ import Link from "next/link";
 import { SearchXIcon } from "lucide-react";
 import { QuizCard } from "@/components/quiz/quiz-card";
 import { buttonVariants } from "@/components/ui/button";
-import { isDifficulty } from "@/lib/difficulty";
-import { defaultQuizSort, isQuizSort } from "@/lib/quiz-browse";
+import { defaultQuizSort } from "@/lib/quiz-browse";
+import { quizBrowseParamsSchema } from "@/lib/schemas/quiz-browse";
+import {
+  getMostPlayedQuiz,
+  listCategories,
+  listQuizzes,
+} from "@/server/queries/quizzes";
 import { getOptionalUser } from "@/server/session";
 import { FeaturedQuiz } from "./_components/featured-quiz";
 import { QuizPagination } from "./_components/quiz-pagination";
 import { QuizSearch } from "./_components/quiz-search";
 import { QuizToolbar } from "./_components/quiz-toolbar";
 import { TopicFilter } from "./_components/topic-filter";
-import { listCategories, listQuizzes } from "./mock-data";
 
-export const metadata: Metadata = { title: "Browse quizzes" };
+export const metadata: Metadata = {
+  title: "Browse quizzes",
+  description:
+    "Search quizzes by title or topic, filter by difficulty, and jump in.",
+};
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-function first(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
 
 export default async function QuizzesPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const raw = await searchParams;
-
-  const q = first(raw.q)?.trim().slice(0, 80) || undefined;
-  const category = first(raw.category) || undefined;
-  const rawDifficulty = first(raw.difficulty);
-  const difficulty = isDifficulty(rawDifficulty) ? rawDifficulty : undefined;
-  const rawSort = first(raw.sort);
-  const sort = isQuizSort(rawSort) ? rawSort : defaultQuizSort;
-  const parsedPage = Number.parseInt(first(raw.page) ?? "1", 10);
-  const requestedPage = Number.isFinite(parsedPage) ? parsedPage : 1;
+  const {
+    q,
+    category,
+    difficulty,
+    sort,
+    page: requestedPage,
+  } = quizBrowseParamsSchema.parse(await searchParams);
 
   const hasFilters = Boolean(q || category || difficulty);
 
-  const user = await getOptionalUser();
-
   // The spotlight only exists on an unfiltered browse. It is left out of the
   // grid on every page, so page numbers stay consistent.
-  const featured = hasFilters
-    ? null
-    : ((await listQuizzes({ sort: "popular", pageSize: 1 })).items[0] ?? null);
-
-  const [result, categories] = await Promise.all([
-    listQuizzes({
-      search: q,
-      category,
-      difficulty,
-      sort,
-      page: requestedPage,
-      exclude: featured?.slug,
-    }),
+  const [user, featured, categories] = await Promise.all([
+    getOptionalUser(),
+    hasFilters ? null : getMostPlayedQuiz(),
     listCategories(),
   ]);
+
+  const result = await listQuizzes({
+    search: q,
+    category,
+    difficulty,
+    sort,
+    page: requestedPage,
+    exclude: featured?.slug,
+    viewerId: user?.id,
+  });
 
   const showFeatured = featured !== null && requestedPage <= 1;
   const totalMatches = result.total + (featured ? 1 : 0);
