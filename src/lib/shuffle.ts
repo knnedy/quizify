@@ -26,3 +26,30 @@ export function seededShuffle<T>(items: readonly T[], seed: number): T[] {
 
   return copy;
 }
+
+// The order a player saw during an attempt. Play and review both call this, so
+// the letters on the options match in both places. True or false options keep
+// their order.
+export function arrangeQuestions<
+  Q extends { id: number; type: string; options: readonly unknown[] },
+>(
+  questions: Q[],
+  settings: {
+    shuffleQuestions: boolean;
+    shuffleOptions: boolean;
+    seed: number;
+  },
+): Q[] {
+  const arranged = questions.map((question) =>
+    settings.shuffleOptions && question.type !== "TRUE_FALSE"
+      ? {
+          ...question,
+          options: seededShuffle(question.options, settings.seed + question.id),
+        }
+      : question,
+  );
+
+  return settings.shuffleQuestions
+    ? seededShuffle(arranged, settings.seed)
+    : arranged;
+}

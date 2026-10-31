@@ -1,7 +1,7 @@
 import "server-only";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { remainingSeconds } from "@/lib/attempt-time";
-import { seededShuffle } from "@/lib/shuffle";
+import { arrangeQuestions } from "@/lib/shuffle";
 import { db } from "@/server/db";
 import {
   attemptAnswers,
@@ -96,19 +96,14 @@ export async function getPlaySession(
     optionsByQuestion.set(option.questionId, list);
   }
 
-  const built = questionRows.map((question): PlayQuestion => {
-    const options = optionsByQuestion.get(question.id) ?? [];
-
-    return {
+  const built = questionRows.map(
+    (question): PlayQuestion => ({
       id: question.id,
       type: question.type,
       title: question.title,
-      options:
-        quiz.shuffleOptions && question.type !== "TRUE_FALSE"
-          ? seededShuffle(options, attempt.shuffleSeed + question.id)
-          : options,
-    };
-  });
+      options: optionsByQuestion.get(question.id) ?? [],
+    }),
+  );
 
   const answers: Record<number, number[]> = Object.fromEntries(
     answerRows
@@ -127,9 +122,11 @@ export async function getPlaySession(
         attempt.startedAt,
         quiz.timeLimitSeconds,
       ),
-      questions: quiz.shuffleQuestions
-        ? seededShuffle(built, attempt.shuffleSeed)
-        : built,
+      questions: arrangeQuestions(built, {
+        shuffleQuestions: quiz.shuffleQuestions,
+        shuffleOptions: quiz.shuffleOptions,
+        seed: attempt.shuffleSeed,
+      }),
       answers,
     },
   };
