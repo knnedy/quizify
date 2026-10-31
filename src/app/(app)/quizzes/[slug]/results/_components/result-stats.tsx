@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import { ClockIcon, TrendingUpIcon, TrophyIcon } from "lucide-react";
 import { formatSecondsToMinutes } from "@/lib/format-date";
-import type { QuizResult } from "../mock-data";
+import type { QuizResult } from "@/types/result";
 
 function Tile({
   icon: Icon,
@@ -58,7 +58,7 @@ export function ResultStats({ result }: { result: QuizResult }) {
         icon={TrophyIcon}
         label="Leaderboard rank"
         value={`#${result.rank}`}
-        note={`of ${result.players.toLocaleString("en-US")} players`}
+        note={`of ${result.players.toLocaleString("en-US")} ${result.players === 1 ? "player" : "players"}`}
       />
       <Tile
         icon={TrendingUpIcon}

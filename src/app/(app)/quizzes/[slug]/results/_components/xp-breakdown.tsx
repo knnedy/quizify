@@ -1,5 +1,5 @@
 import { XpChip } from "@/components/xp-chip";
-import type { XpLine } from "../mock-data";
+import type { XpLine } from "@/types/result";
 
 export function XpBreakdown({
   lines,

@@ -1,39 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { QuizCard } from "@/components/quiz/quiz-card";
+import { cn } from "@/lib/utils";
+import { getQuizResult } from "@/server/queries/results";
 import { requireUser } from "@/server/session";
 import { RatingPrompt } from "./_components/rating-prompt";
 import { ResultHero } from "./_components/result-hero";
 import { ResultStats } from "./_components/result-stats";
 import { XpBreakdown } from "./_components/xp-breakdown";
-import { getQuizResult } from "./mock-data";
 
 export const metadata: Metadata = { title: "Your results" };
 
 type Params = Promise<{ slug: string }>;
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function first(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
+export default async function ResultsPage({ params }: { params: Params }) {
+  const { slug } = await params;
+  const user = await requireUser(`/quizzes/${slug}/results`);
 
-export default async function ResultsPage({
-  params,
-  searchParams,
-}: {
-  params: Params;
-  searchParams: SearchParams;
-}) {
-  const [{ slug }, raw] = await Promise.all([params, searchParams]);
-  await requireUser(`/quizzes/${slug}/results`);
+  const outcome = await getQuizResult(slug, user.id);
+  if (outcome.status === "not-found") notFound();
 
-  const score = Number.parseInt(first(raw.score) ?? "", 10);
-  const result = await getQuizResult(slug, {
-    score: Number.isFinite(score) ? score : undefined,
-    timedOut: first(raw.timeout) === "1",
-  });
-  if (!result) notFound();
+  // Nothing finished yet: the details page is where you start
+  if (outcome.status === "no-attempt") redirect(`/quizzes/${slug}`);
+
+  const { result } = outcome;
 
   return (
     <main>
@@ -41,9 +32,11 @@ export default async function ResultsPage({
 
       <div className="mx-auto max-w-4xl space-y-6 px-6 py-10">
         <ResultStats result={result} />
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className={cn("grid gap-6", !result.isOwner && "md:grid-cols-2")}>
           <XpBreakdown lines={result.xpLines} total={result.xpTotal} />
-          <RatingPrompt initial={result.myRating} />
+          {!result.isOwner && (
+            <RatingPrompt slug={result.slug} initial={result.myRating} />
+          )}
         </div>
       </div>
 

@@ -1,20 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { StarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { rateQuiz } from "@/server/actions/ratings";
 
 const labels = ["Poor", "Fair", "Good", "Great", "Excellent"];
 
-export function RatingPrompt({ initial }: { initial: number | null }) {
+export function RatingPrompt({
+  slug,
+  initial,
+}: {
+  slug: string;
+  initial: number | null;
+}) {
   const [rating, setRating] = useState(initial);
   const [hover, setHover] = useState<number | null>(null);
+  const [isPending, startTransition] = useTransition();
   const shown = hover ?? rating ?? 0;
 
   function choose(value: number) {
-    toast.success(rating === null ? "Thanks for rating" : "Rating updated");
+    if (isPending || value === rating) return;
+
+    const previous = rating;
     setRating(value);
+
+    startTransition(async () => {
+      const result = await rateQuiz({ slug, rating: value });
+
+      if (!result.ok) {
+        setRating(previous);
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(previous === null ? "Thanks for rating" : "Rating updated");
+    });
   }
 
   return (

@@ -10,7 +10,8 @@ import {
 import { ScoreRing } from "@/components/score-ring";
 import { buttonVariants } from "@/components/ui/button";
 import { XpChip } from "@/components/xp-chip";
-import type { QuizResult } from "../mock-data";
+import type { QuizResult } from "@/types/result";
+import { StartButton } from "../../_components/start-button";
 
 function getVerdict({ status, percentage, answered, total }: QuizResult) {
   if (status === "TIMED_OUT") {
@@ -128,12 +129,14 @@ export function ResultHero({ result }: { result: QuizResult }) {
               <ListChecksIcon />
               Review answers
             </Link>
-            <Link
-              href={`/quizzes/${result.slug}/play`}
-              className={buttonVariants({ size: "lg", variant: "outline" })}>
-              <RotateCcwIcon />
-              Play again
-            </Link>
+            {result.canPlayAgain && (
+              <StartButton
+                slug={result.slug}
+                label="Play again"
+                variant="outline"
+                icon={<RotateCcwIcon />}
+              />
+            )}
           </div>
         </div>
       </div>
