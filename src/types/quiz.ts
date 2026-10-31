@@ -28,3 +28,41 @@ export type CategoryWithCount = {
   slug: string;
   count: number;
 };
+
+export type RatingBucket = { stars: number; count: number };
+
+export type LeaderboardEntry = {
+  rank: number;
+  name: string;
+  score: number;
+  timeSeconds: number;
+  isYou: boolean;
+};
+
+export type LeaderboardView = {
+  top: LeaderboardEntry[];
+  pinned: LeaderboardEntry | null;
+};
+
+export type BestResult = {
+  score: number;
+  total: number;
+  percentage: number;
+  timeSeconds: number;
+  rank: number;
+  xpEarned: number;
+  attempts: number;
+  lastPlayedAt: Date;
+};
+
+export type QuizDetail = QuizCardData & {
+  tags: string[];
+  publishedAt: Date;
+  xpReward: number;
+  distribution: RatingBucket[];
+  leaderboard: LeaderboardView;
+  best: BestResult | null;
+  related: QuizCardData[];
+  isOwner: boolean;
+  hasReported: boolean;
+};
