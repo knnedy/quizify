@@ -4,14 +4,16 @@ import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, ArrowRightIcon, SendIcon } from "lucide-react";
+import { toast } from "sonner";
 import { Keycap } from "@/components/keycap";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { saveAnswer, submitAttempt } from "@/server/actions/attempts";
+import type { PlayQuiz } from "@/types/play";
 import { useCountdown } from "../_hooks/use-countdown";
 import { usePlayHotkeys } from "../_hooks/use-play-hotkeys";
 import { usePlaySession } from "../_hooks/use-play-session";
-import type { PlayQuestion } from "../mock-data";
 import { FocusToggle } from "./focus-toggle";
 import { PlayProgress } from "./play-progress";
 import { TimerClock, TimerLine } from "./play-timer";
@@ -44,36 +46,81 @@ function Shell({
   );
 }
 
-export function QuizPlayer({
-  slug,
-  title,
-  timeLimitSeconds,
-  questions,
-}: {
-  slug: string;
-  title: string;
-  timeLimitSeconds: number | null;
-  questions: PlayQuestion[];
-}) {
+export function QuizPlayer({ quiz }: { quiz: PlayQuiz }) {
+  const { attemptId, slug, title, timeLimitSeconds, questions } = quiz;
+
   const router = useRouter();
-  const session = usePlaySession(questions);
   const [phase, setPhase] = useState<Phase>("playing");
   const [focused, setFocused] = useState(false);
   const submittedRef = useRef(false);
+  const savesRef = useRef<Promise<void>>(Promise.resolve());
   const finished = phase !== "playing";
+  const resultsHref = `/quizzes/${slug}/results`;
 
-  function submit(reason: "manual" | "timed-out") {
+  // Answers are saved one after another, so the last change always wins
+  function queueSave(questionId: number, optionIds: number[]) {
+    savesRef.current = savesRef.current.then(async () => {
+      if (submittedRef.current) return;
+
+      try {
+        const result = await saveAnswer({ attemptId, questionId, optionIds });
+        if (result.ok) return;
+
+        if (result.code === "EXPIRED") {
+          void submit("timed-out");
+          return;
+        }
+        if (result.code === "FINISHED") {
+          router.push(resultsHref);
+          return;
+        }
+
+        toast.error(result.error, { id: "save-error" });
+      } catch {
+        toast.error("Could not save your answer. Check your connection.", {
+          id: "save-error",
+        });
+      }
+    });
+  }
+
+  const session = usePlaySession(questions, {
+    initialAnswers: quiz.answers,
+    onAnswerChange: queueSave,
+  });
+
+  // The final answers travel with the submit, so a save that failed earlier
+  // can't lose anything
+  async function submit(reason: "manual" | "timed-out") {
     if (submittedRef.current) return;
     submittedRef.current = true;
-
     setPhase(reason === "manual" ? "submitting" : "timed-out");
-    router.push(`/quizzes/${slug}/results`);
+
+    try {
+      const result = await submitAttempt({
+        attemptId,
+        timeout: reason === "timed-out",
+        answers: session.getAnswers(),
+        timings: session.getTimings(),
+      });
+
+      if (!result.ok) throw new Error(result.error);
+      router.push(resultsHref);
+    } catch (error) {
+      submittedRef.current = false;
+      setPhase("playing");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not submit your answers. Please try again.",
+      );
+    }
   }
 
   const remaining = useCountdown({
-    totalSeconds: timeLimitSeconds,
+    seconds: quiz.secondsRemaining,
     running: !finished,
-    onExpire: () => submit("timed-out"),
+    onExpire: () => void submit("timed-out"),
   });
 
   const { question } = session;
@@ -207,7 +254,7 @@ export function QuizPlayer({
             <Button
               size="lg"
               className="shadow-primary"
-              onClick={() => submit("manual")}>
+              onClick={() => void submit("manual")}>
               <SendIcon />
               Submit answers
             </Button>

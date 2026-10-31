@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { PlayQuestion } from "../mock-data";
+import type { PlayQuestion } from "@/types/play";
 
 export function PlayProgress({
   questions,

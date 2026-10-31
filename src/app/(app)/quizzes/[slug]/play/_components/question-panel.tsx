@@ -2,7 +2,7 @@ import { CheckIcon } from "lucide-react";
 import { Keycap } from "@/components/keycap";
 import { shouldStackOptions } from "@/lib/question-layout";
 import { cn } from "@/lib/utils";
-import type { PlayQuestion, QuestionType } from "../mock-data";
+import type { PlayQuestion, QuestionType } from "@/types/play";
 
 const hints: Record<QuestionType, string> = {
   SINGLE: "Choose one answer",

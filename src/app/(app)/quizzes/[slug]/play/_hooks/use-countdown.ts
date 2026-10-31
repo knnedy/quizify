@@ -3,15 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 
 export function useCountdown({
-  totalSeconds,
+  seconds,
   running,
   onExpire,
 }: {
-  totalSeconds: number | null;
+  seconds: number | null;
   running: boolean;
   onExpire: () => void;
 }) {
-  const [remaining, setRemaining] = useState(totalSeconds);
+  const [remaining, setRemaining] = useState(seconds);
+  const deadlineRef = useRef<number | null>(null);
+  const expiredRef = useRef(false);
   const onExpireRef = useRef(onExpire);
 
   useEffect(() => {
@@ -19,9 +21,13 @@ export function useCountdown({
   });
 
   useEffect(() => {
-    if (totalSeconds === null || !running) return;
+    if (seconds === null || !running) return;
 
-    const deadline = Date.now() + totalSeconds * 1000;
+    // The deadline is fixed once, so pausing and resuming never restarts it
+    if (deadlineRef.current === null) {
+      deadlineRef.current = Date.now() + seconds * 1000;
+    }
+    const deadline = deadlineRef.current;
 
     const id = window.setInterval(() => {
       const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
@@ -29,12 +35,16 @@ export function useCountdown({
 
       if (left === 0) {
         window.clearInterval(id);
-        onExpireRef.current();
+
+        if (!expiredRef.current) {
+          expiredRef.current = true;
+          onExpireRef.current();
+        }
       }
     }, 250);
 
     return () => window.clearInterval(id);
-  }, [totalSeconds, running]);
+  }, [seconds, running]);
 
   return remaining;
 }
