@@ -1,3 +1,5 @@
+import { getPublicStats } from "@/server/queries/platform";
+import { listCategories, listQuizzes } from "@/server/queries/quizzes";
 import { getOptionalUser } from "@/server/session";
 import CtaSection from "./_components/cta-section";
 import FaqSection from "./_components/faq-section";
@@ -11,7 +13,12 @@ import StatsSection from "./_components/stats-section";
 import TrendingSection from "./_components/trending-section";
 
 export default async function HomePage() {
-  const user = await getOptionalUser();
+  const [user, stats, popular, categories] = await Promise.all([
+    getOptionalUser(),
+    getPublicStats(),
+    listQuizzes({ sort: "popular", pageSize: 6 }),
+    listCategories(),
+  ]);
   const isSignedIn = Boolean(user);
 
   return (
@@ -19,9 +26,9 @@ export default async function HomePage() {
       <HomeNavbar user={user ? { name: user.name, email: user.email } : null} />
       <main>
         <HeroSection isSignedIn={isSignedIn} />
-        <StatsSection />
-        <TrendingSection />
-        <PopularCategoriesSection />
+        <StatsSection stats={stats} />
+        <TrendingSection quizzes={popular.items} />
+        <PopularCategoriesSection categories={categories} />
         <HowItWorksSection />
         <FeaturesSection />
         <FaqSection />
