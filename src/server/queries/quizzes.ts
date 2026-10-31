@@ -1,16 +1,5 @@
 import "server-only";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  ilike,
-  inArray,
-  ne,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import type { Difficulty } from "@/lib/difficulty";
 import type { QuizSort } from "@/lib/quiz-browse";
 import { db } from "@/server/db";
@@ -24,6 +13,7 @@ import {
   users,
 } from "@/server/db/schema";
 import type { CategoryWithCount, QuizList } from "@/types/quiz";
+import { finishedAttempt } from "./attempt-filters";
 import { publiclyListed } from "./visibility";
 
 const DEFAULT_PAGE_SIZE = 12;
@@ -55,7 +45,7 @@ const playStats = db
     total: sql<number>`count(*)::int`.as("play_total"),
   })
   .from(quizAttempts)
-  .where(inArray(quizAttempts.status, ["COMPLETED", "TIMED_OUT"]))
+  .where(finishedAttempt)
   .groupBy(quizAttempts.quizId)
   .as("play_stats");
 

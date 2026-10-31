@@ -1,15 +1,10 @@
 import "server-only";
-import { count, countDistinct, eq, inArray } from "drizzle-orm";
+import { count, countDistinct, eq } from "drizzle-orm";
 import { db } from "@/server/db";
 import { attemptAnswers, quizAttempts, quizzes } from "@/server/db/schema";
 import type { PublicStats } from "@/types/stats";
+import { finishedAttempt } from "./attempt-filters";
 import { publiclyListed } from "./visibility";
-
-// A finished attempt is one that produced a result
-const finishedAttempt = inArray(quizAttempts.status, [
-  "COMPLETED",
-  "TIMED_OUT",
-]);
 
 export async function getPublicStats(): Promise<PublicStats> {
   const [quizRows, playerRows, answerRows] = await Promise.all([
