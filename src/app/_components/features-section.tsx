@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Keycap } from "@/components/keycap";
 import { cn } from "@/lib/utils";
-import { leaderboard } from "./mock-data";
 
 const week = [
   { day: "M", state: "done" },
@@ -19,6 +18,12 @@ const week = [
   { day: "S", state: "upcoming" },
   { day: "S", state: "upcoming" },
 ] as const;
+
+const sampleLeaderboard = [
+  { rank: 1, name: "Amina W.", xp: 12480, isYou: false },
+  { rank: 2, name: "Brian O.", xp: 11920, isYou: false },
+  { rank: 3, name: "You", xp: 11405, isYou: true },
+];
 
 const achievements = [
   {
@@ -118,7 +123,7 @@ export default function FeaturesSection() {
             title="Climb the leaderboard"
             description="See how you rank against other players. Your best result on each quiz is what counts.">
             <ul className="space-y-1.5">
-              {leaderboard.map((row) => (
+              {sampleLeaderboard.map((row) => (
                 <li
                   key={row.rank}
                   className={cn(
