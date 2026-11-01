@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
-import { QuizEditor } from "@/components/quiz-editor/quiz-editor";
 import { createEmptySettings } from "@/lib/quiz-editor-rules";
-import { requireUser } from "@/server/session";
+import { listCategories } from "@/server/queries/quizzes";
+import { requireCreator } from "@/server/session";
+import { QuizEditor } from "../_components/quiz-editor/quiz-editor";
 import { StatusBadge } from "../_components/quiz-status";
-import { categoryOptions } from "../editor-mock-data";
 
 export const metadata: Metadata = { title: "New quiz" };
 
 export default async function NewQuizPage() {
-  await requireUser("/my-quizzes/new");
+  await requireCreator("/my-quizzes/new");
+  const categories = await listCategories();
 
   return (
     <QuizEditor
       mode="new"
       status="DRAFT"
       statusBadge={<StatusBadge status="DRAFT" />}
-      categories={categoryOptions}
+      categories={categories.map(({ name, slug }) => ({ name, slug }))}
       initial={{ settings: createEmptySettings(), questions: [] }}
     />
   );
