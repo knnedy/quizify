@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getPlaySession } from "@/server/queries/play";
 import { getQuizMeta } from "@/server/queries/quiz-details";
-import { requireUser } from "@/server/session";
+import { getOptionalUser, requireUser } from "@/server/session";
 import { QuizPlayer } from "./_components/quiz-player";
 
 type Params = Promise<{ slug: string }>;
@@ -13,7 +13,8 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const quiz = await getQuizMeta(slug);
+  const user = await getOptionalUser();
+  const quiz = await getQuizMeta(slug, user?.id);
 
   return { title: quiz ? `Play ${quiz.title}` : "Quiz not found" };
 }

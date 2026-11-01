@@ -18,7 +18,8 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const quiz = await getQuizMeta(slug);
+  const user = await getOptionalUser();
+  const quiz = await getQuizMeta(slug, user?.id);
 
   if (!quiz) return { title: "Quiz not found" };
   return { title: quiz.title, description: quiz.description };
