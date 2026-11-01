@@ -26,7 +26,7 @@ import { finishedAttempt } from "./attempt-filters";
 import { getLatestFinishedAttempt } from "./attempts";
 import { getQuizLeaderboard } from "./leaderboard";
 import { listQuizzes } from "./quizzes";
-import { reachableByLink } from "./visibility";
+import { reachableBy } from "./visibility";
 
 export type QuizResultOutcome =
   | { status: "not-found" }
@@ -53,7 +53,7 @@ export async function getQuizResult(
     })
     .from(quizzes)
     .innerJoin(categories, eq(categories.id, quizzes.categoryId))
-    .where(and(eq(quizzes.slug, slug), reachableByLink))
+    .where(and(eq(quizzes.slug, slug), reachableBy(userId)))
     .limit(1);
 
   if (!quiz) return { status: "not-found" };

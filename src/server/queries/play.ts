@@ -11,7 +11,7 @@ import {
   quizzes,
 } from "@/server/db/schema";
 import type { PlayOption, PlayQuestion, PlayQuiz } from "@/types/play";
-import { reachableByLink } from "./visibility";
+import { reachableBy } from "./visibility";
 
 export type PlaySessionResult =
   | { status: "not-found" }
@@ -32,7 +32,7 @@ export async function getPlaySession(
       shuffleOptions: quizzes.shuffleOptions,
     })
     .from(quizzes)
-    .where(and(eq(quizzes.slug, slug), reachableByLink))
+    .where(and(eq(quizzes.slug, slug), reachableBy(userId)))
     .limit(1);
 
   if (!quiz) return { status: "not-found" };

@@ -17,7 +17,7 @@ import type {
 } from "@/types/review";
 import { finishedAttempt } from "./attempt-filters";
 import { getLatestFinishedAttempt } from "./attempts";
-import { reachableByLink } from "./visibility";
+import { reachableBy } from "./visibility";
 
 export type QuizReviewOutcome =
   | { status: "not-found" }
@@ -42,7 +42,7 @@ export async function getQuizReview(
       shuffleOptions: quizzes.shuffleOptions,
     })
     .from(quizzes)
-    .where(and(eq(quizzes.slug, slug), reachableByLink))
+    .where(and(eq(quizzes.slug, slug), reachableBy(userId)))
     .limit(1);
 
   if (!quiz) return { status: "not-found" };

@@ -19,16 +19,16 @@ import type { BestResult, QuizDetail } from "@/types/quiz";
 import { finishedAttempt } from "./attempt-filters";
 import { getQuizLeaderboard } from "./leaderboard";
 import { listQuizzes } from "./quizzes";
-import { reachableByLink } from "./visibility";
+import { reachableBy } from "./visibility";
 
 const STAR_LEVELS = [5, 4, 3, 2, 1];
 
 // Small lookup for page metadata
-export async function getQuizMeta(slug: string) {
+export async function getQuizMeta(slug: string, viewerId?: number) {
   const [quiz] = await db
     .select({ title: quizzes.title, description: quizzes.description })
     .from(quizzes)
-    .where(and(eq(quizzes.slug, slug), reachableByLink))
+    .where(and(eq(quizzes.slug, slug), reachableBy(viewerId)))
     .limit(1);
 
   return quiz ?? null;
@@ -139,7 +139,7 @@ export async function getQuizDetail(
     .from(quizzes)
     .innerJoin(categories, eq(categories.id, quizzes.categoryId))
     .leftJoin(users, eq(users.id, quizzes.userId))
-    .where(and(eq(quizzes.slug, slug), reachableByLink))
+    .where(and(eq(quizzes.slug, slug), reachableBy(viewerId)))
     .limit(1);
 
   if (!quiz) return null;
