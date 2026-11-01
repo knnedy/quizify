@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { canCreateQuizzes } from "@/lib/roles";
 import {
@@ -15,6 +15,7 @@ import {
   quizTags,
   quizzes,
 } from "@/server/db/schema";
+import { ownedQuiz } from "@/server/queries/ownership";
 import { uniqueQuizSlug } from "@/server/services/quiz-slug";
 import { getOptionalUser, type SessionUser } from "@/server/session";
 import type { ActionResult } from "@/types/actions";
@@ -33,14 +34,6 @@ async function getCreator(): Promise<ActionResult<{ user: SessionUser }>> {
   }
 
   return { ok: true, user };
-}
-
-function ownedQuiz(slug: string, userId: number) {
-  return and(
-    eq(quizzes.slug, slug),
-    eq(quizzes.userId, userId),
-    isNull(quizzes.deletedAt),
-  );
 }
 
 function copyTitle(title: string) {
