@@ -8,7 +8,7 @@ import {
   PencilLineIcon,
   ShieldAlertIcon,
 } from "lucide-react";
-import type { MyQuizStatus, Visibility } from "../mock-data";
+import type { MyQuizStatus, Visibility } from "@/types/my-quizzes";
 
 type IconType = ComponentType<{ className?: string }>;
 

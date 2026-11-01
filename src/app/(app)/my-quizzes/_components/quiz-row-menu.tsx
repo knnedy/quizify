@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArchiveIcon,
@@ -27,48 +27,92 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { MyQuiz } from "../mock-data";
+import {
+  archiveQuiz,
+  deleteQuiz,
+  duplicateQuiz,
+} from "@/server/actions/quizzes";
+import type { MyQuizStatus } from "@/types/my-quizzes";
 
-export function QuizRowMenu({ quiz }: { quiz: MyQuiz }) {
+export function QuizRowMenu({
+  slug,
+  title,
+  status,
+}: {
+  slug: string;
+  title: string;
+  status: MyQuizStatus;
+}) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const canDuplicate = quiz.status !== "SUSPENDED";
-  const canArchive = quiz.status === "PUBLISHED";
-  const canRepublish = quiz.status === "ARCHIVED";
+  const canDuplicate = status !== "SUSPENDED";
+  const canArchive = status === "PUBLISHED";
+  const canRepublish = status === "ARCHIVED";
 
-  // Mock only: the real actions write to the database and refresh the list.
   function duplicate() {
-    toast.success("Copied as a new draft");
+    startTransition(async () => {
+      const result = await duplicateQuiz({ slug });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Copied as a new draft", {
+        action: {
+          label: "Edit",
+          onClick: () => router.push(`/my-quizzes/${result.slug}/edit`),
+        },
+      });
+    });
   }
 
-  function archive() {
-    toast.success("Quiz archived. Publish it again any time from the editor.");
+  function archive(closeDialog = false) {
+    startTransition(async () => {
+      const result = await archiveQuiz({ slug });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      if (closeDialog) setConfirmOpen(false);
+      toast.success(
+        "Quiz archived. Publish it again any time from the editor.",
+      );
+    });
   }
 
   function remove() {
-    setConfirmOpen(false);
-    toast.success("Quiz deleted");
-  }
+    startTransition(async () => {
+      const result = await deleteQuiz({ slug });
 
-  function archiveInstead() {
-    setConfirmOpen(false);
-    archive();
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      setConfirmOpen(false);
+      toast.success("Quiz deleted");
+    });
   }
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          aria-label={`More actions for ${quiz.title}`}
-          className="inline-flex size-8 items-center justify-center rounded-lg border bg-card text-muted-foreground shadow-xs transition-colors hover:border-foreground/25 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring data-popup-open:border-foreground/25 data-popup-open:text-foreground">
+          disabled={isPending}
+          aria-label={`More actions for ${title}`}
+          className="inline-flex size-8 items-center justify-center rounded-lg border bg-card text-muted-foreground shadow-xs transition-colors hover:border-foreground/25 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60 data-popup-open:border-foreground/25 data-popup-open:text-foreground">
           <EllipsisIcon aria-hidden className="size-4" />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-48">
           {canRepublish && (
             <DropdownMenuItem
-              onClick={() => router.push(`/my-quizzes/${quiz.slug}/edit`)}>
+              onClick={() => router.push(`/my-quizzes/${slug}/edit`)}>
               <SendIcon />
               Publish again
             </DropdownMenuItem>
@@ -80,7 +124,7 @@ export function QuizRowMenu({ quiz }: { quiz: MyQuiz }) {
             </DropdownMenuItem>
           )}
           {canArchive && (
-            <DropdownMenuItem onClick={archive}>
+            <DropdownMenuItem onClick={() => archive()}>
               <ArchiveIcon />
               Archive
             </DropdownMenuItem>
@@ -103,7 +147,7 @@ export function QuizRowMenu({ quiz }: { quiz: MyQuiz }) {
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="gap-2 pr-8">
             <DialogTitle className="text-lg leading-snug">
-              Delete {quiz.title}?
+              Delete {title}?
             </DialogTitle>
             <DialogDescription>
               It disappears for everyone and you can&rsquo;t undo this.
@@ -117,12 +161,20 @@ export function QuizRowMenu({ quiz }: { quiz: MyQuiz }) {
               Cancel
             </DialogClose>
             {canArchive && (
-              <Button type="button" variant="outline" onClick={archiveInstead}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isPending}
+                onClick={() => archive(true)}>
                 <ArchiveIcon />
                 Archive instead
               </Button>
             )}
-            <Button type="button" variant="destructive" onClick={remove}>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isPending}
+              onClick={remove}>
               <Trash2Icon />
               Delete quiz
             </Button>

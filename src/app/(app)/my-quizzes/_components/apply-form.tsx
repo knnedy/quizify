@@ -1,36 +1,40 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition, type FormEvent } from "react";
 import { SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  APPLICATION_MAX_LENGTH,
+  APPLICATION_MIN_LENGTH,
+} from "@/lib/creator-rules";
 import { cn } from "@/lib/utils";
-
-const MIN_LENGTH = 40;
-const MAX_LENGTH = 500;
+import { applyToCreate } from "@/server/actions/creator-applications";
 
 export function ApplyForm() {
-  const router = useRouter();
   const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const length = text.trim().length;
-  const valid = length >= MIN_LENGTH && length <= MAX_LENGTH;
+  const valid =
+    length >= APPLICATION_MIN_LENGTH && length <= APPLICATION_MAX_LENGTH;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!valid || sending) return;
+    if (!valid || isPending) return;
 
-    setSending(true);
+    // On success the page refreshes into the pending state
+    startTransition(async () => {
+      const result = await applyToCreate({ motivation: text });
 
-    // Mock only: the real action saves the application and the page renders
-    // the pending state on its own.
-    window.setTimeout(() => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
       toast.success("Application sent");
-      router.replace("/my-quizzes?as=pending");
-    }, 700);
+    });
   }
 
   return (
@@ -44,14 +48,17 @@ export function ApplyForm() {
           value={text}
           onChange={(event) => setText(event.target.value)}
           rows={5}
-          maxLength={MAX_LENGTH}
+          maxLength={APPLICATION_MAX_LENGTH}
           placeholder="Tell us the topics you have in mind and why you know them well."
           className="min-h-32 w-full resize-y rounded-xl border border-input bg-card px-4 py-3 text-base shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-2 focus-visible:outline-ring/40"
         />
         <p className="flex justify-between gap-3 text-xs text-muted-foreground tabular-nums">
-          <span>At least {MIN_LENGTH} characters</span>
-          <span className={cn(length >= MAX_LENGTH && "text-incorrect-ink")}>
-            {length}/{MAX_LENGTH}
+          <span>At least {APPLICATION_MIN_LENGTH} characters</span>
+          <span
+            className={cn(
+              length >= APPLICATION_MAX_LENGTH && "text-incorrect-ink",
+            )}>
+            {length}/{APPLICATION_MAX_LENGTH}
           </span>
         </p>
       </div>
@@ -60,8 +67,8 @@ export function ApplyForm() {
         type="submit"
         size="lg"
         className="w-full shadow-primary"
-        disabled={!valid || sending}>
-        {sending ? <Spinner /> : <SendIcon />}
+        disabled={!valid || isPending}>
+        {isPending ? <Spinner /> : <SendIcon />}
         Send application
       </Button>
     </form>

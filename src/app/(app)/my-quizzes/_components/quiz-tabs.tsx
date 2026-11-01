@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import type { MyQuizStatus } from "../mock-data";
+import type { MyQuizStatus } from "@/types/my-quizzes";
 
 export type StatusFilter =
   | "all"

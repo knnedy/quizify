@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PlusIcon, SearchXIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { getMyQuizzesView } from "@/server/queries/my-quizzes";
 import { requireUser } from "@/server/session";
+import type { MyQuizStatus, MyQuizzesView } from "@/types/my-quizzes";
 import { ApplicationStatus } from "./_components/application-status";
 import { CreatorPitch } from "./_components/creator-pitch";
 import { CreatorSummary } from "./_components/creator-summary";
@@ -13,11 +15,6 @@ import {
   filterStatus,
   parseStatusFilter,
 } from "./_components/quiz-tabs";
-import {
-  getMyQuizzesView,
-  type MyQuizStatus,
-  type MyQuizzesView,
-} from "./mock-data";
 
 export const metadata: Metadata = { title: "My quizzes" };
 
@@ -57,15 +54,12 @@ export default async function MyQuizzesPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const raw = await searchParams;
-  await requireUser("/my-quizzes");
+  const [raw, user] = await Promise.all([
+    searchParams,
+    requireUser("/my-quizzes"),
+  ]);
 
-  const completed = Number.parseInt(first(raw.completed) ?? "", 10);
-  const view = await getMyQuizzesView({
-    preview: first(raw.as),
-    completed: Number.isFinite(completed) ? completed : undefined,
-  });
-
+  const view = await getMyQuizzesView(user);
   const filter = parseStatusFilter(first(raw.status));
   const hero = getHeroCopy(view);
 

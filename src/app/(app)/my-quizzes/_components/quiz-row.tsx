@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { EyeIcon, PencilIcon, ShieldAlertIcon, StarIcon } from "lucide-react";
-import { DifficultyMeter } from "@/components/difficulty-meter";
+import { DifficultyMeter } from "@/components/quiz/difficulty-meter";
 import { buttonVariants } from "@/components/ui/button";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format-date";
-import type { MyQuiz } from "../mock-data";
+import type { MyQuiz } from "@/types/my-quizzes";
 import { QuizRowMenu } from "./quiz-row-menu";
 import { StatusBadge, VisibilityTag } from "./quiz-status";
 
@@ -75,7 +75,11 @@ export function QuizRow({ quiz }: { quiz: MyQuiz }) {
             <PencilIcon />
             Edit
           </Link>
-          <QuizRowMenu quiz={quiz} />
+          <QuizRowMenu
+            slug={quiz.slug}
+            title={quiz.title}
+            status={quiz.status}
+          />
         </div>
       </div>
 

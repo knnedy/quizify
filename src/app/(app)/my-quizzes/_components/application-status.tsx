@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CircleAlertIcon, ClockIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate } from "@/lib/format-date";
-import type { MyQuizzesView } from "../mock-data";
+import type { MyQuizzesView } from "@/types/my-quizzes";
 import { ApplyForm } from "./apply-form";
 
 type StatusView = Extract<MyQuizzesView, { state: "pending" | "rejected" }>;

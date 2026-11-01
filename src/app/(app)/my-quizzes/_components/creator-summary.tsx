@@ -1,5 +1,5 @@
 import { StarIcon } from "lucide-react";
-import type { CreatorSummary as Summary } from "../mock-data";
+import type { CreatorSummary as Summary } from "@/types/my-quizzes";
 
 const compact = new Intl.NumberFormat("en-US", {
   notation: "compact",
