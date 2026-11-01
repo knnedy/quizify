@@ -153,11 +153,18 @@ export function createQuestion(): EditorQuestion {
   };
 }
 
+// A copy is a new question: it carries no database ids
 export function duplicateQuestion(question: EditorQuestion): EditorQuestion {
   return {
-    ...question,
     key: newKey(),
-    options: question.options.map((option) => ({ ...option, key: newKey() })),
+    type: question.type,
+    title: question.title,
+    explanation: question.explanation,
+    options: question.options.map((option) => ({
+      key: newKey(),
+      label: option.label,
+      isCorrect: option.isCorrect,
+    })),
   };
 }
 

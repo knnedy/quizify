@@ -5,12 +5,15 @@ export type QuizVisibility = "PUBLIC" | "UNLISTED" | "PRIVATE";
 export type QuizStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED" | "SUSPENDED";
 
 export type EditorOption = {
+  // The database id. Missing until the option has been saved once.
+  id?: number;
   key: string;
   label: string;
   isCorrect: boolean;
 };
 
 export type EditorQuestion = {
+  id?: number;
   key: string;
   type: QuestionType;
   title: string;
@@ -43,4 +46,25 @@ export type EditorIssue = {
 export type CategoryOption = {
   name: string;
   slug: string;
+};
+
+export type EditableQuiz = {
+  slug: string;
+  status: QuizStatus;
+  suspensionReason: string | null;
+  settings: QuizSettings;
+  questions: EditorQuestion[];
+};
+
+export type SaveQuizPayload = {
+  // Missing when the quiz has not been created yet
+  slug?: string;
+  settings: QuizSettings;
+  questions: EditorQuestion[];
+};
+
+// Database ids of everything that was saved, by the editor's own keys
+export type SavedIds = {
+  questions: Record<string, number>;
+  options: Record<string, number>;
 };
