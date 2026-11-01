@@ -1,7 +1,8 @@
 import { useId, type ReactNode } from "react";
 import { ArrowDownIcon, ArrowUpIcon, CopyIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
-import type { EditorActions } from "@/hooks/use-quiz-editor";
+import { FormBlock, inputClass } from "@/components/form/form-block";
+import { Segmented } from "@/components/form/segmented";
 import {
   limits,
   questionTypeLabels,
@@ -10,9 +11,8 @@ import {
 } from "@/lib/quiz-editor-rules";
 import { cn } from "@/lib/utils";
 import type { EditorQuestion } from "@/types/quiz-editor";
-import { FormBlock, inputClass } from "../form/form-block";
+import type { EditorActions } from "../../_hooks/use-quiz-editor";
 import { OptionList } from "./option-list";
-import { Segmented } from "../form/segmented";
 
 const typeOptions = questionTypes.map((value) => ({
   value,
