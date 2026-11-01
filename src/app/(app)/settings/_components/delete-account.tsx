@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { inputClass } from "@/components/form/form-block";
@@ -16,37 +17,47 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { authClient } from "@/lib/auth-client";
+import { DELETE_CONFIRM_WORD } from "@/lib/schemas/settings";
+import { deleteAccount } from "@/server/actions/account";
 import { SectionBody, SettingsSection } from "./settings-section";
-
-const CONFIRM_WORD = "delete";
 
 export function DeleteAccountSection() {
   const inputId = useId();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  const [pending, setPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const confirmed = text.trim().toLowerCase() === CONFIRM_WORD;
+  const confirmed = text.trim().toLowerCase() === DELETE_CONFIRM_WORD;
 
   function onOpenChange(next: boolean) {
-    if (pending) return;
+    if (isPending) return;
     setOpen(next);
     if (next) setText("");
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!confirmed || pending) return;
+    if (!confirmed || isPending) return;
 
-    setPending(true);
+    startTransition(async () => {
+      const result = await deleteAccount({ confirmation: text });
 
-    // Mock only: the real action deletes the account, signs you out and
-    // sends you to the home page.
-    window.setTimeout(() => {
-      setPending(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      // The account and its sessions are gone. This only clears the cookie
+      // that is left in the browser.
+      await authClient.signOut().catch(() => undefined);
+
       setOpen(false);
       toast.success("Account deleted");
-    }, 800);
+      router.replace("/");
+      router.refresh();
+    });
   }
 
   return (
@@ -86,7 +97,8 @@ export function DeleteAccountSection() {
                   </li>
                   <li>
                     Quizzes you published stay up, credited to &ldquo;Former
-                    member&rdquo;.
+                    member&rdquo;. Your drafts, archived and private quizzes are
+                    deleted.
                   </li>
                   <li>You are signed out everywhere straight away.</li>
                 </ul>
@@ -97,7 +109,7 @@ export function DeleteAccountSection() {
                     className="block text-sm font-medium">
                     Type{" "}
                     <span className="font-semibold text-incorrect-ink">
-                      {CONFIRM_WORD}
+                      {DELETE_CONFIRM_WORD}
                     </span>{" "}
                     to confirm
                   </label>
@@ -120,8 +132,8 @@ export function DeleteAccountSection() {
                   <Button
                     type="submit"
                     variant="destructive"
-                    disabled={!confirmed || pending}>
-                    {pending ? <Spinner /> : <Trash2Icon />}
+                    disabled={!confirmed || isPending}>
+                    {isPending ? <Spinner /> : <Trash2Icon />}
                     Delete my account
                   </Button>
                 </DialogFooter>

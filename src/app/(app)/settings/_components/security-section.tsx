@@ -1,36 +1,41 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState, useTransition, type FormEvent } from "react";
 import { toast } from "sonner";
 import { FormBlock, inputClass } from "@/components/form/form-block";
-import { SwitchRow } from "@/components/form/switch-row";
 import { PasswordInput } from "@/components/form/password-input";
+import { SwitchRow } from "@/components/form/switch-row";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { fieldErrors } from "@/lib/schemas/field-errors";
+import { PASSWORD_MIN, changePasswordSchema } from "@/lib/schemas/settings";
+import { changePassword } from "@/server/actions/account";
 import {
   SectionBody,
   SectionFooter,
   SettingsSection,
 } from "./settings-section";
 
-const MIN_PASSWORD = 8;
-
 type Values = { current: string; next: string; confirm: string };
 type Errors = Partial<Record<keyof Values, string>>;
 
 const empty: Values = { current: "", next: "", confirm: "" };
 
-function validate(values: Values): Errors {
+function validate(values: Values, signOutOthers: boolean): Errors {
   const errors: Errors = {};
 
-  if (!values.current) {
-    errors.current = "Enter your current password.";
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: values.current,
+    newPassword: values.next,
+    revokeOtherSessions: signOutOthers,
+  });
+
+  if (!parsed.success) {
+    const found = fieldErrors<"currentPassword" | "newPassword">(parsed.error);
+    if (found.currentPassword) errors.current = found.currentPassword;
+    if (found.newPassword) errors.next = found.newPassword;
   }
-  if (values.next.length < MIN_PASSWORD) {
-    errors.next = `Use at least ${MIN_PASSWORD} characters.`;
-  } else if (values.next === values.current) {
-    errors.next = "Choose a different password from your current one.";
-  }
+
   if (values.confirm !== values.next) {
     errors.confirm = "The passwords don't match.";
   }
@@ -43,10 +48,10 @@ export function SecuritySection() {
   const [values, setValues] = useState(empty);
   const [signOutOthers, setSignOutOthers] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const filled = Boolean(values.current && values.next && values.confirm);
-  const errors = validate(values);
+  const errors = validate(values, signOutOthers);
   const shown: Errors = submitted ? errors : {};
 
   function change(patch: Partial<Values>) {
@@ -55,16 +60,23 @@ export function SecuritySection() {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!filled || saving) return;
+    if (!filled || isPending) return;
 
     setSubmitted(true);
     if (Object.keys(errors).length > 0) return;
 
-    setSaving(true);
+    startTransition(async () => {
+      const result = await changePassword({
+        currentPassword: values.current,
+        newPassword: values.next,
+        revokeOtherSessions: signOutOthers,
+      });
 
-    // Mock only: the real action checks the current password on the server.
-    window.setTimeout(() => {
-      setSaving(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
       setSubmitted(false);
       setValues(empty);
       toast.success(
@@ -72,7 +84,7 @@ export function SecuritySection() {
           ? "Password updated. Other devices were signed out."
           : "Password updated",
       );
-    }, 700);
+    });
   }
 
   return (
@@ -128,7 +140,7 @@ export function SecuritySection() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Use at least {MIN_PASSWORD} characters.
+              Use at least {PASSWORD_MIN} characters.
             </p>
           </div>
 
@@ -147,8 +159,8 @@ export function SecuritySection() {
           <Button
             type="submit"
             className="shadow-primary"
-            disabled={!filled || saving}>
-            {saving && <Spinner />}
+            disabled={!filled || isPending}>
+            {isPending && <Spinner />}
             Update password
           </Button>
         </SectionFooter>
