@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { XpChip } from "@/components/xp-chip";
 import { formatDate } from "@/lib/format-date";
+import type { Role } from "@/lib/roles";
 import { cn } from "@/lib/utils";
+import { getSettingsUser } from "@/server/queries/settings";
 import { requireUser } from "@/server/session";
 import { DeleteAccountSection } from "./_components/delete-account";
 import { PreferencesSection } from "./_components/preferences-section";
 import { ProfileSection } from "./_components/profile-section";
 import { SecuritySection } from "./_components/security-section";
 import { SettingsNav } from "./_components/settings-nav";
-import { getSettingsUser, type SettingsRole } from "./mock-data";
 
 export const metadata: Metadata = { title: "Settings" };
 
-const roleLabels: Record<SettingsRole, string> = {
+const roleLabels: Record<Role, string> = {
   USER: "Player",
   CREATOR: "Creator",
   MODERATOR: "Moderator",
@@ -20,8 +22,9 @@ const roleLabels: Record<SettingsRole, string> = {
 };
 
 export default async function SettingsPage() {
-  await requireUser("/settings");
-  const user = await getSettingsUser();
+  const sessionUser = await requireUser("/settings");
+  const user = await getSettingsUser(sessionUser.id);
+  if (!user) notFound();
 
   return (
     <main>
