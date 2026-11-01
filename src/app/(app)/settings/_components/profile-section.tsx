@@ -1,28 +1,31 @@
 "use client";
 
-import { useId, useState, type ComponentProps, type FormEvent } from "react";
+import {
+  useId,
+  useState,
+  useTransition,
+  type ComponentProps,
+  type FormEvent,
+} from "react";
 import { toast } from "sonner";
 import { FormBlock, inputClass } from "@/components/form/form-block";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { fieldErrors } from "@/lib/schemas/field-errors";
+import {
+  NAME_MAX,
+  profileSchema,
+  type ProfileValues,
+} from "@/lib/schemas/settings";
 import { cn } from "@/lib/utils";
+import { updateProfile } from "@/server/actions/profile";
 import {
   SectionBody,
   SectionFooter,
   SettingsSection,
 } from "./settings-section";
 
-export type ProfileValues = {
-  name: string;
-  website: string;
-  instagram: string;
-  x: string;
-};
-
 type Errors = Partial<Record<keyof ProfileValues, string>>;
-
-const NAME_MIN = 2;
-const NAME_MAX = 40;
 
 function clean(values: ProfileValues): ProfileValues {
   return {
@@ -31,34 +34,6 @@ function clean(values: ProfileValues): ProfileValues {
     instagram: values.instagram.trim(),
     x: values.x.trim(),
   };
-}
-
-function isHttpUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
-}
-
-function validate(values: ProfileValues): Errors {
-  const errors: Errors = {};
-
-  if (values.name.length < NAME_MIN) {
-    errors.name = `Use at least ${NAME_MIN} characters.`;
-  }
-  if (values.website && !isHttpUrl(values.website)) {
-    errors.website = "Enter the full link, starting with https://.";
-  }
-  if (values.instagram && !/^[a-z\d._]{1,30}$/i.test(values.instagram)) {
-    errors.instagram = "Use just your Instagram username, without the @.";
-  }
-  if (values.x && !/^[a-z\d_]{1,15}$/i.test(values.x)) {
-    errors.x = "Use just your X username, without the @.";
-  }
-
-  return errors;
 }
 
 function PrefixInput({
@@ -99,10 +74,13 @@ export function ProfileSection({
   const [saved, setSaved] = useState(initial);
   const [values, setValues] = useState(initial);
   const [submitted, setSubmitted] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const current = clean(values);
-  const errors = validate(current);
+  const result = profileSchema.safeParse(current);
+  const errors: Errors = result.success
+    ? {}
+    : fieldErrors<keyof ProfileValues>(result.error);
   const shown: Errors = submitted ? errors : {};
   const dirty = (Object.keys(current) as (keyof ProfileValues)[]).some(
     (key) => current[key] !== saved[key],
@@ -119,21 +97,24 @@ export function ProfileSection({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (saving || !dirty) return;
+    if (isPending || !dirty) return;
 
     setSubmitted(true);
     if (Object.keys(errors).length > 0) return;
 
-    setSaving(true);
+    startTransition(async () => {
+      const outcome = await updateProfile(current);
 
-    // Mock only: the real action validates again on the server and saves.
-    window.setTimeout(() => {
+      if (!outcome.ok) {
+        toast.error(outcome.error);
+        return;
+      }
+
       setSaved(current);
       setValues(current);
-      setSaving(false);
       setSubmitted(false);
       toast.success("Profile saved");
-    }, 600);
+    });
   }
 
   return (
@@ -233,8 +214,8 @@ export function ProfileSection({
             <Button
               type="submit"
               className="shadow-primary"
-              disabled={!dirty || saving}>
-              {saving && <Spinner />}
+              disabled={!dirty || isPending}>
+              {isPending && <Spinner />}
               Save changes
             </Button>
           </div>

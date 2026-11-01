@@ -1,6 +1,12 @@
 "use client";
 
-import { useId, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useId,
+  useState,
+  useTransition,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { useTheme } from "next-themes";
 import { MapPinIcon, MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -11,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useMounted } from "@/hooks/use-mounted";
 import { getDeviceTimezone } from "@/lib/timezone-list";
+import { updateTimezone } from "@/server/actions/profile";
 import {
   SectionBody,
   SectionFooter,
@@ -63,7 +70,7 @@ export function PreferencesSection({
   const mounted = useMounted();
   const [saved, setSaved] = useState(initialTimezone);
   const [timezone, setTimezone] = useState(initialTimezone);
-  const [saving, setSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const dirty = timezone !== saved;
 
@@ -79,16 +86,19 @@ export function PreferencesSection({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!dirty || saving) return;
+    if (!dirty || isPending) return;
 
-    setSaving(true);
+    startTransition(async () => {
+      const result = await updateTimezone({ timezone });
 
-    // Mock only: the real action saves users.timezone.
-    window.setTimeout(() => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
       setSaved(timezone);
-      setSaving(false);
       toast.success("Timezone saved");
-    }, 600);
+    });
   }
 
   return (
@@ -142,8 +152,8 @@ export function PreferencesSection({
           <Button
             type="submit"
             className="shadow-primary"
-            disabled={!dirty || saving}>
-            {saving && <Spinner />}
+            disabled={!dirty || isPending}>
+            {isPending && <Spinner />}
             Save timezone
           </Button>
         </SectionFooter>
