@@ -22,7 +22,7 @@ import {
 } from "@/server/db/schema";
 import type { DbTransaction } from "@/server/db/types";
 import { finishedAttempt } from "@/server/queries/attempt-filters";
-import { reachableByLink } from "@/server/queries/visibility";
+import { reachableBy } from "@/server/queries/visibility";
 import { finalizeAttempt } from "@/server/services/attempts";
 import { getOptionalUser } from "@/server/session";
 import type { ActionResult } from "@/types/actions";
@@ -83,7 +83,7 @@ export async function startAttempt(
           maxAttempts: quizzes.maxAttempts,
         })
         .from(quizzes)
-        .where(and(eq(quizzes.slug, parsed.data.slug), reachableByLink))
+        .where(and(eq(quizzes.slug, parsed.data.slug), reachableBy(user.id)))
         .limit(1);
 
       if (!quiz) return { ok: false, error: "That quiz is not available." };

@@ -8,7 +8,7 @@ import {
 } from "@/lib/schemas/bookmark";
 import { db } from "@/server/db";
 import { quizBookmarks, quizzes } from "@/server/db/schema";
-import { reachableByLink } from "@/server/queries/visibility";
+import { reachableBy } from "@/server/queries/visibility";
 import { getOptionalUser } from "@/server/session";
 import type { ActionResult } from "@/types/actions";
 
@@ -25,13 +25,13 @@ export async function setBookmark(
   const { slug, saved } = parsed.data;
 
   try {
-    // Saving needs a quiz people can reach. Removing a save always works.
+    // Saving needs a quiz the person can reach. Removing a save always works.
     const [quiz] = await db
       .select({ id: quizzes.id })
       .from(quizzes)
       .where(
         saved
-          ? and(eq(quizzes.slug, slug), reachableByLink)
+          ? and(eq(quizzes.slug, slug), reachableBy(user.id))
           : eq(quizzes.slug, slug),
       )
       .limit(1);
