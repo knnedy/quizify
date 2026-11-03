@@ -78,15 +78,18 @@ export const changePasswordSchema = z
     message: "Choose a different password from your current one.",
   });
 
+// The callback returns a plain boolean on purpose. Without the annotation
+// TypeScript infers a type guard and the field's type becomes "delete".
 export const deleteAccountSchema = z.object({
   confirmation: z
     .string()
     .trim()
     .toLowerCase()
-    .refine((value) => value === DELETE_CONFIRM_WORD),
+    .refine((value): boolean => value === DELETE_CONFIRM_WORD),
 });
 
-export type ProfileValues = z.infer<typeof profileSchema>;
-export type TimezoneInput = z.infer<typeof timezoneSchema>;
-export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
-export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;
+// Actions receive what the browser sends, before zod trims or lowercases it
+export type ProfileValues = z.input<typeof profileSchema>;
+export type TimezoneInput = z.input<typeof timezoneSchema>;
+export type ChangePasswordInput = z.input<typeof changePasswordSchema>;
+export type DeleteAccountInput = z.input<typeof deleteAccountSchema>;
