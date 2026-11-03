@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState, type SubmitEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,7 +49,7 @@ function SuspendForm({
   const trimmed = message.trim();
   const valid = trimmed.length >= MIN_LENGTH;
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (valid) onSuspend(trimmed);
   }

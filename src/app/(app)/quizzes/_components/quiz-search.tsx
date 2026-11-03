@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2Icon, SearchIcon, XIcon } from "lucide-react";
 import { Keycap } from "@/components/keycap";
@@ -64,7 +64,7 @@ export function QuizSearch() {
     timerRef.current = setTimeout(() => pushSearch(value), 300);
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  function onSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     clearTimeout(timerRef.current);
     pushSearch(inputRef.current?.value ?? "");

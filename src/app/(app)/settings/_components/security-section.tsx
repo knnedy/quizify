@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition, type FormEvent } from "react";
+import { useId, useState, useTransition, type SubmitEvent } from "react";
 import { toast } from "sonner";
 import { FormBlock, inputClass } from "@/components/form/form-block";
 import { PasswordInput } from "@/components/form/password-input";
@@ -58,7 +58,7 @@ export function SecuritySection() {
     setValues((previous) => ({ ...previous, ...patch }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!filled || isPending) return;
 

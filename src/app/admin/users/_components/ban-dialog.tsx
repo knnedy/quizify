@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState, type SubmitEvent } from "react";
 import { Segmented } from "@/components/form/segmented";
 import { SwitchRow } from "@/components/form/switch-row";
 import { FormBlock } from "@/components/form/form-block";
@@ -68,7 +68,7 @@ function BanForm({
   const trimmed = reason.trim();
   const valid = trimmed.length >= MIN_LENGTH;
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!valid) return;
 

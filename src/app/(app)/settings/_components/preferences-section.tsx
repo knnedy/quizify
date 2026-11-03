@@ -4,7 +4,7 @@ import {
   useId,
   useState,
   useTransition,
-  type FormEvent,
+  type SubmitEvent,
   type ReactNode,
 } from "react";
 import { useTheme } from "next-themes";
@@ -84,7 +84,7 @@ export function PreferencesSection({
     setTimezone(device);
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!dirty || isPending) return;
 

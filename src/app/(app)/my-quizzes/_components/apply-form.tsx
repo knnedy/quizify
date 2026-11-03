@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type SubmitEvent } from "react";
 import { SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ export function ApplyForm() {
   const valid =
     length >= APPLICATION_MIN_LENGTH && length <= APPLICATION_MAX_LENGTH;
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  function onSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!valid || isPending) return;
 

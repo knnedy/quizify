@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState, type SubmitEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format-date";
 import type { AdminNote } from "../mock-data";
@@ -19,7 +19,7 @@ export function AdminNotes({
 
   const valid = text.trim().length >= 3;
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!valid) return;
 

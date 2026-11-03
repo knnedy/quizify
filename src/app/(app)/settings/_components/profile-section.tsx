@@ -5,7 +5,7 @@ import {
   useState,
   useTransition,
   type ComponentProps,
-  type FormEvent,
+  type SubmitEvent,
 } from "react";
 import { toast } from "sonner";
 import { FormBlock, inputClass } from "@/components/form/form-block";
@@ -95,7 +95,7 @@ export function ProfileSection({
     setSubmitted(false);
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isPending || !dirty) return;
 
