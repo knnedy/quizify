@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function DashboardLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90 py-8">
+    <div className="min-h-screen bg-linear-to-br from-background via-background/95 to-background/90 py-8">
       <div className="container mx-auto px-4">
         {/* Welcome Header */}
         <div className="text-center mb-8">
@@ -56,15 +56,15 @@ export default function DashboardLoading() {
 
             {/* Progress Tab Loading */}
             <TabsContent value="progress" className="grid md:grid-cols-2 gap-5">
-              <Skeleton className="h-[400px] w-full" />
-              <Skeleton className="h-[400px] w-full" />
+              <Skeleton className="h-100 w-full" />
+              <Skeleton className="h-100 w-full" />
             </TabsContent>
 
             {/* Achievements Tab Loading */}
             <TabsContent value="achievements" className="space-y-8">
               <div className="space-y-4">
                 <Skeleton className="h-10 w-1/2" />
-                <Skeleton className="h-[300px] w-full" />
+                <Skeleton className="h-75 w-full" />
               </div>
               <div className="space-y-4">
                 <Skeleton className="h-10 w-1/2" />
