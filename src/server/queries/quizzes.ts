@@ -27,6 +27,8 @@ export type ListQuizzesParams = {
   pageSize?: number;
   exclude?: string;
   viewerId?: number;
+  // Leaves out quizzes this player has already finished
+  unplayedBy?: number;
 };
 
 // Per quiz counts, joined into the list query
@@ -89,7 +91,8 @@ function orderFor(sort: QuizSort) {
 export async function listQuizzes(
   params: ListQuizzesParams = {},
 ): Promise<QuizList> {
-  const { search, category, difficulty, exclude, viewerId } = params;
+  const { search, category, difficulty, exclude, viewerId, unplayedBy } =
+    params;
   const sort = params.sort ?? "newest";
   const pageSize = params.pageSize ?? DEFAULT_PAGE_SIZE;
 
@@ -104,6 +107,9 @@ export async function listQuizzes(
     category ? eq(categories.slug, category) : undefined,
     difficulty ? eq(quizzes.difficulty, difficulty) : undefined,
     exclude ? ne(quizzes.slug, exclude) : undefined,
+    unplayedBy === undefined
+      ? undefined
+      : sql`not exists (select 1 from ${quizAttempts} where ${quizAttempts.quizId} = ${quizzes.id} and ${quizAttempts.userId} = ${unplayedBy} and ${finishedAttempt})`,
   );
 
   const [totalRow] = await db
