@@ -20,7 +20,7 @@ import { getCompletedQuizCount } from "./progress";
 const AUTO_HIDE_NOTICE =
   "Several players reported this quiz. It is hidden while an admin reviews it.";
 
-async function listMyQuizzes(userId: number): Promise<MyQuiz[]> {
+export async function listMyQuizzes(userId: number): Promise<MyQuiz[]> {
   const rows = await db
     .select({
       id: quizzes.id,
