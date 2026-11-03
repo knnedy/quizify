@@ -1,14 +1,7 @@
 import { z } from "zod";
 import { difficulties } from "@/lib/difficulty";
 import { defaultQuizSort, isQuizSort } from "@/lib/quiz-browse";
-
-// Next gives repeated params as arrays, so take the first value
-function firstValue<T extends z.ZodType>(schema: T) {
-  return z.preprocess(
-    (value) => (Array.isArray(value) ? value[0] : value),
-    schema,
-  );
-}
+import { firstValue } from "./search-params";
 
 // Every field falls back instead of failing, so a bad URL never errors the page
 export const quizBrowseParamsSchema = z.object({
