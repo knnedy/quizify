@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { BookmarkIcon } from "lucide-react";
 import { DifficultyBars } from "@/components/quiz/difficulty-meter";
-import type { QuizCardData } from "@/components/quiz/quiz-card";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { difficultyInfo } from "@/lib/difficulty";
+import type { SavedQuiz } from "@/types/dashboard";
 
-export function SavedQuizzes({ quizzes }: { quizzes: QuizCardData[] }) {
+export function SavedQuizzes({ quizzes }: { quizzes: SavedQuiz[] }) {
   return (
     <section
       aria-labelledby="saved-heading"

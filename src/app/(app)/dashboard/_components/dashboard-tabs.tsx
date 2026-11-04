@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import type { DashboardView } from "../mock-data";
+import type { DashboardView } from "@/types/dashboard";
 
 const tabs: { value: DashboardView; label: string }[] = [
   { value: "playing", label: "Playing" },

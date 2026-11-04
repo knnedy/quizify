@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import type { DraftQuiz } from "../mock-data";
+import type { DraftQuiz } from "@/types/dashboard";
 
 export function DraftsCard({ drafts }: { drafts: DraftQuiz[] }) {
   return (

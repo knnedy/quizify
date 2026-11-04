@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ShieldAlertIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import type { AttentionItem } from "../mock-data";
+import type { AttentionItem } from "@/types/dashboard";
 
 export function AttentionBanner({ items }: { items: AttentionItem[] }) {
   if (items.length === 0) return null;

@@ -3,7 +3,7 @@ import { PlayIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
-import type { RecentResult } from "../mock-data";
+import type { RecentResult } from "@/types/dashboard";
 
 function tone(percentage: number) {
   if (percentage >= 70) return "bg-correct-soft text-correct-ink";

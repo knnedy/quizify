@@ -1,6 +1,6 @@
 import { getCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
-import type { TopicScore } from "../mock-data";
+import type { TopicScore } from "@/types/dashboard";
 
 function barTone(percentage: number) {
   if (percentage >= 70) return "bg-correct";

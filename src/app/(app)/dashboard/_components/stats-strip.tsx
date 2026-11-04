@@ -5,7 +5,7 @@ import {
   ZapIcon,
   type LucideIcon,
 } from "lucide-react";
-import type { PlayerStats } from "../mock-data";
+import type { PlayerStats } from "@/types/dashboard";
 
 type Item = {
   key: string;

@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { ClockIcon, PlayIcon } from "lucide-react";
 import { DifficultyMeter } from "@/components/quiz/difficulty-meter";
-import type { QuizCardData } from "@/components/quiz/quiz-card";
 import { buttonVariants } from "@/components/ui/button";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatSecondsToMinutes } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { InProgress } from "../mock-data";
+import type { InProgress } from "@/types/dashboard";
+import type { QuizCardData } from "@/types/quiz";
 
 export function PlayNextCard({
   inProgress,

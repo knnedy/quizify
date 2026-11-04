@@ -1,25 +1,6 @@
-import {
-  FlameIcon,
-  PenLineIcon,
-  SparklesIcon,
-  StarIcon,
-  TargetIcon,
-  TrophyIcon,
-  ZapIcon,
-  type LucideIcon,
-} from "lucide-react";
 import { XpChip } from "@/components/xp-chip";
-import type { Achievement, AchievementIcon } from "../mock-data";
-
-const icons: Record<AchievementIcon, LucideIcon> = {
-  star: StarIcon,
-  target: TargetIcon,
-  trophy: TrophyIcon,
-  flame: FlameIcon,
-  sparkles: SparklesIcon,
-  zap: ZapIcon,
-  pen: PenLineIcon,
-};
+import { getAchievementIcon } from "@/lib/achievement-icons";
+import type { Achievement } from "@/types/dashboard";
 
 export function AchievementsCard({
   achievements,
@@ -57,7 +38,7 @@ export function AchievementsCard({
       ) : (
         <ul className="mt-5 space-y-5">
           {next.map((item) => {
-            const Icon = icons[item.icon];
+            const Icon = getAchievementIcon(item.key);
             const percentage = Math.round(
               (item.progress / item.threshold) * 100,
             );
@@ -112,7 +93,7 @@ export function AchievementsCard({
           <h3 className="text-sm font-medium">Unlocked</h3>
           <ul className="flex flex-wrap gap-2">
             {unlocked.map((item) => {
-              const Icon = icons[item.icon];
+              const Icon = getAchievementIcon(item.key);
 
               return (
                 <li

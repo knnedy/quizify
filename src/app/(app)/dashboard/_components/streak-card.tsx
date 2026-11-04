@@ -1,6 +1,6 @@
 import { CheckIcon, FlameIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Streak } from "../mock-data";
+import type { Streak } from "@/types/dashboard";
 
 function getMessage(streak: Streak) {
   if (streak.playedToday) return "You've played today. Your streak is safe.";
