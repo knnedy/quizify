@@ -1,4 +1,4 @@
-import type { CreatorOverview } from "../mock-data";
+import type { CreatorOverview } from "@/types/dashboard";
 import { CreatorActivityFeed } from "./creator-activity";
 import { CreatorQuizzes } from "./creator-quizzes";
 import { CreatorSummary } from "./creator-summary";

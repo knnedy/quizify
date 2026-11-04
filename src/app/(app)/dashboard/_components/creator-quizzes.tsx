@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PencilIcon, StarIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { getCategoryIcon } from "@/lib/category-icons";
-import type { CreatorQuiz } from "../mock-data";
+import type { CreatorQuiz } from "@/types/dashboard";
 
 const compact = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -79,7 +79,9 @@ export function CreatorQuizzes({ quizzes }: { quizzes: CreatorQuiz[] }) {
                   <p className="flex justify-between text-xs text-muted-foreground tabular-nums">
                     Finish rate
                     <span className="font-medium text-foreground">
-                      {quiz.finishRate}%
+                      {quiz.finishRate === null
+                        ? "None yet"
+                        : `${quiz.finishRate}%`}
                     </span>
                   </p>
                   <div
@@ -87,7 +89,7 @@ export function CreatorQuizzes({ quizzes }: { quizzes: CreatorQuiz[] }) {
                     className="h-1.5 overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full rounded-full bg-primary"
-                      style={{ width: `${quiz.finishRate}%` }}
+                      style={{ width: `${quiz.finishRate ?? 0}%` }}
                     />
                   </div>
                 </div>

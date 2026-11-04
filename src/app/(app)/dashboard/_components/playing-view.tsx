@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { QuizCard } from "@/components/quiz/quiz-card";
-import type { Dashboard } from "../mock-data";
+import type { Dashboard } from "@/types/dashboard";
 import { AchievementsCard } from "./achievements-card";
 import { BecomeCreatorCard } from "./become-creator-card";
 import { PlayNextCard } from "./play-next-card";

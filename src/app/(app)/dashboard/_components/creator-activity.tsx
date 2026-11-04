@@ -1,17 +1,11 @@
 import Link from "next/link";
-import {
-  PlayIcon,
-  SparklesIcon,
-  StarIcon,
-  type LucideIcon,
-} from "lucide-react";
+import { PlayIcon, StarIcon, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CreatorActivity, CreatorActivityKind } from "../mock-data";
+import type { CreatorActivity, CreatorActivityKind } from "@/types/dashboard";
 
 const kinds: Record<CreatorActivityKind, { Icon: LucideIcon; tone: string }> = {
   play: { Icon: PlayIcon, tone: "bg-primary-soft text-primary" },
   rating: { Icon: StarIcon, tone: "bg-xp-soft text-xp-ink" },
-  milestone: { Icon: SparklesIcon, tone: "bg-correct-soft text-correct-ink" },
 };
 
 function ago(minutes: number) {

@@ -93,11 +93,17 @@ export function PlaysChart({ series }: { series: Point[] }) {
       </div>
 
       <p className="mt-5 border-t pt-4 text-sm text-muted-foreground">
-        Your best day was{" "}
-        <span className="font-medium text-foreground">
-          {longDay.format(new Date(peak.date))}
-        </span>{" "}
-        with {peak.plays} plays.
+        {peak.plays > 0 ? (
+          <>
+            Your best day was{" "}
+            <span className="font-medium text-foreground">
+              {longDay.format(new Date(peak.date))}
+            </span>{" "}
+            with {peak.plays} {peak.plays === 1 ? "play" : "plays"}.
+          </>
+        ) : (
+          "No plays in this period yet."
+        )}
       </p>
     </section>
   );

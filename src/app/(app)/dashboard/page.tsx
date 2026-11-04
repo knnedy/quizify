@@ -1,35 +1,21 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { dashboardParamsSchema } from "@/lib/schemas/dashboard";
+import { getDashboard } from "@/server/queries/dashboard";
 import { requireUser } from "@/server/session";
+import type { Dashboard, DashboardView } from "@/types/dashboard";
 import { AttentionBanner } from "./_components/attention-banner";
 import { CreatingView } from "./_components/creating-view";
 import { DashboardHero } from "./_components/dashboard-hero";
 import { DashboardTabs } from "./_components/dashboard-tabs";
 import { PlayingView } from "./_components/playing-view";
-import {
-  getDashboard,
-  parsePreview,
-  type Dashboard,
-  type DashboardView,
-  type Preview,
-} from "./mock-data";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function first(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-// Keeps the dev ?as= param when switching views, so the tabs stay on the
-// account state you are previewing.
-function dashboardHref(view: DashboardView, preview: Preview | null) {
-  const params = new URLSearchParams();
-  if (preview) params.set("as", preview);
-  if (view === "creating") params.set("view", "creating");
-
-  const query = params.toString();
-  return query ? `/dashboard?${query}` : "/dashboard";
+function dashboardHref(view: DashboardView) {
+  return view === "creating" ? "/dashboard?view=creating" : "/dashboard";
 }
 
 function getHeroCopy(data: Dashboard, view: DashboardView) {
@@ -62,14 +48,18 @@ export default async function DashboardPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const raw = await searchParams;
-  await requireUser("/dashboard");
+  const [raw, user] = await Promise.all([
+    searchParams,
+    requireUser("/dashboard"),
+  ]);
+  const { view: requested } = dashboardParamsSchema.parse(raw);
 
-  const explicit = parsePreview(first(raw.as));
-  const data = await getDashboard(explicit ?? "creator");
+  const data = await getDashboard(user);
+  if (!data) notFound();
 
+  // Only creators have a creating view
   const view: DashboardView =
-    data.creator && first(raw.view) === "creating" ? "creating" : "playing";
+    data.creator && requested === "creating" ? "creating" : "playing";
   const attention = data.creator?.attention ?? [];
   const hero = getHeroCopy(data, view);
 
@@ -84,8 +74,8 @@ export default async function DashboardPage({
           <DashboardTabs
             active={view}
             hrefs={{
-              playing: dashboardHref("playing", explicit),
-              creating: dashboardHref("creating", explicit),
+              playing: dashboardHref("playing"),
+              creating: dashboardHref("creating"),
             }}
             attention={attention.length > 0}
           />

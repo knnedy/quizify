@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { StarIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CreatorOverview } from "../mock-data";
+import type { CreatorOverview } from "@/types/dashboard";
 
 function Tile({
   label,
@@ -25,10 +25,32 @@ function Tile({
   );
 }
 
-export function CreatorSummary({ creator }: { creator: CreatorOverview }) {
-  const up = creator.plays30Delta >= 0;
-  const DeltaIcon = up ? TrendingUpIcon : TrendingDownIcon;
+// Empty when the 30 days before had no plays, so there is nothing to compare
+function DeltaNote({ delta }: { delta: number | null }) {
+  if (delta === null) return <>Nothing to compare with yet</>;
 
+  const up = delta >= 0;
+  const Icon = up ? TrendingUpIcon : TrendingDownIcon;
+
+  return (
+    <>
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold tabular-nums",
+          up
+            ? "bg-correct-soft text-correct-ink"
+            : "bg-incorrect-soft text-incorrect-ink",
+        )}>
+        <Icon aria-hidden className="size-3" />
+        {up ? "+" : ""}
+        {delta}%
+      </span>
+      vs the 30 days before
+    </>
+  );
+}
+
+export function CreatorSummary({ creator }: { creator: CreatorOverview }) {
   return (
     <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <Tile label="Published quizzes" note="Live right now">
@@ -37,22 +59,7 @@ export function CreatorSummary({ creator }: { creator: CreatorOverview }) {
 
       <Tile
         label="Plays, last 30 days"
-        note={
-          <>
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold tabular-nums",
-                up
-                  ? "bg-correct-soft text-correct-ink"
-                  : "bg-incorrect-soft text-incorrect-ink",
-              )}>
-              <DeltaIcon aria-hidden className="size-3" />
-              {up ? "+" : ""}
-              {creator.plays30Delta}%
-            </span>
-            vs the 30 days before
-          </>
-        }>
+        note={<DeltaNote delta={creator.plays30Delta} />}>
         {creator.plays30.toLocaleString("en-US")}
       </Tile>
 
@@ -73,7 +80,7 @@ export function CreatorSummary({ creator }: { creator: CreatorOverview }) {
         )}
       </Tile>
 
-      <Tile label="Players, last 30 days" note="Different people who played">
+      <Tile label="Players, last 30 days" note="Other people who played">
         {creator.players30.toLocaleString("en-US")}
       </Tile>
     </dl>
