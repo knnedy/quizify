@@ -47,11 +47,14 @@ function draftNote(questionCount: number) {
   return "Open it to review and publish";
 }
 
-// What other players did on the creator's quizzes lately
+// What other players did on the creator's published quizzes lately, so every
+// entry links to a page that exists
 async function loadActivity(
   userId: number,
   now: Date,
 ): Promise<CreatorActivity[]> {
+  const onPublished = and(onMyQuizzes(userId), eq(quizzes.status, "PUBLISHED"));
+
   const [plays, ratings] = await Promise.all([
     db
       .select({
@@ -65,13 +68,7 @@ async function loadActivity(
       .from(quizAttempts)
       .innerJoin(quizzes, eq(quizzes.id, quizAttempts.quizId))
       .innerJoin(users, eq(users.id, quizAttempts.userId))
-      .where(
-        and(
-          onMyQuizzes(userId),
-          finishedAttempt,
-          ne(quizAttempts.userId, userId),
-        ),
-      )
+      .where(and(onPublished, finishedAttempt, ne(quizAttempts.userId, userId)))
       .orderBy(sql`${quizAttempts.completedAt} desc nulls last`)
       .limit(8),
     db
@@ -85,7 +82,7 @@ async function loadActivity(
       .from(quizRatings)
       .innerJoin(quizzes, eq(quizzes.id, quizRatings.quizId))
       .innerJoin(users, eq(users.id, quizRatings.userId))
-      .where(and(onMyQuizzes(userId), ne(quizRatings.userId, userId)))
+      .where(and(onPublished, ne(quizRatings.userId, userId)))
       .orderBy(desc(quizRatings.updatedAt))
       .limit(8),
   ]);
