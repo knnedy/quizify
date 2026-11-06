@@ -4,6 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { eq } from "drizzle-orm";
+import { adminUrl, appUrl } from "@/lib/site-urls";
 import { db } from "./db";
 import { users } from "./db/schema";
 
@@ -23,6 +24,8 @@ export const auth = betterAuth({
     provider: "pg",
     usePlural: true,
   }),
+  // The admin site is a second origin. Each host keeps its own session cookie.
+  trustedOrigins: [appUrl, adminUrl],
   emailAndPassword: {
     enabled: true,
   },
@@ -38,6 +41,22 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "UTC",
+      },
+      banned: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+        input: false,
+      },
+      banReason: {
+        type: "string",
+        required: false,
+        input: false,
+      },
+      banExpires: {
+        type: "date",
+        required: false,
+        input: false,
       },
     },
   },

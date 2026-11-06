@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { isCurrentlyBanned } from "@/lib/ban";
 import { canCreateQuizzes, isAdmin, isStaff, toRole } from "@/lib/roles";
 import { auth, type Session } from "@/server/auth";
 
@@ -11,10 +12,15 @@ export const getSession = cache(async (): Promise<Session | null> => {
 
 // Better Auth types user ids as strings, but our columns are integers, and it
 // types the role as a plain string. Converting both once here means nothing
-// else has to think about it.
+// else has to think about it. A banned user counts as signed out, whatever
+// sessions they still hold.
 export async function getOptionalUser() {
   const session = await getSession();
   if (!session) return null;
+
+  if (isCurrentlyBanned(session.user.banned, session.user.banExpires)) {
+    return null;
+  }
 
   return {
     ...session.user,

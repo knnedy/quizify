@@ -1,4 +1,3 @@
-// src/lib/safe-redirect.ts
 export function getSafeRedirect(
   value: string | null | undefined,
   fallback = "/dashboard",
