@@ -11,8 +11,10 @@ import {
   UsersIcon,
   type LucideIcon,
 } from "lucide-react";
+import { appUrl } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
-import type { AdminCounts, AdminIdentity } from "../mock-data";
+import type { AdminCounts, AdminIdentity } from "@/types/admin";
+import { AdminSignOut } from "./admin-sign-out";
 import { AdminThemeSwitch } from "./admin-theme-switch";
 
 type NavItem = {
@@ -22,31 +24,34 @@ type NavItem = {
   Icon: LucideIcon;
   count?: keyof AdminCounts;
   exact?: boolean;
+  adminOnly?: boolean;
 };
 
+// Paths are as the browser shows them on the admin host, without /admin
 const items: NavItem[] = [
   {
-    href: "/admin",
+    href: "/",
     label: "Overview",
     short: "Overview",
     Icon: LayoutDashboardIcon,
     exact: true,
   },
   {
-    href: "/admin/users",
+    href: "/users",
     label: "Users",
     short: "Users",
     Icon: UsersIcon,
   },
   {
-    href: "/admin/applications",
+    href: "/applications",
     label: "Creator applications",
     short: "Applications",
     Icon: UserCheckIcon,
     count: "applications",
+    adminOnly: true,
   },
   {
-    href: "/admin/reports",
+    href: "/reports",
     label: "Reports",
     short: "Reports",
     Icon: FlagIcon,
@@ -62,7 +67,7 @@ const roleLabels: Record<AdminIdentity["role"], string> = {
 function Brand() {
   return (
     <Link
-      href="/admin"
+      href="/"
       aria-label="Quizify admin overview"
       className="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
       <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-primary">
@@ -88,6 +93,9 @@ export function AdminNav({
   admin: AdminIdentity;
 }) {
   const pathname = usePathname();
+  const visible = items.filter(
+    (item) => !item.adminOnly || admin.role === "ADMIN",
+  );
 
   function isActive(item: NavItem) {
     if (item.exact) return pathname === item.href;
@@ -99,19 +107,22 @@ export function AdminNav({
       <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-3 px-6 pt-3">
           <Brand />
-          <Link
-            href="/"
-            aria-label="Back to Quizify"
-            className="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
-            <ArrowLeftIcon aria-hidden className="size-4" />
-          </Link>
+          <div className="flex items-center gap-1">
+            <a
+              href={appUrl}
+              aria-label="Back to Quizify"
+              className="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
+              <ArrowLeftIcon aria-hidden className="size-4" />
+            </a>
+            <AdminSignOut />
+          </div>
         </div>
 
         <nav
           aria-label="Admin sections"
           className="overflow-x-auto px-6 pt-3 pb-3">
           <ul className="flex w-max gap-2">
-            {items.map((item) => {
+            {visible.map((item) => {
               const { href, short, Icon, count } = item;
               const active = isActive(item);
               const value = count ? counts[count] : 0;
@@ -155,7 +166,7 @@ export function AdminNav({
 
         <nav aria-label="Admin sections" className="flex-1">
           <ul className="space-y-1">
-            {items.map((item) => {
+            {visible.map((item) => {
               const { href, label, Icon, count } = item;
               const active = isActive(item);
               const value = count ? counts[count] : 0;
@@ -189,12 +200,12 @@ export function AdminNav({
         <div className="space-y-3">
           <AdminThemeSwitch />
 
-          <Link
-            href="/"
+          <a
+            href={appUrl}
             className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
             <ArrowLeftIcon aria-hidden className="size-4.5 shrink-0" />
             Back to Quizify
-          </Link>
+          </a>
 
           <div className="flex items-center gap-3 rounded-xl border bg-card p-2.5 shadow-xs">
             <span
@@ -202,7 +213,7 @@ export function AdminNav({
               className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary font-display text-base font-bold text-primary-foreground">
               {admin.name.charAt(0).toUpperCase()}
             </span>
-            <span className="min-w-0 leading-tight">
+            <span className="min-w-0 flex-1 leading-tight">
               <span className="block truncate text-sm font-medium">
                 {admin.name}
               </span>
@@ -210,6 +221,7 @@ export function AdminNav({
                 {roleLabels[admin.role]}
               </span>
             </span>
+            <AdminSignOut />
           </div>
         </div>
       </aside>
