@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/server/auth";
 import { getSafeRedirect } from "@/lib/safe-redirect";
+import { getOptionalUser } from "@/server/session";
 import { SignUpForm } from "./_components/sign-up-form";
 
 export const metadata: Metadata = { title: "Create account" };
@@ -17,8 +16,9 @@ export default async function SignUpPage({
   const raw = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam;
   const redirectTo = getSafeRedirect(raw);
 
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (session) redirect(redirectTo);
+  // A banned user still holding a session counts as signed out here
+  const user = await getOptionalUser();
+  if (user) redirect(redirectTo);
 
   const query =
     redirectTo === "/dashboard"
