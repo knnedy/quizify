@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { ShieldCheckIcon } from "lucide-react";
 import { isStaff } from "@/lib/roles";
 import { getSafeRedirect } from "@/lib/safe-redirect";
 import { appUrl } from "@/lib/site-urls";
@@ -23,12 +24,18 @@ export default async function AdminSignInPage({
 
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl">Sign in to the admin console</h1>
-        <p className="text-base text-muted-foreground">
-          For Quizify moderators and admins. This sign-in is separate from the
-          main site.
-        </p>
+      <div className="space-y-5">
+        <span
+          aria-hidden
+          className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-primary">
+          <ShieldCheckIcon className="size-6" />
+        </span>
+        <div className="space-y-2">
+          <h1 className="text-3xl">Admin sign in</h1>
+          <p className="text-base text-muted-foreground">
+            Use your staff account. This sign-in is separate from the main site.
+          </p>
+        </div>
       </div>
 
       <AdminSignInForm redirectTo={redirectTo} />
