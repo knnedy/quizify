@@ -4,7 +4,7 @@ import type { MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
-import { USERS_LIST_KEY } from "../query-params";
+import { USERS_LIST_KEY } from "@/lib/admin-users";
 
 // Returns to the list with the same search, filter, sort and page you left.
 export function BackToUsers() {
@@ -28,12 +28,12 @@ export function BackToUsers() {
       // Without storage it just opens the plain list.
     }
 
-    router.push(search ? `/admin/users?${search}` : "/admin/users");
+    router.push(search ? `/users?${search}` : "/users");
   }
 
   return (
     <Link
-      href="/admin/users"
+      href="/users"
       onClick={onClick}
       className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
       <ArrowLeftIcon aria-hidden className="size-4" />

@@ -1,6 +1,5 @@
+import type { ProfileTab } from "@/lib/schemas/admin-profile";
 import { cn } from "@/lib/utils";
-
-export type ProfileTab = "overview" | "quizzes" | "history";
 
 export function ProfileTabs({
   active,

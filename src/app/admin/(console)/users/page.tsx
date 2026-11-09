@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { isAdmin } from "@/lib/roles";
+import { userQuerySchema } from "@/lib/schemas/admin-users";
+import { getUserSummary, listUsers } from "@/server/queries/admin-users";
+import { requireStaff } from "@/server/session";
 import { AdminPage } from "../_components/admin-page";
-import { adminIdentity } from "../mock-data";
 import { UsersExplorer } from "./_components/users-explorer";
 import { UsersSummary } from "./_components/users-summary";
-import { getUserSummary, listUsers } from "./mock-data";
-import { parseUserQuery } from "./query-params";
 
 export const metadata: Metadata = { title: "Users" };
 
@@ -15,7 +16,12 @@ export default async function UsersPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const query = parseUserQuery(await searchParams);
+  const [raw, staff] = await Promise.all([
+    searchParams,
+    requireStaff("/users"),
+  ]);
+  const query = userQuerySchema.parse(raw);
+
   const [result, summary] = await Promise.all([
     listUsers(query),
     getUserSummary(),
@@ -34,7 +40,8 @@ export default async function UsersPage({
         pageCount={result.pageCount}
         counts={result.counts}
         query={query}
-        meId={adminIdentity.id}
+        meId={staff.id}
+        canManageRoles={isAdmin(staff.role)}
       />
     </AdminPage>
   );

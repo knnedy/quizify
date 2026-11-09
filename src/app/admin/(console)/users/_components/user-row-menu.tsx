@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { UserRow } from "../mock-data";
+import type { UserRow } from "@/types/admin-users";
 
 export type RowActions = {
   onBan: (user: UserRow) => void;
@@ -30,10 +30,12 @@ export type RowActions = {
 export function UserRowMenu({
   user,
   isSelf,
+  canManageRoles,
   actions,
 }: {
   user: UserRow;
   isSelf: boolean;
+  canManageRoles: boolean;
   actions: RowActions;
 }) {
   const router = useRouter();
@@ -56,8 +58,7 @@ export function UserRowMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem
-          onClick={() => router.push(`/admin/users/${user.id}`)}>
+        <DropdownMenuItem onClick={() => router.push(`/users/${user.id}`)}>
           <UserIcon />
           View profile
         </DropdownMenuItem>
@@ -70,13 +71,13 @@ export function UserRowMenu({
           <>
             <DropdownMenuSeparator />
 
-            {user.role === "USER" && (
+            {canManageRoles && user.role === "USER" && (
               <DropdownMenuItem onClick={() => actions.onGrant(user)}>
                 <BadgeCheckIcon />
                 Make creator
               </DropdownMenuItem>
             )}
-            {user.role === "CREATOR" && (
+            {canManageRoles && user.role === "CREATOR" && (
               <DropdownMenuItem onClick={() => actions.onRevoke(user)}>
                 <BadgeMinusIcon />
                 Remove creator role

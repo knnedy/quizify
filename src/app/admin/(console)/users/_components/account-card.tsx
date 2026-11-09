@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 import { formatDate } from "@/lib/format-date";
-import { cn } from "@/lib/utils";
-import type { AdminUser } from "../mock-data";
+import type { AdminUser } from "@/types/admin-users";
 import { activityLabel } from "./user-badges";
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -26,21 +24,7 @@ export function AccountCard({ user }: { user: AdminUser }) {
       </h3>
 
       <dl className="mt-2 divide-y">
-        <Row label="Email">
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5",
-              account.emailVerified ? "text-correct-ink" : "text-streak-ink",
-            )}>
-            {account.emailVerified ? (
-              <CheckIcon aria-hidden className="size-4 stroke-3" />
-            ) : (
-              <TriangleAlertIcon aria-hidden className="size-4" />
-            )}
-            {account.emailVerified ? "Verified" : "Not verified"}
-          </span>
-        </Row>
-        <Row label="Last sign-in">{activityLabel(account.lastSignInDays)}</Row>
+        <Row label="Last played">{activityLabel(user.lastActiveDays)}</Row>
         <Row label="Active sessions">{account.sessions}</Row>
         <Row label="Timezone">{account.timezone}</Row>
         <Row label="Member since">{formatDate(user.joinedAt)}</Row>

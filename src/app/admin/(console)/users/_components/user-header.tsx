@@ -6,7 +6,6 @@ import {
   EllipsisIcon,
   LogOutIcon,
   ShieldCheckIcon,
-  Undo2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { AdminUser } from "../mock-data";
+import type { AdminUser } from "@/types/admin-users";
 import { BanBadge, RoleBadge, activityLabel } from "./user-badges";
 
 export type HeaderActions = {
@@ -28,7 +27,6 @@ export type HeaderActions = {
   onGrant: () => void;
   onRevoke: () => void;
   onSignOut: () => void;
-  onUndo: () => void;
 };
 
 function copy(text: string, done: string) {
@@ -41,12 +39,14 @@ function copy(text: string, done: string) {
 export function UserHeader({
   user,
   isSelf,
-  canUndo,
+  canManageRoles,
+  busy,
   actions,
 }: {
   user: AdminUser;
   isSelf: boolean;
-  canUndo: boolean;
+  canManageRoles: boolean;
+  busy: boolean;
   actions: HeaderActions;
 }) {
   const banned = user.ban !== null;
@@ -92,32 +92,23 @@ export function UserHeader({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          {canUndo && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="lg"
-              onClick={actions.onUndo}>
-              <Undo2Icon />
-              Undo last change
-            </Button>
-          )}
-
-          {canModerate && user.role === "CREATOR" && (
+          {canModerate && canManageRoles && user.role === "CREATOR" && (
             <Button
               type="button"
               variant="outline"
               size="lg"
+              disabled={busy}
               onClick={actions.onRevoke}>
               <BadgeMinusIcon />
               Remove creator role
             </Button>
           )}
-          {canModerate && user.role === "USER" && (
+          {canModerate && canManageRoles && user.role === "USER" && (
             <Button
               type="button"
               variant="outline"
               size="lg"
+              disabled={busy}
               onClick={actions.onGrant}>
               <BadgeCheckIcon />
               Make creator
@@ -129,6 +120,7 @@ export function UserHeader({
                 type="button"
                 size="lg"
                 className="shadow-primary"
+                disabled={busy}
                 onClick={actions.onUnban}>
                 <ShieldCheckIcon />
                 Unban
@@ -138,6 +130,7 @@ export function UserHeader({
                 type="button"
                 variant="destructive"
                 size="lg"
+                disabled={busy}
                 onClick={actions.onBan}>
                 <BanIcon />
                 Ban user

@@ -1,10 +1,10 @@
 import type { RefObject } from "react";
 import { SearchIcon, XIcon } from "lucide-react";
-import { Keycap } from "@/components/keycap";
 import { inputClass } from "@/components/form/form-block";
+import { Keycap } from "@/components/keycap";
+import type { UserFilter } from "@/lib/admin-users";
 import { cn } from "@/lib/utils";
 import { FilterTabs } from "../../_components/filter-tabs";
-import type { UserFilter } from "../query-params";
 
 const labels: Record<UserFilter, string> = {
   all: "All",

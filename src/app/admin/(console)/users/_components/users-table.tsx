@@ -4,10 +4,10 @@ import type { MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon } from "lucide-react";
+import type { SortDirection, UserSort } from "@/lib/admin-users";
 import { formatDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { UserRow } from "../mock-data";
-import type { SortDirection, UserSort } from "../query-params";
+import type { UserRow } from "@/types/admin-users";
 import { BanBadge, RoleBadge, activityLabel } from "./user-badges";
 import { UserRowMenu, type RowActions } from "./user-row-menu";
 
@@ -69,6 +69,7 @@ function SortHeader({
 export function UsersTable({
   rows,
   meId,
+  canManageRoles,
   sort,
   dir,
   busy,
@@ -77,6 +78,7 @@ export function UsersTable({
 }: {
   rows: UserRow[];
   meId: number;
+  canManageRoles: boolean;
   sort: UserSort;
   dir: SortDirection;
   busy: boolean;
@@ -88,7 +90,7 @@ export function UsersTable({
   function open(event: MouseEvent<HTMLTableRowElement>, id: number) {
     // Real links and buttons inside the row keep their own behavior.
     if ((event.target as HTMLElement).closest("a, button")) return;
-    router.push(`/admin/users/${id}`);
+    router.push(`/users/${id}`);
   }
 
   return (
@@ -179,7 +181,7 @@ export function UsersTable({
 
                     <div className="min-w-0">
                       <Link
-                        href={`/admin/users/${user.id}`}
+                        href={`/users/${user.id}`}
                         className="block truncate rounded-sm font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
                         {user.name}
                         {isSelf && (
@@ -243,7 +245,12 @@ export function UsersTable({
                 <td
                   className="w-14 px-3 py-3.5 text-right"
                   onClick={(event) => event.stopPropagation()}>
-                  <UserRowMenu user={user} isSelf={isSelf} actions={actions} />
+                  <UserRowMenu
+                    user={user}
+                    isSelf={isSelf}
+                    canManageRoles={canManageRoles}
+                    actions={actions}
+                  />
                 </td>
               </tr>
             );

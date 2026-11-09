@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { HistoryEntry, HistoryKind } from "../mock-data";
+import type { HistoryEntry, HistoryKind } from "@/types/admin-users";
 
 type IconType = ComponentType<{ className?: string }>;
 
@@ -55,7 +55,7 @@ export function ModerationHistory({ entries }: { entries: HistoryEntry[] }) {
           const { label, Icon, tone } = kinds[entry.kind];
           const meta = [
             entry.by ? `by ${entry.by}` : null,
-            entry.at ? formatDate(entry.at) : "just now",
+            formatDate(entry.at),
           ]
             .filter(Boolean)
             .join(" · ");

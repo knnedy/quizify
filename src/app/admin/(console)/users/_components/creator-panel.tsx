@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { StarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CreatorStats, QuizState } from "../mock-data";
+import type { CreatorStats, QuizState } from "@/types/admin-users";
 import { StatCell } from "./user-stats";
 
 const compact = new Intl.NumberFormat("en-US", {

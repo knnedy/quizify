@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { adminIdentity } from "../../mock-data";
+import { isAdmin, isStaff } from "@/lib/roles";
+import { profileParamsSchema, userIdSchema } from "@/lib/schemas/admin-profile";
+import { getAdminUser } from "@/server/queries/admin-users";
+import { getOptionalUser, requireStaff } from "@/server/session";
 import { BackToUsers } from "../_components/back-to-users";
-import type { ProfileTab } from "../_components/profile-tabs";
 import { UserProfile } from "../_components/user-profile";
-import { getUserDetail } from "../mock-data";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function first(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 async function load(id: string) {
-  const numeric = Number.parseInt(id, 10);
-  return Number.isInteger(numeric) ? getUserDetail(numeric) : null;
+  const parsed = userIdSchema.safeParse(id);
+  return parsed.success ? getAdminUser(parsed.data) : null;
 }
 
 export async function generateMetadata({
@@ -23,6 +20,10 @@ export async function generateMetadata({
 }: {
   params: Params;
 }): Promise<Metadata> {
+  // Only staff get to look a user up, even for a page title
+  const viewer = await getOptionalUser();
+  if (!viewer || !isStaff(viewer.role)) return { title: "Not found" };
+
   const user = await load((await params).id);
   return { title: user ? user.name : "User not found" };
 }
@@ -35,13 +36,12 @@ export default async function UserPage({
   searchParams: SearchParams;
 }) {
   const [{ id }, raw] = await Promise.all([params, searchParams]);
+  const staff = await requireStaff(`/users/${id}`);
 
   const user = await load(id);
   if (!user) notFound();
 
-  const rawTab = first(raw.tab);
-  const tab: ProfileTab =
-    rawTab === "quizzes" || rawTab === "history" ? rawTab : "overview";
+  const { tab } = profileParamsSchema.parse(raw);
 
   return (
     <main className="mx-auto w-full max-w-7xl space-y-6 px-6 py-6 sm:py-8 lg:py-9">
@@ -49,8 +49,9 @@ export default async function UserPage({
       <UserProfile
         key={user.id}
         user={user}
-        meId={adminIdentity.id}
-        initialTab={tab}
+        meId={staff.id}
+        canManageRoles={isAdmin(staff.role)}
+        initialTab={tab ?? "overview"}
       />
     </main>
   );

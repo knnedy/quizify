@@ -1,14 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { SearchXIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "../../_components/confirm-dialog";
-import { TablePagination } from "../../_components/table-pagination";
-import { useKeyMap } from "../../_hooks/use-key-map";
-import { useUserNavigation } from "../_hooks/use-user-navigation";
-import { applyToRow, type UserChange, type UserRow } from "../mock-data";
 import {
   USERS_LIST_KEY,
   USERS_PAGE_SIZE,
@@ -17,13 +12,25 @@ import {
   type UserFilter,
   type UserQuery,
   type UserSort,
-} from "../query-params";
+} from "@/lib/admin-users";
+import {
+  banUser,
+  grantCreator,
+  revokeCreator,
+  unbanUser,
+} from "@/server/actions/admin-users";
+import type { ActionResult } from "@/types/actions";
+import type { UserRow } from "@/types/admin-users";
+import { ConfirmDialog } from "../../_components/confirm-dialog";
+import { TablePagination } from "../../_components/table-pagination";
+import { useKeyMap } from "../../_hooks/use-key-map";
+import { useUserNavigation } from "../_hooks/use-user-navigation";
 import { BanDialog, type BanInput } from "./ban-dialog";
 import { UsersTable } from "./users-table";
 import { UsersToolbar } from "./users-toolbar";
 
 function firstName(name: string) {
-  return name.split(" ")[0];
+  return name.split(" ")[0] ?? name;
 }
 
 export function UsersExplorer({
@@ -34,6 +41,7 @@ export function UsersExplorer({
   counts,
   query,
   meId,
+  canManageRoles,
 }: {
   rows: UserRow[];
   total: number;
@@ -42,10 +50,11 @@ export function UsersExplorer({
   counts: Record<UserFilter, number>;
   query: UserQuery;
   meId: number;
+  canManageRoles: boolean;
 }) {
   const { navigate, pending } = useUserNavigation();
+  const [acting, startAction] = useTransition();
   const [search, setSearch] = useState(query.q);
-  const [changes, setChanges] = useState<Record<number, UserChange[]>>({});
   const [banTarget, setBanTarget] = useState<UserRow | null>(null);
   const [banOpen, setBanOpen] = useState(false);
   const [revokeTarget, setRevokeTarget] = useState<UserRow | null>(null);
@@ -76,8 +85,6 @@ export function UsersExplorer({
     "/": () => searchRef.current?.focus(),
   });
 
-  const effective = rows.map((row) => applyToRow(row, changes[row.id]));
-
   function changeSort(column: UserSort) {
     const dir =
       column === query.sort
@@ -99,18 +106,16 @@ export function UsersExplorer({
     navigate({ q: "", filter: "all" });
   }
 
-  function pushChange(id: number, change: UserChange) {
-    setChanges((previous) => ({
-      ...previous,
-      [id]: [...(previous[id] ?? []), change],
-    }));
-  }
+  function run(task: () => Promise<ActionResult>, success: string) {
+    startAction(async () => {
+      const result = await task();
 
-  function undo(id: number) {
-    setChanges((previous) => ({
-      ...previous,
-      [id]: (previous[id] ?? []).slice(0, -1),
-    }));
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(success);
+    });
   }
 
   function startBan(user: UserRow) {
@@ -118,30 +123,39 @@ export function UsersExplorer({
     setBanOpen(true);
   }
 
-  // Mock only: the real actions write to the database and refresh the page.
   function ban(input: BanInput) {
     if (!banTarget) return;
-
     const { id, name } = banTarget;
-    setBanOpen(false);
-    pushChange(id, { kind: "BAN", ...input });
-    toast.success(`${firstName(name)} was banned`, {
-      action: { label: "Undo", onClick: () => undo(id) },
+
+    startAction(async () => {
+      const result = await banUser({ userId: id, ...input });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      setBanOpen(false);
+      toast.success(
+        result.hidden > 0
+          ? `${firstName(name)} was banned and ${result.hidden} ${result.hidden === 1 ? "quiz was" : "quizzes were"} hidden`
+          : `${firstName(name)} was banned`,
+      );
     });
   }
 
   function unban(user: UserRow) {
-    pushChange(user.id, { kind: "UNBAN" });
-    toast.success(`${firstName(user.name)} can sign in again`, {
-      action: { label: "Undo", onClick: () => undo(user.id) },
-    });
+    run(
+      () => unbanUser({ userId: user.id }),
+      `${firstName(user.name)} can sign in again`,
+    );
   }
 
   function grant(user: UserRow) {
-    pushChange(user.id, { kind: "GRANT" });
-    toast.success(`${firstName(user.name)} is now a creator`, {
-      action: { label: "Undo", onClick: () => undo(user.id) },
-    });
+    run(
+      () => grantCreator({ userId: user.id }),
+      `${firstName(user.name)} is now a creator`,
+    );
   }
 
   function startRevoke(user: UserRow) {
@@ -151,17 +165,20 @@ export function UsersExplorer({
 
   function revoke() {
     if (!revokeTarget) return;
-
     const { id, name } = revokeTarget;
+
     setRevokeOpen(false);
-    pushChange(id, { kind: "REVOKE" });
-    toast.success(`${firstName(name)} is no longer a creator`, {
-      action: { label: "Undo", onClick: () => undo(id) },
-    });
+    run(
+      () => revokeCreator({ userId: id }),
+      `${firstName(name)} is no longer a creator`,
+    );
   }
 
   return (
-    <div ref={topRef} aria-busy={pending} className="scroll-mt-6 space-y-5">
+    <div
+      ref={topRef}
+      aria-busy={pending || acting}
+      className="scroll-mt-6 space-y-5">
       <UsersToolbar
         filter={query.filter}
         counts={counts}
@@ -171,13 +188,14 @@ export function UsersExplorer({
         onFilter={(filter) => navigate({ filter })}
       />
 
-      {effective.length > 0 ? (
+      {rows.length > 0 ? (
         <UsersTable
-          rows={effective}
+          rows={rows}
           meId={meId}
+          canManageRoles={canManageRoles}
           sort={query.sort}
           dir={query.dir}
-          busy={pending}
+          busy={pending || acting}
           onSort={changeSort}
           actions={{
             onBan: startBan,
@@ -221,6 +239,7 @@ export function UsersExplorer({
           onOpenChange={setBanOpen}
           name={banTarget.name}
           publishedQuizzes={banTarget.published}
+          pending={acting}
           onBan={ban}
         />
       )}

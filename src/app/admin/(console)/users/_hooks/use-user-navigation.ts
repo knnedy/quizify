@@ -2,11 +2,8 @@
 
 import { useCallback, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  parseUserQuery,
-  toSearchString,
-  type UserQuery,
-} from "../query-params";
+import { toSearchString, type UserQuery } from "@/lib/admin-users";
+import { userQuerySchema } from "@/lib/schemas/admin-users";
 
 export function useUserNavigation() {
   const router = useRouter();
@@ -17,7 +14,7 @@ export function useUserNavigation() {
   // Any change except the page itself sends you back to page 1.
   const navigate = useCallback(
     (patch: Partial<UserQuery>, mode: "push" | "replace" = "push") => {
-      const current = parseUserQuery(
+      const current = userQuerySchema.parse(
         Object.fromEntries(searchParams.entries()),
       );
       const search = toSearchString({ ...current, page: 1, ...patch });

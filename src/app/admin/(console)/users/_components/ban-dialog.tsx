@@ -1,9 +1,9 @@
 "use client";
 
 import { useId, useState, type SubmitEvent } from "react";
+import { FormBlock } from "@/components/form/form-block";
 import { Segmented } from "@/components/form/segmented";
 import { SwitchRow } from "@/components/form/switch-row";
-import { FormBlock } from "@/components/form/form-block";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,16 +14,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  BAN_REASON_MAX,
+  BAN_REASON_MIN,
+  type BanDays,
+} from "@/lib/admin-users";
 import { cn } from "@/lib/utils";
 
 export type BanInput = {
   reason: string;
-  days: number | null;
+  days: BanDays;
   hideQuizzes: boolean;
 };
-
-const MIN_LENGTH = 10;
-const MAX_LENGTH = 300;
 
 const presets = [
   {
@@ -44,7 +47,7 @@ const presets = [
   },
 ];
 
-const durations: { value: number | null; label: string }[] = [
+const durations: { value: BanDays; label: string }[] = [
   { value: 7, label: "7 days" },
   { value: 30, label: "30 days" },
   { value: null, label: "Permanent" },
@@ -54,23 +57,25 @@ const durations: { value: number | null; label: string }[] = [
 function BanForm({
   name,
   published,
+  pending,
   onBan,
 }: {
   name: string;
   published: number;
+  pending: boolean;
   onBan: (input: BanInput) => void;
 }) {
   const textId = useId();
   const [reason, setReason] = useState("");
-  const [days, setDays] = useState<number | null>(7);
+  const [days, setDays] = useState<BanDays>(7);
   const [hideQuizzes, setHideQuizzes] = useState(false);
 
   const trimmed = reason.trim();
-  const valid = trimmed.length >= MIN_LENGTH;
+  const valid = trimmed.length >= BAN_REASON_MIN;
 
   function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!valid) return;
+    if (!valid || pending) return;
 
     onBan({ reason: trimmed, days, hideQuizzes: published > 0 && hideQuizzes });
   }
@@ -113,23 +118,23 @@ function BanForm({
         <FormBlock
           label="Message to the user"
           htmlFor={textId}
-          hint={`At least ${MIN_LENGTH} characters.`}>
+          hint={`At least ${BAN_REASON_MIN} characters.`}>
           <textarea
             id={textId}
             rows={3}
             value={reason}
-            maxLength={MAX_LENGTH}
+            maxLength={BAN_REASON_MAX}
             placeholder="Say what they did and what would need to change."
             onChange={(event) => setReason(event.target.value)}
             className="w-full resize-y rounded-xl border border-input bg-card px-3.5 py-2.5 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-2 focus-visible:outline-ring/40"
           />
           <p className="text-right text-xs text-muted-foreground tabular-nums">
-            {reason.length}/{MAX_LENGTH}
+            {reason.length}/{BAN_REASON_MAX}
           </p>
         </FormBlock>
 
         <FormBlock label="Ban length">
-          <Segmented<number | null>
+          <Segmented<BanDays>
             label="Ban length"
             value={days}
             options={durations}
@@ -151,7 +156,11 @@ function BanForm({
         <DialogClose render={<Button type="button" variant="outline" />}>
           Cancel
         </DialogClose>
-        <Button type="submit" variant="destructive" disabled={!valid}>
+        <Button
+          type="submit"
+          variant="destructive"
+          disabled={!valid || pending}>
+          {pending && <Spinner />}
           Ban user
         </Button>
       </DialogFooter>
@@ -164,18 +173,25 @@ export function BanDialog({
   onOpenChange,
   name,
   publishedQuizzes,
+  pending,
   onBan,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   name: string;
   publishedQuizzes: number;
+  pending: boolean;
   onBan: (input: BanInput) => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
-        <BanForm name={name} published={publishedQuizzes} onBan={onBan} />
+        <BanForm
+          name={name}
+          published={publishedQuizzes}
+          pending={pending}
+          onBan={onBan}
+        />
       </DialogContent>
     </Dialog>
   );

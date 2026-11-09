@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { UserSummary } from "../mock-data";
+import type { UserSummary } from "@/types/admin-users";
 
 function Cell({
   label,

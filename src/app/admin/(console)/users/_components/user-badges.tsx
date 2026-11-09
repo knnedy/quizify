@@ -1,15 +1,15 @@
 import { BanIcon } from "lucide-react";
+import type { Role } from "@/lib/roles";
 import { cn } from "@/lib/utils";
-import type { UserRole } from "../mock-data";
 
-export const roleLabels: Record<UserRole, string> = {
+export const roleLabels: Record<Role, string> = {
   USER: "Player",
   CREATOR: "Creator",
   MODERATOR: "Moderator",
   ADMIN: "Admin",
 };
 
-const roleTone: Record<UserRole, string> = {
+const roleTone: Record<Role, string> = {
   USER: "bg-muted text-muted-foreground",
   CREATOR: "bg-primary-soft text-primary",
   MODERATOR: "bg-xp-soft text-xp-ink",
@@ -20,7 +20,7 @@ export function RoleBadge({
   role,
   className,
 }: {
-  role: UserRole;
+  role: Role;
   className?: string;
 }) {
   return (

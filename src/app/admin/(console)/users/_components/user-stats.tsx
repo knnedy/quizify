@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import type { UserStats } from "../mock-data";
+import type { UserStats } from "@/types/admin-users";
 
 export function StatCell({
   label,

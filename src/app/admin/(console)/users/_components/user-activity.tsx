@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { PlayEntry } from "../mock-data";
+import type { PlayEntry } from "@/types/admin-users";
 
 function tone(percentage: number) {
   if (percentage >= 70) return "bg-correct-soft text-correct-ink";
@@ -61,11 +61,14 @@ export function UserActivity({
       ) : (
         <ul className="divide-y overflow-hidden rounded-xl border">
           {recent.map((entry) => {
-            const percentage = Math.round((entry.score / entry.total) * 100);
+            const percentage =
+              entry.total > 0
+                ? Math.round((entry.score / entry.total) * 100)
+                : 0;
 
             return (
               <li
-                key={`${entry.slug}-${entry.at}`}
+                key={`${entry.slug}-${entry.at.getTime()}`}
                 className="flex items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1">
                   <Link
