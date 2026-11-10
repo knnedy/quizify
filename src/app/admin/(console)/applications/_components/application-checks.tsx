@@ -1,6 +1,12 @@
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
+import {
+  CREATOR_REQUIRED_QUIZZES,
+  REVIEW_MIN_ACCOUNT_DAYS,
+  REVIEW_MIN_ANSWER_LENGTH,
+  REVIEW_MIN_QUIZZES,
+} from "@/lib/creator-rules";
 import { cn } from "@/lib/utils";
-import type { Application } from "../mock-data";
+import type { Application } from "@/types/admin-applications";
 
 export type Check = {
   key: string;
@@ -21,9 +27,9 @@ export function getChecks(application: Application): Check[] {
   const { applicant, motivation, attempt } = application;
   const length = motivation.trim().length;
 
-  const established = applicant.accountAgeDays >= 14;
-  const active = applicant.quizzesCompleted >= 5;
-  const detailed = length >= 60;
+  const established = applicant.accountAgeDays >= REVIEW_MIN_ACCOUNT_DAYS;
+  const active = applicant.quizzesCompleted >= REVIEW_MIN_QUIZZES;
+  const detailed = length >= REVIEW_MIN_ANSWER_LENGTH;
   const first = attempt === 1;
 
   return [
@@ -41,7 +47,7 @@ export function getChecks(application: Application): Check[] {
       ok: active,
       note: active
         ? `${applicant.totalXp.toLocaleString("en-US")} XP earned`
-        : "Close to the minimum of 3",
+        : `Close to the minimum of ${CREATOR_REQUIRED_QUIZZES}`,
     },
     {
       key: "answer",

@@ -11,10 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  REAPPLY_AFTER_DAYS,
+  REJECTION_REASON_MAX,
+  REJECTION_REASON_MIN,
+} from "@/lib/creator-rules";
 import { cn } from "@/lib/utils";
-
-const MIN_LENGTH = 10;
-const MAX_LENGTH = 300;
 
 const presets = [
   {
@@ -38,20 +41,22 @@ const presets = [
 // Mounts with the dialog, so every time it opens the message starts empty.
 function RejectForm({
   name,
+  pending,
   onReject,
 }: {
   name: string;
+  pending: boolean;
   onReject: (reason: string) => void;
 }) {
   const textId = useId();
   const [reason, setReason] = useState("");
 
   const trimmed = reason.trim();
-  const valid = trimmed.length >= MIN_LENGTH;
+  const valid = trimmed.length >= REJECTION_REASON_MIN;
 
   function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (valid) onReject(trimmed);
+    if (valid && !pending) onReject(trimmed);
   }
 
   return (
@@ -60,7 +65,7 @@ function RejectForm({
         <DialogTitle className="text-xl">Reject {name}?</DialogTitle>
         <DialogDescription>
           They will see your message on their My quizzes page, and they can
-          apply again after 14 days.
+          apply again after {REAPPLY_AFTER_DAYS} days.
         </DialogDescription>
       </DialogHeader>
 
@@ -98,15 +103,15 @@ function RejectForm({
             id={textId}
             rows={4}
             value={reason}
-            maxLength={MAX_LENGTH}
+            maxLength={REJECTION_REASON_MAX}
             placeholder="Say what they could change before applying again."
             onChange={(event) => setReason(event.target.value)}
             className="w-full resize-y rounded-xl border border-input bg-card px-3.5 py-2.5 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-2 focus-visible:outline-ring/40"
           />
           <p className="flex justify-between gap-3 text-xs text-muted-foreground tabular-nums">
-            <span>At least {MIN_LENGTH} characters</span>
+            <span>At least {REJECTION_REASON_MIN} characters</span>
             <span>
-              {reason.length}/{MAX_LENGTH}
+              {reason.length}/{REJECTION_REASON_MAX}
             </span>
           </p>
         </div>
@@ -116,7 +121,11 @@ function RejectForm({
         <DialogClose render={<Button type="button" variant="outline" />}>
           Cancel
         </DialogClose>
-        <Button type="submit" variant="destructive" disabled={!valid}>
+        <Button
+          type="submit"
+          variant="destructive"
+          disabled={!valid || pending}>
+          {pending && <Spinner />}
           Reject application
         </Button>
       </DialogFooter>
@@ -128,17 +137,19 @@ export function RejectDialog({
   open,
   onOpenChange,
   name,
+  pending,
   onReject,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   name: string;
+  pending: boolean;
   onReject: (reason: string) => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
-        <RejectForm name={name} onReject={onReject} />
+        <RejectForm name={name} pending={pending} onReject={onReject} />
       </DialogContent>
     </Dialog>
   );

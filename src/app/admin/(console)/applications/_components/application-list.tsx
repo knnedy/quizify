@@ -1,43 +1,35 @@
 import { TriangleAlertIcon } from "lucide-react";
 import { formatDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { Application, ApplicationStatus } from "../mock-data";
+import type { Application } from "@/types/admin-applications";
 import { getChecks } from "./application-checks";
-
-export type ListRow = {
-  application: Application;
-  status: ApplicationStatus;
-  justNow: boolean;
-};
 
 function ago(days: number) {
   if (days === 0) return "Today";
   return days === 1 ? "1 day ago" : `${days} days ago`;
 }
 
-function timeLabel(row: ListRow) {
-  if (row.status === "PENDING") return ago(row.application.waitingDays);
-  if (row.justNow) return "Just now";
-  return row.application.decision
-    ? formatDate(row.application.decision.reviewedAt)
+function timeLabel(application: Application) {
+  if (application.status === "PENDING") return ago(application.waitingDays);
+  return application.decision
+    ? formatDate(application.decision.reviewedAt)
     : "";
 }
 
 export function ApplicationList({
-  rows,
+  applications,
   activeId,
   onSelect,
 }: {
-  rows: ListRow[];
+  applications: Application[];
   activeId: number;
   onSelect: (id: number) => void;
 }) {
   return (
     <ul className="space-y-2.5">
-      {rows.map((row) => {
-        const { application } = row;
+      {applications.map((application) => {
         const active = application.id === activeId;
-        const pending = row.status === "PENDING";
+        const pending = application.status === "PENDING";
         const overdue = pending && application.waitingDays >= 5;
         const warnings = pending
           ? getChecks(application).filter((check) => !check.ok).length
@@ -73,7 +65,7 @@ export function ApplicationList({
                         ? "font-semibold text-streak-ink"
                         : "text-muted-foreground",
                     )}>
-                    {timeLabel(row)}
+                    {timeLabel(application)}
                   </span>
                 </span>
 
@@ -98,11 +90,13 @@ export function ApplicationList({
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 font-semibold",
-                        row.status === "APPROVED"
+                        application.status === "APPROVED"
                           ? "bg-correct-soft text-correct-ink"
                           : "bg-incorrect-soft text-incorrect-ink",
                       )}>
-                      {row.status === "APPROVED" ? "Approved" : "Rejected"}
+                      {application.status === "APPROVED"
+                        ? "Approved"
+                        : "Rejected"}
                     </span>
                   )}
                 </span>

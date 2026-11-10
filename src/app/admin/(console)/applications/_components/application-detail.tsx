@@ -1,16 +1,14 @@
-import { ArrowLeftIcon, CheckIcon, Undo2Icon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckIcon, XIcon } from "lucide-react";
 import { Keycap } from "@/components/keycap";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { formatDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { Application, ApplicationStatus } from "../mock-data";
+import type {
+  Application,
+  ApplicationStatus,
+} from "@/types/admin-applications";
 import { ApplicationChecks } from "./application-checks";
-
-export type DetailDecision = {
-  by: string;
-  at: string | null;
-  reason: string | null;
-};
 
 const statusStyle: Record<ApplicationStatus, { label: string; tone: string }> =
   {
@@ -27,23 +25,18 @@ const statusStyle: Record<ApplicationStatus, { label: string; tone: string }> =
 
 export function ApplicationDetail({
   application,
-  status,
-  decision,
+  busy,
   onApprove,
   onReject,
-  onUndo,
   onBack,
 }: {
   application: Application;
-  status: ApplicationStatus;
-  decision: DetailDecision | null;
+  busy: boolean;
   onApprove: () => void;
   onReject: () => void;
-  onUndo?: () => void;
   onBack: () => void;
 }) {
-  const { applicant } = application;
-  const firstName = applicant.name.split(" ")[0];
+  const { applicant, decision, status } = application;
   const style = statusStyle[status];
   const pending = status === "PENDING";
   const words = application.motivation.trim().split(/\s+/).length;
@@ -136,24 +129,10 @@ export function ApplicationDetail({
               ) : (
                 <XIcon aria-hidden className="size-4.5" />
               )}
-              {style.label} by {decision.by}
-              {decision.at ? ` on ${formatDate(decision.at)}` : " just now"}
+              {style.label} by {decision.reviewedBy ?? "a former admin"} on{" "}
+              {formatDate(decision.reviewedAt)}
             </h3>
-            {status === "APPROVED" && (
-              <p className="text-sm">{firstName} can create quizzes now.</p>
-            )}
             {decision.reason && <p className="text-sm">{decision.reason}</p>}
-            {onUndo && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="-ml-2"
-                onClick={onUndo}>
-                <Undo2Icon />
-                Undo decision
-              </Button>
-            )}
           </section>
         )}
       </div>
@@ -175,6 +154,7 @@ export function ApplicationDetail({
               type="button"
               variant="outline"
               size="lg"
+              disabled={busy}
               onClick={onReject}>
               <XIcon />
               Reject
@@ -183,8 +163,9 @@ export function ApplicationDetail({
               type="button"
               size="lg"
               className="shadow-primary"
+              disabled={busy}
               onClick={onApprove}>
-              <CheckIcon />
+              {busy ? <Spinner /> : <CheckIcon />}
               Approve
             </Button>
           </div>

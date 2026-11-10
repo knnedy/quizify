@@ -1,20 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { CircleCheckIcon, InboxIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  approveApplication,
+  rejectApplication,
+} from "@/server/actions/admin-applications";
+import type {
+  Application,
+  ApplicationStatus,
+} from "@/types/admin-applications";
 import { FilterTabs } from "../../_components/filter-tabs";
 import { SplitPane } from "../../_components/split-pane";
-import { useTriageHotkeys } from "../_hooks/use-triage-hotkeys";
-import type { Application, ApplicationStatus } from "../mock-data";
-import { ApplicationDetail, type DetailDecision } from "./application-detail";
-import { ApplicationList, type ListRow } from "./application-list";
-import { QueueStats } from "./queue-stats";
+import { StatStrip } from "../../_components/stat-strip";
+import { useKeyMap } from "../../_hooks/use-key-map";
+import { ApplicationDetail } from "./application-detail";
+import { ApplicationList } from "./application-list";
 import { RejectDialog } from "./reject-dialog";
 
 type Tab = "pending" | "approved" | "rejected";
-type Outcome = { status: "APPROVED" } | { status: "REJECTED"; reason: string };
 
 const tabs: { value: Tab; label: string; status: ApplicationStatus }[] = [
   { value: "pending", label: "Pending", status: "PENDING" },
@@ -37,60 +43,44 @@ const emptyCopy: Record<Tab, { title: string; text: string }> = {
   },
 };
 
-// Pending goes oldest first so nobody waits at the bottom of the queue.
-// Decided ones show the most recent decision first.
-function sortRows(rows: ListRow[], status: ApplicationStatus) {
-  return rows
-    .filter((row) => row.status === status)
-    .sort((a, b) => {
-      if (status === "PENDING") {
-        return b.application.waitingDays - a.application.waitingDays;
-      }
-      if (a.justNow !== b.justNow) return a.justNow ? -1 : 1;
-
-      const when = (row: ListRow) =>
-        Date.parse(
-          row.application.decision?.reviewedAt ?? row.application.submittedAt,
-        );
-      return when(b) - when(a);
-    });
+function firstName(name: string) {
+  return name.split(" ")[0] ?? name;
 }
 
 export function ApplicationsWorkspace({
   applications,
+  counts,
 }: {
   applications: Application[];
+  counts: Record<ApplicationStatus, number>;
 }) {
   const [tab, setTab] = useState<Tab>("pending");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [outcomes, setOutcomes] = useState<Record<number, Outcome>>({});
   const [rejecting, setRejecting] = useState(false);
-
-  const rows: ListRow[] = applications.map((application) => ({
-    application,
-    status: outcomes[application.id]?.status ?? application.status,
-    justNow: application.id in outcomes,
-  }));
-
-  const counts: Record<ApplicationStatus, number> = {
-    PENDING: 0,
-    APPROVED: 0,
-    REJECTED: 0,
-  };
-  for (const row of rows) counts[row.status] += 1;
+  const [isPending, startTransition] = useTransition();
 
   const activeStatus =
     tabs.find((item) => item.value === tab)?.status ?? "PENDING";
-  const pending = sortRows(rows, "PENDING");
-  const list = sortRows(rows, activeStatus);
+  const waiting = applications.filter((item) => item.status === "PENDING");
+  const list = applications.filter((item) => item.status === activeStatus);
   const selected =
-    list.find((row) => row.application.id === selectedId) ?? list[0] ?? null;
+    list.find((item) => item.id === selectedId) ?? list[0] ?? null;
 
   const longestWait =
-    pending.length > 0
-      ? Math.max(...pending.map((row) => row.application.waitingDays))
+    waiting.length > 0
+      ? Math.max(...waiting.map((item) => item.waitingDays))
       : null;
+
+  const decided = counts.APPROVED + counts.REJECTED;
+  const rate =
+    decided > 0 ? Math.round((counts.APPROVED / decided) * 100) : null;
+  const wait =
+    longestWait === null
+      ? "None"
+      : longestWait === 0
+        ? "Today"
+        : `${longestWait} ${longestWait === 1 ? "day" : "days"}`;
 
   const tabOptions = tabs.map((item) => ({
     value: item.value,
@@ -119,90 +109,77 @@ export function ApplicationsWorkspace({
     if (list.length === 0) return;
 
     const index = selected
-      ? list.findIndex((row) => row.application.id === selected.application.id)
+      ? list.findIndex((item) => item.id === selected.id)
       : 0;
     const next =
       list[Math.min(Math.max(index + direction, 0), list.length - 1)];
-    setSelectedId(next.application.id);
+    if (next) setSelectedId(next.id);
   }
 
-  function advance(id: number) {
-    const index = pending.findIndex((row) => row.application.id === id);
-    const next = pending[index + 1] ?? pending[index - 1] ?? null;
+  // The one that comes after the application being decided
+  function neighbourOf(id: number) {
+    const index = waiting.findIndex((item) => item.id === id);
+    return waiting[index + 1] ?? waiting[index - 1] ?? null;
+  }
 
-    setSelectedId(next ? next.application.id : null);
+  function moveTo(next: Application | null) {
+    setSelectedId(next ? next.id : null);
     setMobileOpen(next !== null);
   }
 
-  function undo(id: number) {
-    setOutcomes((previous) => {
-      const next = { ...previous };
-      delete next[id];
-      return next;
-    });
-    setTab("pending");
-    setSelectedId(id);
-    setMobileOpen(true);
-  }
-
-  function decide(outcome: Outcome) {
-    if (!selected || selected.status !== "PENDING") return;
-
-    const { id, applicant } = selected.application;
-    const firstName = applicant.name.split(" ")[0];
-
-    advance(id);
-    setOutcomes((previous) => ({ ...previous, [id]: outcome }));
-
-    // Mock only: the real action saves the decision and refreshes the queue.
-    toast.success(
-      outcome.status === "APPROVED"
-        ? `${firstName} is now a creator`
-        : `Rejected. ${firstName} will see your message.`,
-      { action: { label: "Undo", onClick: () => undo(id) } },
-    );
-  }
-
   function approve() {
-    if (detailVisible()) decide({ status: "APPROVED" });
+    if (!selected || selected.status !== "PENDING" || isPending) return;
+
+    const { id, applicant } = selected;
+    const next = neighbourOf(id);
+
+    startTransition(async () => {
+      const result = await approveApplication({ applicationId: id });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(`${firstName(applicant.name)} is now a creator`);
+      moveTo(next);
+    });
+  }
+
+  function reject(reason: string) {
+    if (!selected || selected.status !== "PENDING" || isPending) return;
+
+    const { id, applicant } = selected;
+    const next = neighbourOf(id);
+
+    startTransition(async () => {
+      const result = await rejectApplication({ applicationId: id, reason });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      setRejecting(false);
+      toast.success(
+        `Rejected. ${firstName(applicant.name)} will see your message.`,
+      );
+      moveTo(next);
+    });
   }
 
   function startReject() {
     if (selected?.status === "PENDING" && detailVisible()) setRejecting(true);
   }
 
-  function reject(reason: string) {
-    setRejecting(false);
-    decide({ status: "REJECTED", reason });
-  }
-
-  useTriageHotkeys({
-    enabled: !rejecting,
-    onNext: () => step(1),
-    onPrevious: () => step(-1),
-    onApprove: approve,
-    onReject: startReject,
+  useKeyMap(!rejecting && !isPending, {
+    j: () => step(1),
+    k: () => step(-1),
+    a: () => {
+      if (detailVisible()) approve();
+    },
+    r: startReject,
   });
-
-  let decision: DetailDecision | null = null;
-  if (selected && selected.status !== "PENDING") {
-    const outcome = outcomes[selected.application.id];
-    const saved = selected.application.decision;
-
-    if (outcome) {
-      decision = {
-        by: "you",
-        at: null,
-        reason: outcome.status === "REJECTED" ? outcome.reason : null,
-      };
-    } else if (saved) {
-      decision = {
-        by: saved.reviewedBy,
-        at: saved.reviewedAt,
-        reason: saved.reason,
-      };
-    }
-  }
 
   const EmptyIcon = tab === "pending" ? CircleCheckIcon : InboxIcon;
 
@@ -215,11 +192,20 @@ export function ApplicationsWorkspace({
           options={tabOptions}
           onChange={changeTab}
         />
-        <QueueStats
-          waiting={counts.PENDING}
-          longestWait={longestWait}
-          approved={counts.APPROVED}
-          rejected={counts.REJECTED}
+        <StatStrip
+          stats={[
+            { label: "Waiting", value: String(counts.PENDING) },
+            {
+              label: "Longest wait",
+              value: wait,
+              warn: longestWait !== null && longestWait >= 5,
+            },
+            {
+              label: "Approval rate",
+              value: rate === null ? "None yet" : `${rate}%`,
+              hint: `${counts.APPROVED} approved, ${counts.REJECTED} rejected`,
+            },
+          ]}
         />
       </div>
 
@@ -228,24 +214,18 @@ export function ApplicationsWorkspace({
           showDetail={mobileOpen}
           list={
             <ApplicationList
-              rows={list}
-              activeId={selected.application.id}
+              applications={list}
+              activeId={selected.id}
               onSelect={select}
             />
           }
           detail={
             <ApplicationDetail
-              key={selected.application.id}
-              application={selected.application}
-              status={selected.status}
-              decision={decision}
-              onApprove={() => decide({ status: "APPROVED" })}
+              key={selected.id}
+              application={selected}
+              busy={isPending}
+              onApprove={approve}
               onReject={() => setRejecting(true)}
-              onUndo={
-                selected.application.id in outcomes
-                  ? () => undo(selected.application.id)
-                  : undefined
-              }
               onBack={() => setMobileOpen(false)}
             />
           }
@@ -274,7 +254,8 @@ export function ApplicationsWorkspace({
         <RejectDialog
           open={rejecting}
           onOpenChange={setRejecting}
-          name={selected.application.applicant.name}
+          name={selected.applicant.name}
+          pending={isPending}
           onReject={reject}
         />
       )}
