@@ -11,10 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  SUSPENSION_MESSAGE_MAX,
+  SUSPENSION_MESSAGE_MIN,
+} from "@/lib/moderation";
 import { cn } from "@/lib/utils";
-
-const MIN_LENGTH = 10;
-const MAX_LENGTH = 300;
 
 const presets = [
   {
@@ -38,20 +40,22 @@ const presets = [
 // Mounts with the dialog, so every time it opens the message starts empty.
 function SuspendForm({
   title,
+  pending,
   onSuspend,
 }: {
   title: string;
+  pending: boolean;
   onSuspend: (message: string) => void;
 }) {
   const textId = useId();
   const [message, setMessage] = useState("");
 
   const trimmed = message.trim();
-  const valid = trimmed.length >= MIN_LENGTH;
+  const valid = trimmed.length >= SUSPENSION_MESSAGE_MIN;
 
   function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (valid) onSuspend(trimmed);
+    if (valid && !pending) onSuspend(trimmed);
   }
 
   return (
@@ -100,15 +104,15 @@ function SuspendForm({
             id={textId}
             rows={4}
             value={message}
-            maxLength={MAX_LENGTH}
+            maxLength={SUSPENSION_MESSAGE_MAX}
             placeholder="Say what needs to change before it can be restored."
             onChange={(event) => setMessage(event.target.value)}
             className="w-full resize-y rounded-xl border border-input bg-card px-3.5 py-2.5 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-2 focus-visible:outline-ring/40"
           />
           <p className="flex justify-between gap-3 text-xs text-muted-foreground tabular-nums">
-            <span>At least {MIN_LENGTH} characters</span>
+            <span>At least {SUSPENSION_MESSAGE_MIN} characters</span>
             <span>
-              {message.length}/{MAX_LENGTH}
+              {message.length}/{SUSPENSION_MESSAGE_MAX}
             </span>
           </p>
         </div>
@@ -118,7 +122,8 @@ function SuspendForm({
         <DialogClose render={<Button type="button" variant="outline" />}>
           Cancel
         </DialogClose>
-        <Button type="submit" disabled={!valid}>
+        <Button type="submit" disabled={!valid || pending}>
+          {pending && <Spinner />}
           Suspend quiz
         </Button>
       </DialogFooter>
@@ -130,17 +135,19 @@ export function SuspendDialog({
   open,
   onOpenChange,
   title,
+  pending = false,
   onSuspend,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
+  pending?: boolean;
   onSuspend: (message: string) => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
-        <SuspendForm title={title} onSuspend={onSuspend} />
+        <SuspendForm title={title} pending={pending} onSuspend={onSuspend} />
       </DialogContent>
     </Dialog>
   );

@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
+import { getReports } from "@/server/queries/admin-reports";
+import { requireStaff } from "@/server/session";
 import { AdminPage } from "../_components/admin-page";
 import { ReportsWorkspace } from "./_components/reports-workspace";
-import { getReports } from "./mock-data";
 
 export const metadata: Metadata = { title: "Reports" };
 
 export default async function ReportsPage() {
-  const { items } = await getReports();
+  await requireStaff("/reports");
+  const { open, resolved, counts } = await getReports();
 
   return (
     <AdminPage
       title="Reports"
       description="Players flag quizzes. Read what they said and decide what happens to the quiz.">
-      <ReportsWorkspace items={items} />
+      <ReportsWorkspace open={open} resolved={resolved} counts={counts} />
     </AdminPage>
   );
 }

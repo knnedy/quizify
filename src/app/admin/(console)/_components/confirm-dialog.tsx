@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 export function ConfirmDialog({
   open,
@@ -19,6 +20,7 @@ export function ConfirmDialog({
   description,
   confirmLabel,
   destructive = false,
+  pending = false,
   onConfirm,
 }: {
   open: boolean;
@@ -27,6 +29,7 @@ export function ConfirmDialog({
   description: ReactNode;
   confirmLabel: string;
   destructive?: boolean;
+  pending?: boolean;
   onConfirm: () => void;
 }) {
   return (
@@ -44,7 +47,9 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant={destructive ? "destructive" : "default"}
+            disabled={pending}
             onClick={onConfirm}>
+            {pending && <Spinner />}
             {confirmLabel}
           </Button>
         </DialogFooter>

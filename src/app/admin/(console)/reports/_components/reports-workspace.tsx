@@ -1,26 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { CircleCheckIcon, InboxIcon } from "lucide-react";
 import { toast } from "sonner";
+import { canSuspendQuiz, oldestDays } from "@/lib/admin-reports";
 import { cn } from "@/lib/utils";
+import {
+  deleteReported,
+  dismissReports,
+  suspendReported,
+} from "@/server/actions/admin-reports";
+import type { ReportedQuiz } from "@/types/admin-reports";
 import { ConfirmDialog } from "../../_components/confirm-dialog";
 import { FilterTabs } from "../../_components/filter-tabs";
 import { SplitPane } from "../../_components/split-pane";
 import { StatStrip } from "../../_components/stat-strip";
 import { SuspendDialog } from "../../_components/suspend-dialog";
 import { useKeyMap } from "../../_hooks/use-key-map";
-import type { ReportedQuiz, ReportStatus } from "../mock-data";
-import { isSerious } from "./reason-chip";
-import { ReportDetail, type DetailDecision } from "./report-detail";
-import { ReportList, type ListRow } from "./report-list";
-import { oldestDays } from "./report-time";
+import { ReportDetail } from "./report-detail";
+import { ReportList } from "./report-list";
 
 type Tab = "open" | "resolved";
-type Outcome =
-  | { status: "DISMISSED" }
-  | { status: "SUSPENDED"; message: string }
-  | { status: "DELETED" };
 
 const emptyCopy: Record<Tab, { title: string; text: string }> = {
   open: {
@@ -33,64 +33,36 @@ const emptyCopy: Record<Tab, { title: string; text: string }> = {
   },
 };
 
-function hasSerious(item: ReportedQuiz) {
-  return item.reports.some((report) => isSerious(report.reason));
-}
-
-// Serious reasons first, then the most reports, then the longest wait.
-function compareOpen(a: ListRow, b: ListRow) {
-  return (
-    Number(hasSerious(b.item)) - Number(hasSerious(a.item)) ||
-    b.item.reports.length - a.item.reports.length ||
-    oldestDays(b.item) - oldestDays(a.item)
-  );
-}
-
-function decidedAt(row: ListRow) {
-  return row.item.decision ? Date.parse(row.item.decision.at) : 0;
-}
-
-function compareResolved(a: ListRow, b: ListRow) {
-  if (a.justNow !== b.justNow) return a.justNow ? -1 : 1;
-  return decidedAt(b) - decidedAt(a);
-}
-
-export function ReportsWorkspace({ items }: { items: ReportedQuiz[] }) {
+export function ReportsWorkspace({
+  open,
+  resolved,
+  counts,
+}: {
+  open: ReportedQuiz[];
+  resolved: ReportedQuiz[];
+  counts: { open: number; resolved: number };
+}) {
   const [tab, setTab] = useState<Tab>("open");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [outcomes, setOutcomes] = useState<Record<number, Outcome>>({});
+  const [dismissing, setDismissing] = useState(false);
   const [suspending, setSuspending] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const rows: ListRow[] = items.map((item) => ({
-    item,
-    status: outcomes[item.id]?.status ?? item.status,
-    justNow: item.id in outcomes,
-  }));
-
-  const openRows = rows
-    .filter((row) => row.status === "OPEN")
-    .sort(compareOpen);
-  const resolvedRows = rows
-    .filter((row) => row.status !== "OPEN")
-    .sort(compareResolved);
-
-  const list = tab === "open" ? openRows : resolvedRows;
+  const list = tab === "open" ? open : resolved;
   const selected =
-    list.find((row) => row.item.id === selectedId) ?? list[0] ?? null;
+    list.find((item) => item.id === selectedId) ?? list[0] ?? null;
 
-  const hiddenNow = openRows.filter(
-    (row) => row.item.hiddenAutomatically,
+  const hiddenNow = open.filter(
+    (item) => item.visibility === "HIDDEN_AUTO",
   ).length;
   const oldest =
-    openRows.length > 0
-      ? Math.max(...openRows.map((row) => oldestDays(row.item)))
-      : null;
+    open.length > 0 ? Math.max(...open.map((item) => oldestDays(item))) : null;
 
   const tabOptions: { value: Tab; label: string; count: number }[] = [
-    { value: "open", label: "Open", count: openRows.length },
-    { value: "resolved", label: "Resolved", count: resolvedRows.length },
+    { value: "open", label: "Open", count: counts.open },
+    { value: "resolved", label: "Resolved", count: counts.resolved },
   ];
 
   // On a phone the list and the detail take turns, so the keys only act on
@@ -114,96 +86,118 @@ export function ReportsWorkspace({ items }: { items: ReportedQuiz[] }) {
     if (list.length === 0) return;
 
     const index = selected
-      ? list.findIndex((row) => row.item.id === selected.item.id)
+      ? list.findIndex((item) => item.id === selected.id)
       : 0;
     const next =
       list[Math.min(Math.max(index + direction, 0), list.length - 1)];
-    setSelectedId(next.item.id);
+    if (next) setSelectedId(next.id);
   }
 
-  function advance(id: number) {
-    const index = openRows.findIndex((row) => row.item.id === id);
-    const next = openRows[index + 1] ?? openRows[index - 1] ?? null;
+  // The one that comes after the quiz being decided
+  function neighbourOf(id: number) {
+    const index = open.findIndex((item) => item.id === id);
+    return open[index + 1] ?? open[index - 1] ?? null;
+  }
 
-    setSelectedId(next ? next.item.id : null);
+  function moveTo(next: ReportedQuiz | null) {
+    setSelectedId(next ? next.id : null);
     setMobileOpen(next !== null);
   }
 
-  function undo(id: number) {
-    setOutcomes((previous) => {
-      const next = { ...previous };
-      delete next[id];
-      return next;
-    });
-    setTab("open");
-    setSelectedId(id);
-    setMobileOpen(true);
-  }
-
-  function decide(outcome: Outcome) {
-    if (!selected || selected.status !== "OPEN") return;
-
-    const { id, quiz, hiddenAutomatically } = selected.item;
-    advance(id);
-    setOutcomes((previous) => ({ ...previous, [id]: outcome }));
-
-    let message: string;
-    if (outcome.status === "DISMISSED") {
-      message = hiddenAutomatically
-        ? `${quiz.title} is live again`
-        : "Report dismissed";
-    } else if (outcome.status === "SUSPENDED") {
-      message = `${quiz.title} was suspended`;
-    } else {
-      message = `${quiz.title} was deleted`;
-    }
-
-    // Mock only: the real actions save the decision and refresh the queue.
-    toast.success(message, {
-      action: { label: "Undo", onClick: () => undo(id) },
-    });
+  function actionable() {
+    return selected !== null && selected.status === "OPEN" && !isPending;
   }
 
   function dismiss() {
-    if (detailVisible()) decide({ status: "DISMISSED" });
+    if (!selected || !actionable()) return;
+
+    const { id, quiz } = selected;
+    const next = neighbourOf(id);
+
+    startTransition(async () => {
+      const result = await dismissReports({ quizId: id });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      setDismissing(false);
+      toast.success(
+        result.restored ? `${quiz.title} is live again` : "Reports dismissed",
+      );
+      moveTo(next);
+    });
   }
 
-  function startSuspend() {
-    if (selected?.status === "OPEN" && detailVisible()) setSuspending(true);
+  // Dismissing a quiz that was hidden automatically makes it live again, so
+  // that one asks first
+  function startDismiss() {
+    if (!selected || !actionable()) return;
+
+    if (selected.visibility === "HIDDEN_AUTO") setDismissing(true);
+    else dismiss();
   }
 
   function suspend(message: string) {
-    setSuspending(false);
-    decide({ status: "SUSPENDED", message });
+    if (!selected || !actionable()) return;
+
+    const { id, quiz } = selected;
+    const next = neighbourOf(id);
+
+    startTransition(async () => {
+      const result = await suspendReported({ quizId: id, message });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      setSuspending(false);
+      toast.success(`${quiz.title} was suspended`);
+      moveTo(next);
+    });
   }
 
   function remove() {
-    setDeleting(false);
-    decide({ status: "DELETED" });
+    if (!selected || !actionable()) return;
+
+    const { id, quiz } = selected;
+    const next = neighbourOf(id);
+
+    startTransition(async () => {
+      const result = await deleteReported({ quizId: id });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      setDeleting(false);
+      toast.success(`${quiz.title} was deleted`);
+      moveTo(next);
+    });
   }
 
-  useKeyMap(!suspending && !deleting, {
-    j: () => step(1),
-    k: () => step(-1),
-    d: dismiss,
-    s: startSuspend,
-  });
-
-  let decision: DetailDecision | null = null;
-  if (selected && selected.status !== "OPEN") {
-    const outcome = outcomes[selected.item.id];
-    const saved = selected.item.decision;
-
-    if (outcome) {
-      decision = {
-        by: "you",
-        at: null,
-        note: outcome.status === "SUSPENDED" ? outcome.message : null,
-      };
-    } else if (saved) {
-      decision = { by: saved.by, at: saved.at, note: saved.note };
+  function startSuspend() {
+    if (
+      selected &&
+      actionable() &&
+      canSuspendQuiz(selected.visibility) &&
+      detailVisible()
+    ) {
+      setSuspending(true);
     }
   }
+
+  useKeyMap(!dismissing && !suspending && !deleting && !isPending, {
+    j: () => step(1),
+    k: () => step(-1),
+    d: () => {
+      if (detailVisible()) startDismiss();
+    },
+    s: startSuspend,
+  });
 
   const EmptyIcon = tab === "open" ? CircleCheckIcon : InboxIcon;
 
@@ -218,7 +212,7 @@ export function ReportsWorkspace({ items }: { items: ReportedQuiz[] }) {
         />
         <StatStrip
           stats={[
-            { label: "Open", value: String(openRows.length) },
+            { label: "Open", value: String(counts.open) },
             {
               label: "Hidden now",
               value: String(hiddenNow),
@@ -243,26 +237,16 @@ export function ReportsWorkspace({ items }: { items: ReportedQuiz[] }) {
         <SplitPane
           showDetail={mobileOpen}
           list={
-            <ReportList
-              rows={list}
-              activeId={selected.item.id}
-              onSelect={select}
-            />
+            <ReportList items={list} activeId={selected.id} onSelect={select} />
           }
           detail={
             <ReportDetail
-              key={selected.item.id}
-              item={selected.item}
-              status={selected.status}
-              decision={decision}
-              onDismiss={() => decide({ status: "DISMISSED" })}
+              key={`${tab}-${selected.id}`}
+              item={selected}
+              busy={isPending}
+              onDismiss={startDismiss}
               onSuspend={() => setSuspending(true)}
               onDelete={() => setDeleting(true)}
-              onUndo={
-                selected.item.id in outcomes
-                  ? () => undo(selected.item.id)
-                  : undefined
-              }
               onBack={() => setMobileOpen(false)}
             />
           }
@@ -289,19 +273,30 @@ export function ReportsWorkspace({ items }: { items: ReportedQuiz[] }) {
 
       {selected && (
         <>
+          <ConfirmDialog
+            open={dismissing}
+            onOpenChange={setDismissing}
+            title={`Dismiss the reports on ${selected.quiz.title}?`}
+            description="The quiz was hidden automatically after several reports. Dismissing them makes it live again for everyone."
+            confirmLabel="Dismiss and restore"
+            pending={isPending}
+            onConfirm={dismiss}
+          />
           <SuspendDialog
             open={suspending}
             onOpenChange={setSuspending}
-            title={selected.item.quiz.title}
+            title={selected.quiz.title}
+            pending={isPending}
             onSuspend={suspend}
           />
           <ConfirmDialog
             open={deleting}
             onOpenChange={setDeleting}
-            title={`Delete ${selected.item.quiz.title}?`}
-            description="It is removed for everyone and the creator is told. Players' past results are kept, and you can undo it right after."
+            title={`Delete ${selected.quiz.title}?`}
+            description="It is removed for everyone. Players' past results are kept, and this can't be undone from here."
             confirmLabel="Delete quiz"
             destructive
+            pending={isPending}
             onConfirm={remove}
           />
         </>

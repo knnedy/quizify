@@ -1,9 +1,7 @@
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
+import { ESTABLISHED_REPORTER_QUIZZES, isSerious } from "@/lib/admin-reports";
 import { cn } from "@/lib/utils";
-import type { ReportedQuiz } from "../mock-data";
-import { isSerious } from "./reason-chip";
-
-export const ESTABLISHED_AT = 5;
+import type { ReportedQuiz } from "@/types/admin-reports";
 
 type Signal = {
   key: string;
@@ -13,14 +11,53 @@ type Signal = {
   concern: boolean;
 };
 
+function visibilitySignal(item: ReportedQuiz, total: number): Signal {
+  switch (item.visibility) {
+    case "HIDDEN_AUTO":
+      return {
+        key: "visibility",
+        label: "Visibility",
+        value: "Hidden",
+        note: "Hidden from players until you decide",
+        concern: false,
+      };
+    case "HIDDEN_STAFF":
+      return {
+        key: "visibility",
+        label: "Visibility",
+        value: "Suspended",
+        note: "Already suspended by staff",
+        concern: false,
+      };
+    case "UNPUBLISHED":
+      return {
+        key: "visibility",
+        label: "Visibility",
+        value: "Unpublished",
+        note: "The creator has taken it down",
+        concern: false,
+      };
+    default:
+      return {
+        key: "visibility",
+        label: "Visibility",
+        value: "Live",
+        note:
+          total >= 2
+            ? "Still visible to players while reported"
+            : "Still visible, with a single report",
+        concern: total >= 2,
+      };
+  }
+}
+
 export function getSignals(item: ReportedQuiz): Signal[] {
   const total = item.reports.length;
   const established = item.reports.filter(
-    (report) => report.reporter.completed >= ESTABLISHED_AT,
+    (report) => report.reporter.completed >= ESTABLISHED_REPORTER_QUIZZES,
   ).length;
   const serious = item.reports.some((report) => isSerious(report.reason));
-  const { strikes } = item.creator;
-  const hidden = item.hiddenAutomatically;
+  const { creator } = item;
 
   return [
     {
@@ -39,27 +76,25 @@ export function getSignals(item: ReportedQuiz): Signal[] {
         : "No sexual, graphic or hateful reports",
       concern: serious,
     },
-    {
-      key: "creator",
-      label: "Creator history",
-      value: String(strikes),
-      note:
-        strikes > 0
-          ? `${strikes === 1 ? "1 earlier action" : `${strikes} earlier actions`} against ${item.creator.name.split(" ")[0]}`
-          : "No earlier actions",
-      concern: strikes > 0,
-    },
-    {
-      key: "visibility",
-      label: "Visibility",
-      value: hidden ? "Hidden" : "Live",
-      note: hidden
-        ? "Hidden from players until you decide"
-        : total >= 2
-          ? "Still visible to players while reported"
-          : "Still visible, with a single report",
-      concern: !hidden && total >= 2,
-    },
+    creator
+      ? {
+          key: "creator",
+          label: "Creator history",
+          value: String(creator.strikes),
+          note:
+            creator.strikes > 0
+              ? `${creator.strikes === 1 ? "1 earlier action" : `${creator.strikes} earlier actions`} against ${creator.name.split(" ")[0]}`
+              : "No earlier actions",
+          concern: creator.strikes > 0,
+        }
+      : {
+          key: "creator",
+          label: "Creator history",
+          value: "None",
+          note: "The creator's account was deleted",
+          concern: false,
+        },
+    visibilitySignal(item, total),
   ];
 }
 

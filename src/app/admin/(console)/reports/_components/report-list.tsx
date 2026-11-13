@@ -1,16 +1,10 @@
 import { EyeOffIcon } from "lucide-react";
+import { ago, oldestDays, reasonCounts } from "@/lib/admin-reports";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import type { ReportedQuiz, ReportStatus } from "../mock-data";
-import { ReasonChip, reasonCounts } from "./reason-chip";
-import { ago, oldestDays } from "./report-time";
-
-export type ListRow = {
-  item: ReportedQuiz;
-  status: ReportStatus;
-  justNow: boolean;
-};
+import type { ReportedQuiz, ReportStatus } from "@/types/admin-reports";
+import { ReasonChip } from "./reason-chip";
 
 const resolvedTags: Record<
   Exclude<ReportStatus, "OPEN">,
@@ -21,31 +15,30 @@ const resolvedTags: Record<
   DELETED: { label: "Deleted", tone: "bg-incorrect-soft text-incorrect-ink" },
 };
 
-function timeLabel(row: ListRow) {
-  if (row.status === "OPEN") return ago(oldestDays(row.item));
-  if (row.justNow) return "Just now";
-  return row.item.decision ? formatDate(row.item.decision.at) : "";
+function timeLabel(item: ReportedQuiz) {
+  if (item.status === "OPEN") return ago(oldestDays(item));
+  return item.decision ? formatDate(item.decision.at) : "";
 }
 
 export function ReportList({
-  rows,
+  items,
   activeId,
   onSelect,
 }: {
-  rows: ListRow[];
+  items: ReportedQuiz[];
   activeId: number;
   onSelect: (id: number) => void;
 }) {
   return (
     <ul className="space-y-2.5">
-      {rows.map((row) => {
-        const { item } = row;
+      {items.map((item) => {
         const active = item.id === activeId;
-        const open = row.status === "OPEN";
+        const open = item.status === "OPEN";
         const overdue = open && oldestDays(item) >= 5;
-        const reasons = reasonCounts(item);
+        const reasons = reasonCounts(item.reports);
         const Icon = getCategoryIcon(item.quiz.category.slug);
         const count = item.reports.length;
+        const tag = item.status === "OPEN" ? null : resolvedTags[item.status];
 
         return (
           <li key={item.id}>
@@ -77,7 +70,7 @@ export function ReportList({
                         ? "font-semibold text-streak-ink"
                         : "text-muted-foreground",
                     )}>
-                    {timeLabel(row)}
+                    {timeLabel(item)}
                   </span>
                 </span>
 
@@ -95,27 +88,23 @@ export function ReportList({
                 <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 text-xs text-muted-foreground tabular-nums">
                   <span className="truncate">
                     {count} {count === 1 ? "report" : "reports"} · by{" "}
-                    {item.creator.name}
+                    {item.creator?.name ?? "Former member"}
                   </span>
 
-                  {open && item.hiddenAutomatically && (
+                  {open && item.visibility === "HIDDEN_AUTO" && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-incorrect-soft px-2 py-0.5 font-semibold text-incorrect-ink">
                       <EyeOffIcon aria-hidden className="size-3" />
                       Hidden
                     </span>
                   )}
 
-                  {!open && (
+                  {tag && (
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 font-semibold",
-                        resolvedTags[row.status as keyof typeof resolvedTags]
-                          .tone,
+                        tag.tone,
                       )}>
-                      {
-                        resolvedTags[row.status as keyof typeof resolvedTags]
-                          .label
-                      }
+                      {tag.label}
                     </span>
                   )}
                 </span>

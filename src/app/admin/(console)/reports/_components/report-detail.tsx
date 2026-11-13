@@ -7,25 +7,30 @@ import {
   GlobeIcon,
   StarIcon,
   Trash2Icon,
-  Undo2Icon,
   XIcon,
 } from "lucide-react";
 import { Keycap } from "@/components/keycap";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  ESTABLISHED_REPORTER_QUIZZES,
+  ago,
+  canSuspendQuiz,
+  isSerious,
+  reasonCounts,
+} from "@/lib/admin-reports";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format-date";
 import { reportReasonInfo } from "@/lib/report-reasons";
+import { appUrl } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
-import type { ReportedQuiz, ReportStatus } from "../mock-data";
-import { ReasonChip, isSerious, reasonCounts } from "./reason-chip";
-import { ESTABLISHED_AT, ReportSignals } from "./report-signals";
-import { ago } from "./report-time";
-
-export type DetailDecision = {
-  by: string;
-  at: string | null;
-  note: string | null;
-};
+import type {
+  QuizVisibility,
+  ReportedQuiz,
+  ReportStatus,
+} from "@/types/admin-reports";
+import { ReasonChip } from "./reason-chip";
+import { ReportSignals } from "./report-signals";
 
 type Resolved = Exclude<ReportStatus, "OPEN">;
 
@@ -50,39 +55,33 @@ const resolvedStyle: Record<
   },
 };
 
+const openPills: Record<QuizVisibility, { label: string; pill: string }> = {
+  LIVE: { label: "Live", pill: "bg-correct-soft text-correct-ink" },
+  HIDDEN_AUTO: {
+    label: "Hidden automatically",
+    pill: "bg-incorrect-soft text-incorrect-ink",
+  },
+  HIDDEN_STAFF: {
+    label: "Suspended",
+    pill: "bg-streak-soft text-streak-ink",
+  },
+  UNPUBLISHED: { label: "Unpublished", pill: "bg-muted text-muted-foreground" },
+  DELETED: { label: "Deleted", pill: "bg-incorrect-soft text-incorrect-ink" },
+};
+
+// Where the quiz stands now, whatever was decided on the reports
+const stateText: Record<QuizVisibility, string> = {
+  LIVE: "The quiz is live.",
+  HIDDEN_AUTO: "The quiz is still hidden automatically.",
+  HIDDEN_STAFF: "The quiz is suspended.",
+  UNPUBLISHED: "The creator has unpublished the quiz.",
+  DELETED: "The quiz was removed for everyone.",
+};
+
 const compact = new Intl.NumberFormat("en-US", {
   notation: "compact",
   maximumFractionDigits: 1,
 });
-
-function getPill(item: ReportedQuiz, status: ReportStatus) {
-  if (status !== "OPEN") return resolvedStyle[status];
-
-  return item.hiddenAutomatically
-    ? {
-        label: "Hidden automatically",
-        pill: "bg-incorrect-soft text-incorrect-ink",
-      }
-    : { label: "Live", pill: "bg-correct-soft text-correct-ink" };
-}
-
-function outcomeText(
-  item: ReportedQuiz,
-  status: Resolved,
-  note: string | null,
-) {
-  if (status === "DISMISSED") {
-    return item.hiddenAutomatically
-      ? "The quiz is live again."
-      : "The quiz stays live.";
-  }
-  if (status === "SUSPENDED") {
-    return note
-      ? "The quiz stays hidden. The creator sees this message:"
-      : "The quiz stays hidden.";
-  }
-  return "The quiz was removed for everyone.";
-}
 
 function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -97,32 +96,29 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 
 export function ReportDetail({
   item,
-  status,
-  decision,
+  busy,
   onDismiss,
   onSuspend,
   onDelete,
-  onUndo,
   onBack,
 }: {
   item: ReportedQuiz;
-  status: ReportStatus;
-  decision: DetailDecision | null;
+  busy: boolean;
   onDismiss: () => void;
   onSuspend: () => void;
   onDelete: () => void;
-  onUndo?: () => void;
   onBack: () => void;
 }) {
-  const { quiz, creator } = item;
+  const { quiz, creator, decision, status, visibility } = item;
   const Icon = getCategoryIcon(quiz.category.slug);
-  const pill = getPill(item, status);
   const open = status === "OPEN";
+  const pill =
+    status === "OPEN" ? openPills[visibility] : resolvedStyle[status];
   const total = item.reports.length;
-  const breakdown = reasonCounts(item);
+  const breakdown = reasonCounts(item.reports);
   const reports = [...item.reports].sort((a, b) => a.daysAgo - b.daysAgo);
-  const canViewPublic =
-    (open && !item.hiddenAutomatically) || status === "DISMISSED";
+  const removed = visibility === "DELETED";
+  const publicHref = new URL(`/quizzes/${quiz.slug}`, appUrl).href;
 
   return (
     <article
@@ -202,7 +198,8 @@ export function ReportDetail({
           </h3>
           <ul className="space-y-3">
             {reports.map((report) => {
-              const established = report.reporter.completed >= ESTABLISHED_AT;
+              const established =
+                report.reporter.completed >= ESTABLISHED_REPORTER_QUIZZES;
 
               return (
                 <li key={report.id} className="space-y-3 rounded-xl border p-4">
@@ -257,26 +254,32 @@ export function ReportDetail({
               )}
             </Fact>
             <Fact label="Published">
-              <span className="text-base">{ago(quiz.publishedDaysAgo)}</span>
+              <span className="text-base">
+                {quiz.publishedDaysAgo === null
+                  ? "Never"
+                  : ago(quiz.publishedDaysAgo)}
+              </span>
             </Fact>
           </dl>
 
-          <div className="flex flex-wrap gap-2.5">
-            <Link
-              href={`/admin/quizzes/${quiz.slug}`}
-              className={buttonVariants({ variant: "outline", size: "sm" })}>
-              <FileSearchIcon />
-              Review questions
-            </Link>
-            {canViewPublic && (
+          {!removed && (
+            <div className="flex flex-wrap gap-2.5">
               <Link
                 href={`/quizzes/${quiz.slug}`}
-                className={buttonVariants({ variant: "ghost", size: "sm" })}>
-                <GlobeIcon />
-                Open public page
+                className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <FileSearchIcon />
+                Review questions
               </Link>
-            )}
-          </div>
+              {visibility === "LIVE" && (
+                <a
+                  href={publicHref}
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                  <GlobeIcon />
+                  Open public page
+                </a>
+              )}
+            </div>
+          )}
         </section>
 
         <section
@@ -285,30 +288,41 @@ export function ReportDetail({
           <span
             aria-hidden
             className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary font-display text-lg font-bold text-secondary-foreground">
-            {creator.name.charAt(0).toUpperCase()}
+            {(creator?.name ?? "F").charAt(0).toUpperCase()}
           </span>
-          <div className="min-w-0 flex-1">
-            <Link
-              href={`/admin/users/${creator.id}`}
-              className="block truncate font-medium hover:underline">
-              {creator.name}
-            </Link>
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {creator.former ? "Former creator" : "Creator"} ·{" "}
-              {creator.published} published ·{" "}
-              {creator.strikes === 0
-                ? "no earlier actions"
-                : `${creator.strikes} earlier ${creator.strikes === 1 ? "action" : "actions"}`}
-            </p>
-          </div>
-          <Link
-            href={`/admin/users/${creator.id}`}
-            className={buttonVariants({ variant: "ghost", size: "sm" })}>
-            View profile
-          </Link>
+          {creator ? (
+            <>
+              <div className="min-w-0 flex-1">
+                <Link
+                  href={`/users/${creator.id}`}
+                  className="block truncate font-medium hover:underline">
+                  {creator.name}
+                </Link>
+                <p className="text-sm text-muted-foreground tabular-nums">
+                  {creator.former ? "Former creator" : "Creator"} ·{" "}
+                  {creator.published} published ·{" "}
+                  {creator.strikes === 0
+                    ? "no earlier actions"
+                    : `${creator.strikes} earlier ${creator.strikes === 1 ? "action" : "actions"}`}
+                </p>
+              </div>
+              <Link
+                href={`/users/${creator.id}`}
+                className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                View profile
+              </Link>
+            </>
+          ) : (
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">Former member</p>
+              <p className="text-sm text-muted-foreground">
+                The creator&rsquo;s account was deleted.
+              </p>
+            </div>
+          )}
         </section>
 
-        {decision && !open && (
+        {decision && status !== "OPEN" && (
           <section
             aria-labelledby="decision-heading"
             className={cn(
@@ -316,25 +330,16 @@ export function ReportDetail({
               resolvedStyle[status].panel,
             )}>
             <h3 id="decision-heading" className="text-base">
-              {resolvedStyle[status].label} by {decision.by}
-              {decision.at ? ` on ${formatDate(decision.at)}` : " just now"}
+              {resolvedStyle[status].label} by{" "}
+              {decision.by ?? "a former staff member"} on{" "}
+              {formatDate(decision.at)}
             </h3>
-            <p className="text-sm">
-              {outcomeText(item, status, decision.note)}
-            </p>
-            {decision.note && (
-              <p className="text-sm font-medium">{decision.note}</p>
-            )}
-            {onUndo && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="-ml-2"
-                onClick={onUndo}>
-                <Undo2Icon />
-                Undo decision
-              </Button>
+            <p className="text-sm">{stateText[visibility]}</p>
+            {status === "SUSPENDED" && decision.note && (
+              <>
+                <p className="text-sm">The creator sees this message:</p>
+                <p className="text-sm font-medium">{decision.note}</p>
+              </>
             )}
           </section>
         )}
@@ -357,14 +362,16 @@ export function ReportDetail({
               type="button"
               variant="outline"
               size="lg"
+              disabled={busy}
               onClick={onDismiss}>
-              <XIcon />
+              {busy ? <Spinner /> : <XIcon />}
               Dismiss
             </Button>
             <Button
               type="button"
               variant="outline"
               size="lg"
+              disabled={busy || !canSuspendQuiz(visibility)}
               onClick={onSuspend}>
               <EyeOffIcon />
               Suspend
@@ -373,6 +380,7 @@ export function ReportDetail({
               type="button"
               variant="destructive"
               size="lg"
+              disabled={busy}
               onClick={onDelete}>
               <Trash2Icon />
               Delete
