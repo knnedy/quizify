@@ -13,7 +13,6 @@ import {
 } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { compareOpenReports } from "@/lib/admin-reports";
-import { canCreateQuizzes } from "@/lib/roles";
 import { db } from "@/server/db";
 import {
   categories,
@@ -33,6 +32,7 @@ import type {
   ReportStatus,
 } from "@/types/admin-reports";
 import { finishedAttempt } from "./attempt-filters";
+import { getCreatorFacts } from "./creator-facts";
 
 const DAY = 86_400_000;
 const REPORT_LIMIT = 2000;
@@ -233,67 +233,13 @@ export async function getReports(): Promise<ReportsView> {
       quizRows.flatMap((quiz) => (quiz.ownerId === null ? [] : [quiz.ownerId])),
     ),
   ];
-
-  const [ownerRows, publishedRows, suspensionRows, banRows] =
-    ownerIds.length === 0
-      ? [[], [], [], []]
-      : await Promise.all([
-          db
-            .select({ id: users.id, name: users.name, role: users.role })
-            .from(users)
-            .where(inArray(users.id, ownerIds)),
-          db
-            .select({ userId: quizzes.userId, total: count() })
-            .from(quizzes)
-            .where(
-              and(
-                inArray(quizzes.userId, ownerIds),
-                eq(quizzes.status, "PUBLISHED"),
-                isNull(quizzes.deletedAt),
-              ),
-            )
-            .groupBy(quizzes.userId),
-          // Earlier actions against their quizzes
-          db
-            .select({ userId: quizzes.userId, total: count() })
-            .from(moderationEvents)
-            .innerJoin(quizzes, eq(quizzes.id, moderationEvents.quizId))
-            .where(
-              and(
-                inArray(quizzes.userId, ownerIds),
-                inArray(moderationEvents.kind, [
-                  "QUIZ_SUSPENDED",
-                  "QUIZ_DELETED",
-                ]),
-              ),
-            )
-            .groupBy(quizzes.userId),
-          // And against the person
-          db
-            .select({ userId: moderationEvents.userId, total: count() })
-            .from(moderationEvents)
-            .where(
-              and(
-                inArray(moderationEvents.userId, ownerIds),
-                eq(moderationEvents.kind, "USER_BANNED"),
-              ),
-            )
-            .groupBy(moderationEvents.userId),
-        ]);
+  const creators = await getCreatorFacts(ownerIds);
 
   const quizById = new Map(quizRows.map((quiz) => [quiz.id, quiz]));
   const questionCounts = new Map(questionRows.map((r) => [r.quizId, r.total]));
   const playCounts = new Map(playRows.map((r) => [r.quizId, r.total]));
   const averages = new Map(ratingRows.map((r) => [r.quizId, r.average]));
   const completedBy = new Map(completedRows.map((r) => [r.userId, r.total]));
-  const ownerById = new Map(ownerRows.map((owner) => [owner.id, owner]));
-  const publishedBy = new Map(publishedRows.map((r) => [r.userId, r.total]));
-
-  const strikesBy = new Map<number, number>();
-  for (const row of [...suspensionRows, ...banRows]) {
-    if (row.userId === null) continue;
-    strikesBy.set(row.userId, (strikesBy.get(row.userId) ?? 0) + row.total);
-  }
 
   const decisionBy = new Map<number, (typeof events)[number]>();
   for (const event of events) {
@@ -327,9 +273,6 @@ export async function getReports(): Promise<ReportsView> {
     const quiz = quizById.get(quizId);
     if (!quiz) return null;
 
-    const owner =
-      quiz.ownerId === null ? null : (ownerById.get(quiz.ownerId) ?? null);
-
     return {
       id: quizId,
       status,
@@ -348,15 +291,8 @@ export async function getReports(): Promise<ReportsView> {
             )
           : null,
       },
-      creator: owner
-        ? {
-            id: owner.id,
-            name: owner.name,
-            former: !canCreateQuizzes(owner.role),
-            published: publishedBy.get(owner.id) ?? 0,
-            strikes: strikesBy.get(owner.id) ?? 0,
-          }
-        : null,
+      creator:
+        quiz.ownerId === null ? null : (creators.get(quiz.ownerId) ?? null),
       reports: rows.map(toReport),
       decision,
     };
