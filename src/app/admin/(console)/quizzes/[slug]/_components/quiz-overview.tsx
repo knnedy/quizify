@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeftIcon,
@@ -9,10 +9,14 @@ import {
   RepeatIcon,
   ShuffleIcon,
 } from "lucide-react";
-import { DifficultyMeter } from "@/components/difficulty-meter";
+import { DifficultyMeter } from "@/components/quiz/difficulty-meter";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
-import type { AdminQuizPreview, PreviewStatus, Visibility } from "../mock-data";
+import type {
+  AdminQuizPreview,
+  PreviewStatus,
+  Visibility,
+} from "@/types/admin-quizzes";
 
 type IconType = ComponentType<{ className?: string }>;
 
@@ -28,6 +32,7 @@ const statusStyle: Record<PreviewStatus, { label: string; tone: string }> = {
     tone: "bg-incorrect-soft text-incorrect-ink",
   },
   SUSPENDED: { label: "Suspended", tone: "bg-streak-soft text-streak-ink" },
+  UNPUBLISHED: { label: "Unpublished", tone: "bg-muted text-muted-foreground" },
   DELETED: { label: "Deleted", tone: "bg-incorrect-soft text-incorrect-ink" },
 };
 
@@ -42,13 +47,7 @@ function ago(days: number) {
   return days === 1 ? "1 day ago" : `${days} days ago`;
 }
 
-function Chip({
-  Icon,
-  children,
-}: {
-  Icon?: IconType;
-  children: React.ReactNode;
-}) {
+function Chip({ Icon, children }: { Icon?: IconType; children: ReactNode }) {
   return (
     <li className="inline-flex items-center gap-1.5 rounded-full border bg-muted/40 px-3 py-1 text-sm">
       {Icon && <Icon aria-hidden className="size-3.5 text-muted-foreground" />}
@@ -71,7 +70,7 @@ export function QuizOverview({
   return (
     <header className="space-y-5 rounded-2xl border bg-card p-5 shadow-sm sm:p-7">
       <Link
-        href="/admin/reports"
+        href="/reports"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
         <ArrowLeftIcon aria-hidden className="size-4" />
         Reports
@@ -102,13 +101,20 @@ export function QuizOverview({
 
           <p className="text-sm text-muted-foreground tabular-nums">
             {quiz.category.name} · by{" "}
-            <Link
-              href={`/admin/users/${quiz.creator.id}`}
-              className="font-medium text-foreground hover:underline">
-              {quiz.creator.name}
-            </Link>{" "}
-            · published {ago(quiz.publishedDaysAgo)} ·{" "}
-            {compact.format(quiz.plays)} plays
+            {quiz.creator ? (
+              <Link
+                href={`/users/${quiz.creator.id}`}
+                className="font-medium text-foreground hover:underline">
+                {quiz.creator.name}
+              </Link>
+            ) : (
+              <span className="font-medium text-foreground">Former member</span>
+            )}{" "}
+            ·{" "}
+            {quiz.publishedDaysAgo === null
+              ? "never published"
+              : `published ${ago(quiz.publishedDaysAgo)}`}{" "}
+            · {compact.format(quiz.plays)} plays
           </p>
         </div>
       </div>

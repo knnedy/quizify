@@ -7,7 +7,8 @@ import {
 import { Keycap } from "@/components/keycap";
 import { shouldStackOptions } from "@/lib/question-layout";
 import { cn } from "@/lib/utils";
-import type { PreviewQuestion, QuestionType } from "../mock-data";
+import type { PreviewQuestion } from "@/types/admin-quizzes";
+import type { QuestionType } from "@/types/play";
 import { Highlight } from "./highlight";
 
 const typeLabels: Record<QuestionType, string> = {

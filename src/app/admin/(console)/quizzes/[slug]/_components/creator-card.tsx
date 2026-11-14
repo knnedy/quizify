@@ -1,12 +1,28 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import type { AdminQuizPreview } from "../mock-data";
+import type { AdminCreator } from "@/types/admin-quizzes";
 
-export function CreatorCard({
-  creator,
-}: {
-  creator: AdminQuizPreview["creator"];
-}) {
+export function CreatorCard({ creator }: { creator: AdminCreator | null }) {
+  if (!creator) {
+    return (
+      <section
+        aria-label="Creator"
+        className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs">
+        <span
+          aria-hidden
+          className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary font-display text-lg font-bold text-secondary-foreground">
+          F
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">Former member</p>
+          <p className="text-sm text-muted-foreground">
+            The creator&rsquo;s account was deleted.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       aria-label="Creator"
@@ -19,7 +35,7 @@ export function CreatorCard({
 
       <div className="min-w-0 flex-1">
         <Link
-          href={`/admin/users/${creator.id}`}
+          href={`/users/${creator.id}`}
           className="block truncate font-medium hover:underline">
           {creator.name}
         </Link>
@@ -32,7 +48,7 @@ export function CreatorCard({
       </div>
 
       <Link
-        href={`/admin/users/${creator.id}`}
+        href={`/users/${creator.id}`}
         className={buttonVariants({ variant: "ghost", size: "sm" })}>
         Profile
       </Link>

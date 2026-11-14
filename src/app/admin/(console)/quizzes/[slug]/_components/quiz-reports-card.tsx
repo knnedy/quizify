@@ -1,15 +1,11 @@
 import Link from "next/link";
+import { ago, isSerious } from "@/lib/admin-reports";
 import { reportReasonInfo } from "@/lib/report-reasons";
 import { cn } from "@/lib/utils";
-import type { Report } from "../../../reports/mock-data";
+import type { PreviewReport } from "@/types/admin-quizzes";
 import { questionMentions } from "../report-mentions";
 
-function ago(days: number) {
-  if (days === 0) return "Today";
-  return days === 1 ? "1 day ago" : `${days} days ago`;
-}
-
-export function QuizReportsCard({ reports }: { reports: Report[] }) {
+export function QuizReportsCard({ reports }: { reports: PreviewReport[] }) {
   const sorted = [...reports].sort((a, b) => a.daysAgo - b.daysAgo);
 
   return (
@@ -33,22 +29,27 @@ export function QuizReportsCard({ reports }: { reports: Report[] }) {
         <ul className="space-y-4">
           {sorted.map((report) => {
             const numbers = questionMentions(report.details);
-            const serious =
-              report.reason === "NSFW" || report.reason === "HATE";
 
             return (
               <li
                 key={report.id}
                 className="space-y-2 border-t pt-4 first:border-t-0 first:pt-0">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-xs font-semibold",
-                      serious
-                        ? "bg-incorrect-soft text-incorrect-ink"
-                        : "bg-muted text-muted-foreground",
-                    )}>
-                    {reportReasonInfo[report.reason].label}
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-xs font-semibold",
+                        isSerious(report.reason)
+                          ? "bg-incorrect-soft text-incorrect-ink"
+                          : "bg-muted text-muted-foreground",
+                      )}>
+                      {reportReasonInfo[report.reason].label}
+                    </span>
+                    {report.status !== "OPEN" && (
+                      <span className="text-xs text-muted-foreground">
+                        Reviewed
+                      </span>
+                    )}
                   </span>
                   <span className="text-xs text-muted-foreground tabular-nums">
                     {ago(report.daysAgo)}
@@ -82,7 +83,7 @@ export function QuizReportsCard({ reports }: { reports: Report[] }) {
       )}
 
       <Link
-        href="/admin/reports"
+        href="/reports"
         className="inline-block text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
         Open the reports queue
       </Link>

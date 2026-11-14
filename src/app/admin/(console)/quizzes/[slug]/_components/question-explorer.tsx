@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { FlagIcon, SearchIcon, SearchXIcon, XIcon } from "lucide-react";
-import { Keycap } from "@/components/keycap";
 import { inputClass } from "@/components/form/form-block";
+import { Keycap } from "@/components/keycap";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { PreviewQuestion } from "@/types/admin-quizzes";
 import { useKeyMap } from "../../../_hooks/use-key-map";
-import type { PreviewQuestion } from "../mock-data";
 import { QuestionCard } from "./question-card";
 
 function matches(question: PreviewQuestion, term: string) {
@@ -31,7 +31,7 @@ function ToggleChip({
 }: {
   pressed: boolean;
   onToggle: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <button
@@ -187,12 +187,16 @@ export function QuestionExplorer({
           <div className="space-y-1">
             <h2 className="text-xl">Nothing matches</h2>
             <p className="text-sm text-muted-foreground">
-              No question, answer or explanation contains that text.
+              {questions.length === 0
+                ? "This quiz has no questions."
+                : "No question, answer or explanation contains that text."}
             </p>
           </div>
-          <Button variant="outline" onClick={clear}>
-            Clear search and filters
-          </Button>
+          {questions.length > 0 && (
+            <Button variant="outline" onClick={clear}>
+              Clear search and filters
+            </Button>
+          )}
         </div>
       )}
     </div>
