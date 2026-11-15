@@ -1,5 +1,4 @@
 import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
   describeDelta,
   formatValue,
@@ -7,7 +6,8 @@ import {
   type MetricConfig,
   type MetricSummary,
   type RangeDays,
-} from "../metrics";
+} from "@/lib/admin-metrics";
+import { cn } from "@/lib/utils";
 
 const deltaStyle: Record<DeltaDescription["direction"], string> = {
   up: "bg-correct-soft text-correct-ink",

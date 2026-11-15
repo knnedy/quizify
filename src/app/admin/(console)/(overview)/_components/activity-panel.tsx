@@ -11,7 +11,7 @@ import {
   type DayPoint,
   type MetricKey,
   type RangeDays,
-} from "../metrics";
+} from "@/lib/admin-metrics";
 import { AreaChart } from "./area-chart";
 import { MetricTile } from "./metric-tile";
 

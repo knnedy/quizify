@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { isAdmin } from "@/lib/roles";
+import { getOverview } from "@/server/queries/admin-overview";
+import { requireStaff } from "@/server/session";
 import { AdminPage } from "../_components/admin-page";
-import { adminIdentity } from "../mock-data";
 import { ActivityPanel } from "./_components/activity-panel";
 import { AttentionCards } from "./_components/attention-cards";
 import { LibraryCard } from "./_components/library-card";
@@ -8,13 +10,16 @@ import { PlatformTotals } from "./_components/platform-totals";
 import { RecentActivity } from "./_components/recent-activity";
 import { TopQuizzesCard } from "./_components/top-quizzes-card";
 import { TopicsCard } from "./_components/topics-card";
-import { getOverview } from "./mock-data";
 
 export const metadata: Metadata = { title: "Overview" };
 
 export default async function AdminOverviewPage() {
-  const overview = await getOverview();
-  const firstName = adminIdentity.name.split(" ")[0];
+  const staff = await requireStaff("/");
+  const overview = await getOverview({
+    staffId: staff.id,
+    includeApplications: isAdmin(staff.role),
+  });
+  const firstName = staff.name.split(" ")[0] ?? staff.name;
 
   return (
     <AdminPage

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { LibraryKey, LibrarySlice } from "../mock-data";
+import type { LibraryKey, LibrarySlice } from "@/types/admin-overview";
 
 const colors: Record<LibraryKey, string> = {
   published: "bg-primary",
@@ -35,7 +35,7 @@ export function LibraryCard({ slices }: { slices: LibrarySlice[] }) {
         aria-label={shown
           .map((slice) => `${slice.label}: ${slice.count}`)
           .join(", ")}
-        className="mt-5 flex h-3 gap-0.5 overflow-hidden rounded-full">
+        className="mt-5 flex h-3 gap-0.5 overflow-hidden rounded-full bg-muted">
         {shown.map((slice) => (
           <span
             key={slice.key}

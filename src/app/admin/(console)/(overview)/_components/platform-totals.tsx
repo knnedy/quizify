@@ -5,7 +5,7 @@ import {
   UsersIcon,
   type LucideIcon,
 } from "lucide-react";
-import type { TotalItem, TotalKey } from "../mock-data";
+import type { TotalItem, TotalKey } from "@/types/admin-overview";
 
 const icons: Record<TotalKey, LucideIcon> = {
   users: UsersIcon,

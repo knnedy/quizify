@@ -1,6 +1,6 @@
 import { getCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
-import type { TopicRow } from "../mock-data";
+import type { TopicRow } from "@/types/admin-overview";
 
 const compact = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -24,50 +24,56 @@ export function TopicsCard({ topics }: { topics: TopicRow[] }) {
         </p>
       </div>
 
-      <ul className="mt-6 space-y-4">
-        {topics.map((topic, index) => {
-          const Icon = getCategoryIcon(topic.slug);
-          const share = Math.round((topic.plays / total) * 100);
+      {topics.length === 0 ? (
+        <p className="mt-5 rounded-xl border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
+          No quizzes have been played yet.
+        </p>
+      ) : (
+        <ul className="mt-6 space-y-4">
+          {topics.map((topic, index) => {
+            const Icon = getCategoryIcon(topic.slug);
+            const share = Math.round((topic.plays / total) * 100);
 
-          return (
-            <li key={topic.slug} className="space-y-2">
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                  <Icon className="size-4" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">
-                    {topic.name}
+            return (
+              <li key={topic.slug} className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden
+                    className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <Icon className="size-4" />
                   </span>
-                  <span className="block text-xs text-muted-foreground tabular-nums">
-                    {topic.quizzes} {topic.quizzes === 1 ? "quiz" : "quizzes"}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">
+                      {topic.name}
+                    </span>
+                    <span className="block text-xs text-muted-foreground tabular-nums">
+                      {topic.quizzes} {topic.quizzes === 1 ? "quiz" : "quizzes"}
+                    </span>
                   </span>
-                </span>
-                <span className="text-sm text-muted-foreground tabular-nums">
-                  <span className="font-medium text-foreground">
-                    {compact.format(topic.plays)}
-                  </span>{" "}
-                  · {share}%
-                </span>
-              </div>
+                  <span className="text-sm text-muted-foreground tabular-nums">
+                    <span className="font-medium text-foreground">
+                      {compact.format(topic.plays)}
+                    </span>{" "}
+                    · {share}%
+                  </span>
+                </div>
 
-              <div
-                aria-hidden
-                className="h-2 overflow-hidden rounded-full bg-muted">
                 <div
-                  className={cn(
-                    "h-full rounded-full",
-                    index === 0 ? "bg-primary" : "bg-primary/55",
-                  )}
-                  style={{ width: `${(topic.plays / max) * 100}%` }}
-                />
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+                  aria-hidden
+                  className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={cn(
+                      "h-full rounded-full",
+                      index === 0 ? "bg-primary" : "bg-primary/55",
+                    )}
+                    style={{ width: `${(topic.plays / max) * 100}%` }}
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }

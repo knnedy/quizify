@@ -8,7 +8,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { AttentionItem, AttentionKey, AttentionTone } from "../mock-data";
+import type {
+  AttentionItem,
+  AttentionKey,
+  AttentionTone,
+} from "@/types/admin-overview";
 
 const icons: Record<AttentionKey, LucideIcon> = {
   applications: UserCheckIcon,
@@ -53,7 +57,11 @@ export function AttentionCards({ items }: { items: AttentionItem[] }) {
         </p>
       </div>
 
-      <ul className="grid gap-4 md:grid-cols-3">
+      <ul
+        className={cn(
+          "grid gap-4",
+          items.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3",
+        )}>
         {items.map((item) => {
           const tone = tones[item.tone];
           const clear = item.tone === "clear";
